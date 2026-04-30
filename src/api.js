@@ -229,6 +229,7 @@ export async function fetchRecommendation(ticker, onProgress) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let accumulated = "";
+  let lineBuffer = "";
   let searchCount = 0;
   let lastStringCount = 0;
 
@@ -236,7 +237,11 @@ export async function fetchRecommendation(ticker, onProgress) {
     const { done, value } = await reader.read();
     if (done) break;
 
-    for (const line of decoder.decode(value).split("\n")) {
+    lineBuffer += decoder.decode(value, { stream: true });
+    const lines = lineBuffer.split("\n");
+    lineBuffer = lines.pop();
+
+    for (const line of lines) {
       if (!line.startsWith("data: ")) continue;
       const raw = line.slice(6).trim();
       if (!raw || raw === "[DONE]") continue;
