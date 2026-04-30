@@ -265,7 +265,18 @@ export async function fetchRecommendation(ticker, onProgress) {
   try {
     parsed = JSON.parse(slice);
   } catch (_) {
-    parsed = JSON.parse(jsonrepair(slice));
+    try {
+      parsed = JSON.parse(jsonrepair(slice));
+    } catch (_2) {
+      // Last resort: strip literal control characters (newlines, tabs) inside strings
+      // then retry jsonrepair — covers the case where the model emits real \n mid-string
+      const scrubbed = slice.replace(/[\x00-\x1F\x7F]/g, " ");
+      try {
+        parsed = JSON.parse(jsonrepair(scrubbed));
+      } catch {
+        throw new Error("The AI returned malformed data. Please try again — this usually resolves on retry.");
+      }
+    }
   }
   if (parsed.error) throw new Error(parsed.message || "Ticker not found. Please check the symbol and try again.");
   return parsed;

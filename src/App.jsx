@@ -151,9 +151,9 @@ function LoadingMessages({ ticker, progress }) {
         {/* Completed + active steps */}
         <div className="lp-steps">
           <AnimatePresence initial={false}>
-            {completedSteps.map(step => (
+            {completedSteps.map((step, i) => (
               <motion.div
-                key={step}
+                key={i}
                 className="lp-step lp-step--done"
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -278,6 +278,7 @@ function TradeCard({ trade, index, analysedAt }) {
           rationale, riskLevel, riskFactors, robinhoodSteps,
           strategyRationale, sources } = trade;
 
+  const validSources = sources?.filter(s => s.url?.startsWith("http")) ?? [];
   const dotColor = STRATEGY_COLORS[trade.strategyType] || STRATEGY_COLORS.neutral;
   const isSpread = !!trade.strike2;
   const strikeDisplay = isSpread ? `$${trade.strike} / $${trade.strike2}` : `$${trade.strike}`;
@@ -585,14 +586,14 @@ function TradeCard({ trade, index, analysedAt }) {
         </div>
 
         {/* Sources */}
-        {sources?.filter(s => s.url && s.url.startsWith("http")).length > 0 && (
+        {validSources.length > 0 && (
           <div className="card">
             <div className="card-label">
               <ExternalLink size={11} />
               Sources
             </div>
             <div className="sources-grid">
-              {sources.filter(s => s.url && s.url.startsWith("http")).map((s, i) => (
+              {validSources.map((s, i) => (
                 <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="source-card">
                   <span className="source-title">{s.title}</span>
                   <ExternalLink size={11} className="source-icon" />
