@@ -1,46 +1,34 @@
 # Options Advisor
 
-AI-powered options trade recommendation app for Robinhood users. Built with React + Vite. Uses the Anthropic API with live web search to generate comprehensive trade recommendations.
+AI-powered options trade recommendations with live web search, streaming analysis,
+verified Greeks, and step-by-step Robinhood execution instructions.
 
-## Setup
+---
+
+## Quick start
 
 ```bash
 npm install
-npm run dev
+cp .env.example .env   # paste your Anthropic key
+npm run dev            # http://localhost:3000
 ```
 
-## Tech Stack
-- React 18 + Vite
-- Anthropic API (claude-sonnet-4-20250514) with web_search tool
-- Apple HIG design system (vanilla CSS)
-- No other dependencies
+Get an API key at [console.anthropic.com](https://console.anthropic.com).
 
-## Architecture
+---
 
-```
-src/
-├── App.jsx          # Root component + layout
-├── api.js           # Anthropic API call + system prompt
-├── styles.css       # Apple HIG design tokens + all styles
-└── components/
-    ├── SearchBar.jsx
-    ├── TradeCard.jsx        # Tab orchestrator (Summary | Greeks | Analysis)
-    ├── SummarySection.jsx   # Plain-English summary, exit rules, scenarios
-    ├── GreeksSection.jsx    # IV rank + intuitive Greek explanations
-    └── AnalysisSection.jsx  # Full rationale, risk, dates, signals, Robinhood steps
-```
+## Docs
 
-## API Key
-The Anthropic API key is handled by the claude.ai proxy at `/v1/messages`. No key needed in development via the proxy. For standalone deployment, add `x-api-key` header in `src/api.js`.
+| Document | What's in it |
+|---|---|
+| [Architecture](docs/ARCHITECTURE.md) | How the app works, the two-mode design, request lifecycle |
+| [Deployment](docs/DEPLOYMENT.md) | How to deploy to Vercel, step by step |
+| [Development](docs/DEVELOPMENT.md) | File map, commands, how to extend |
 
-## Extending
-- Add a **trade journal** (localStorage) to track entries/exits
-- Add **P&L tracker** with real-time price polling
-- Add **portfolio Greeks** aggregation across open positions
-- Add **watchlist** so recommendations persist across sessions
-- Consider **Tastytrade API** integration for direct order placement
+---
 
-## Notes
-- All recommendations are for educational purposes only
-- Options trading involves substantial risk of loss
-- Always verify live prices in Robinhood before entering a trade
+## Disclaimer
+
+All recommendations are AI-generated for educational purposes only.
+Options trading involves substantial risk of loss. Always verify live
+prices before entering any trade.
