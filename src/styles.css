@@ -937,9 +937,11 @@ body {
   .header-inner { padding: 12px 16px; }
   .trade-header { padding: 16px 16px 0; }
 
-  /* Stats: 2 columns — reset all borders then remove right-column borders */
+  /* Stats: 2 columns — reset all borders then remove right-column borders.
+     nth-child(3n) from the 900px rule has higher specificity so we re-override it. */
   .stats-strip   { grid-template-columns: repeat(2, 1fr); margin: 0 -16px; }
-  .stat-cell     { border-right: 1px solid var(--border); }
+  .stat-cell                { border-right: 1px solid var(--border); padding: 10px 12px; }
+  .stat-cell:nth-child(3n)  { border-right: 1px solid var(--border); }
   .stat-cell:nth-child(2n)  { border-right: none; }
   .stat-cell:last-child     { border-right: none; }
   .stat-value    { font-size: 13px; }

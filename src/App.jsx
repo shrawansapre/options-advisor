@@ -235,7 +235,7 @@ function IVGauge({ value, reading }) {
         </PieChart>
       </ResponsiveContainer>
       <div className="iv-gauge-overlay">
-        <div className="iv-gauge-num">{num}<sup>th</sup></div>
+        <div className="iv-gauge-num">{num}<sup>{ordinalSuffix(num)}</sup></div>
         <div className="iv-gauge-label" style={{ color }}>{label}</div>
       </div>
     </div>
@@ -249,6 +249,16 @@ function parseBold(text) {
   return text.split(/\*\*(.*?)\*\*/g).map((part, i) =>
     i % 2 === 1 ? <strong key={i}>{part}</strong> : part
   );
+}
+
+function ordinalSuffix(n) {
+  if (n % 100 >= 11 && n % 100 <= 13) return "th";
+  switch (n % 10) {
+    case 1: return "st";
+    case 2: return "nd";
+    case 3: return "rd";
+    default: return "th";
+  }
 }
 
 function impactClass(impact) {
@@ -368,7 +378,7 @@ function TradeCard({ trade, index, analysedAt }) {
             { label: "Total risk",  value: trade.totalCost },
             { label: "Break-even",  value: `$${trade.breakeven}` },
             { label: "Max profit",  value: trade.maxProfit },
-            { label: "IV rank",     value: `${trade.ivRank}th` },
+            { label: "IV rank",     value: `${trade.ivRank}${ordinalSuffix(ivNum)}` },
             { label: "Max loss",    value: trade.maxLoss },
           ].map(({ label, value }) => (
             <div key={label} className="stat-cell">
