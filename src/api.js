@@ -254,9 +254,14 @@ export async function fetchRecommendation(ticker, onProgress) {
             lastStringCount = strings.length;
             onProgress?.({ type: "text", strings });
           }
-        } else if (evt.type === "content_block_start" && evt.content_block?.type === "tool_use") {
-          searchCount++;
-          onProgress?.({ type: "search", count: searchCount });
+        } else if (evt.type === "content_block_start") {
+          if (evt.content_block?.type === "tool_use") {
+            searchCount++;
+            onProgress?.({ type: "search", count: searchCount });
+          } else if (evt.content_block?.type === "text") {
+            accumulated = "";
+            lastStringCount = 0;
+          }
         }
       } catch (_) {}
     }
