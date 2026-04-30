@@ -1,3 +1,5 @@
+import { jsonrepair } from "jsonrepair";
+
 // ─── System Prompt ──────────────────────────────────────────────────────────
 
 export const SYSTEM_PROMPT = `You are an expert options trader and analyst. When given a ticker symbol (or asked to scan the market), use web search to gather: current stock price, implied volatility rank (IVR), upcoming earnings date, recent news and catalysts, technical trend and support/resistance levels, and overall market context.
@@ -9,6 +11,8 @@ CRITICAL — IV RANK: Search "[TICKER] IV rank" or "[TICKER] implied volatility 
 CRITICAL — STRATEGY JUSTIFICATION: Explicitly explain why you chose this specific strategy structure (long call, spread, put, straddle, etc.) over the most obvious alternatives. Compare risk/reward trade-offs concretely. Keep strategyRationale to 2-3 sentences maximum. Keep rationale to 2-3 sentences maximum. In both fields, wrap the 2-3 most important conclusions or facts in **double asterisks** so they render as bold (e.g. "**IV rank is at the 22nd percentile**, making calls unusually cheap.").
 
 CRITICAL — SOURCES: For every news article, earnings date, or market data point you reference, record the URL in the sources array. Only include URLs you actually retrieved during this session.
+
+CRITICAL — JSON SAFETY: The output is parsed by JSON.parse(). Never include unescaped double-quote characters inside a string value — if you need to quote a term within a string, use single quotes instead (e.g. 'delta effect' not "delta effect"). Never include literal newline characters inside a string value — write everything on one continuous line within each string. This is the most common cause of parse failures.
 
 Recommend 1-2 specific, actionable options trades. You MUST respond with ONLY a valid JSON object — no markdown fences, no preamble, no explanation. Just raw JSON.
 
@@ -253,6 +257,11 @@ export async function fetchRecommendation(ticker, onProgress) {
 
   const start = accumulated.indexOf("{");
   const end = accumulated.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error("No JSON object found in response");
-  return JSON.parse(accumulated.slice(start, end + 1));
+  if (start === -1 || end === -1) throw new Error("No JSON found in response — the model may not have finished. Please try again.");
+  const slice = accumulated.slice(start, end + 1);
+  try {
+    return JSON.parse(slice);
+  } catch (_) {
+    return JSON.parse(jsonrepair(slice));
+  }
 }

@@ -248,9 +248,7 @@ body {
   width: 100%;
 }
 .stream-line {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
   padding: 3px 0;
   text-align: center;
@@ -505,10 +503,10 @@ body {
 /* Strategy rationale */
 .rationale-text {
   font-size: 12px; line-height: 1.75; color: var(--navy);
-  font-style: italic; word-break: break-word; overflow-wrap: anywhere;
+  word-break: break-word; overflow-wrap: anywhere;
 }
 .rationale-text strong {
-  font-style: normal; font-weight: 700; color: var(--navy);
+  font-weight: 700; color: var(--navy);
 }
 
 /* ─── Exit strategy ────────────────────────────────────────────────────── */
@@ -574,7 +572,7 @@ body {
   font-size: 30px; font-weight: 500; color: var(--t1); line-height: 1;
 }
 .iv-gauge-num sup { font-size: 14px; font-style: normal; vertical-align: super; }
-.iv-gauge-label { font-family: var(--mono); font-size: 11px; margin-top: 3px; }
+.iv-gauge-label { font-size: 12px; font-weight: 600; margin-top: 3px; }
 .iv-insight { font-size: 12px; color: var(--t2); line-height: 1.7; margin-top: 8px; text-align: left; word-break: break-word; overflow-wrap: anywhere; }
 
 .greek-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -599,7 +597,7 @@ body {
 .greek-name    { font-size: 12px; font-weight: 700; color: var(--t1); }
 .greek-tagline { font-size: 11px; font-family: var(--mono); color: var(--t2); margin-top: 2px; line-height: 1.45; word-break: break-word; overflow-wrap: anywhere; }
 .greek-value   { font-family: var(--mono); font-size: 15px; font-weight: 400; color: var(--t1); flex-shrink: 0; }
-.greek-insight { font-size: 12px; font-family: var(--mono); color: var(--t2); line-height: 1.65; word-break: break-word; overflow-wrap: anywhere; }
+.greek-insight { font-size: 12px; color: var(--t2); line-height: 1.65; word-break: break-word; overflow-wrap: anywhere; }
 
 /* ─── Thesis + Risk ────────────────────────────────────────────────────── */
 .rationale { font-size: 12px; line-height: 1.75; color: var(--t2); word-break: break-word; overflow-wrap: anywhere; }
@@ -730,37 +728,110 @@ body {
 }
 
 /* ─── Responsive ───────────────────────────────────────────────────────── */
+
+/* ── Tablet portrait  ≤ 900px ─────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .app-main { padding: 24px 20px 80px; }
+  .app-main    { padding: 24px 20px 80px; }
   .header-inner { padding: 13px 20px; }
   .trade-header { padding: 20px 20px 0; }
-  .stats-strip { grid-template-columns: repeat(3, 1fr); margin: 0 -20px; }
-  .stat-cell:nth-child(3) { border-right: none; }
 
+  /* Stats: 3 columns — every 3rd child ends a row */
+  .stats-strip { grid-template-columns: repeat(3, 1fr); margin: 0 -20px; }
+  .stat-cell:nth-child(3n) { border-right: none; }
+
+  /* Body: single column */
   .trade-body { grid-template-columns: 1fr; padding: 20px; }
   .trade-col-left  { padding-right: 0; border-right: none; border-bottom: 1px solid var(--border-2); padding-bottom: 20px; }
   .trade-col-right { padding-left: 0; }
-
   .trade-full { padding: 0 20px 20px; }
-  .thesis-risk-row { grid-template-columns: 1fr; }
+
+  /* Typography */
+  .trade-ticker    { font-size: 34px; }
+  .key-detail-value { font-size: 15px; }
+  .key-detail-sep  { margin: 0 14px; }
+
+  /* Market banner: wrap timestamp to its own line */
+  .market-banner   { flex-wrap: wrap; align-items: flex-start; }
+  .analysis-time   { width: 100%; margin-left: 0; padding-left: 0;
+                     padding-top: 6px; border-top: 1px solid rgba(30,58,95,0.1); }
+
+  /* Signals: single column */
   .signals-cols { grid-template-columns: 1fr; gap: 16px; }
+
+  /* Greeks stay 2-col now that right column is full width */
+  .greek-grid { grid-template-columns: 1fr 1fr; }
 }
 
+/* ── Phone  ≤ 600px ────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .app-main { padding: 20px 16px 80px; }
+  .app-main     { padding: 20px 16px 80px; }
   .header-inner { padding: 12px 16px; }
-  .trade-header { padding: 18px 16px 0; }
-  .stats-strip { grid-template-columns: repeat(2, 1fr); margin: 0 -16px; }
-  .stat-cell:nth-child(2) { border-right: none; }
-  .stat-cell:nth-child(3) { border-right: 1px solid var(--border); }
+  .trade-header { padding: 16px 16px 0; }
 
-  .trade-body  { padding: 16px; }
-  .trade-full  { padding: 0 16px 16px; }
-  .trade-ticker { font-size: 30px; }
+  /* Stats: 2 columns — reset all borders then remove right-column borders */
+  .stats-strip   { grid-template-columns: repeat(2, 1fr); margin: 0 -16px; }
+  .stat-cell     { border-right: 1px solid var(--border); }
+  .stat-cell:nth-child(2n)  { border-right: none; }
+  .stat-cell:last-child     { border-right: none; }
+  .stat-value    { font-size: 13px; }
+  .stat-label    { font-size: 9px; letter-spacing: 0.05em; }
+
+  /* Body padding */
+  .trade-body { padding: 16px; }
+  .trade-full { padding: 0 16px 16px; }
+
+  /* Typography */
+  .trade-ticker { font-size: 26px; }
+  .headline     { font-size: 17px; }
+
+  /* Key details: hide separators, flow 2-per-row via flex */
+  .trade-key-details { gap: 14px 0; }
+  .key-detail-sep    { display: none; }
+  .key-detail        { flex: 1 1 50%; padding-right: 4px; }
+  .key-detail-value  { font-size: 14px; }
+  .key-detail-label  { font-size: 9px; }
+
+  /* Search bar */
+  .search-input { font-size: 15px; padding: 14px 16px; }
+  .search-input::placeholder { font-size: 13px; }
+  .search-btn   { padding: 0 18px; font-size: 12px; }
+
+  /* Market banner: hide timestamp (shown in card header) */
+  .analysis-time { display: none; }
+  .market-text   { font-size: 12px; }
+
+  /* Source cards: full width */
+  .source-card { max-width: 100%; }
+
+  /* Loading: less top padding */
+  .loading-wrap { padding: 60px 20px; }
+  .loading-message { font-size: 15px; }
+
+  /* Greeks: single column */
   .greek-grid { grid-template-columns: 1fr; }
 
-  .key-detail-sep { margin: 0 12px; height: 28px; }
-  .key-detail-value { font-size: 14px; }
+  /* History: hide meta to save space */
+  .history-meta     { display: none; }
+  .history-strategy { font-size: 11px; }
+}
 
-  .search-btn { padding: 0 20px; font-size: 12px; }
+/* ── Very small phones  ≤ 380px ────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .app-main     { padding: 16px 12px 80px; }
+  .header-inner { padding: 10px 12px; }
+  .trade-header { padding: 14px 12px 0; }
+  .stats-strip  { margin: 0 -12px; }
+  .trade-body   { padding: 12px; }
+  .trade-full   { padding: 0 12px 12px; }
+  .card         { padding: 14px 16px; }
+
+  .trade-ticker   { font-size: 22px; }
+  .headline       { font-size: 16px; }
+  .key-detail-value { font-size: 13px; }
+  .stat-value     { font-size: 12px; }
+  .plain-english  { font-size: 13px; }
+
+  .search-input { padding: 12px 14px; }
+  .search-btn   { padding: 0 14px; }
+  .search-hint  { font-size: 10px; }
 }

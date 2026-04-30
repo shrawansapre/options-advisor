@@ -159,7 +159,8 @@ function IVGauge({ value, reading }) {
   const num = parseInt(value, 10) || 0;
   const clipped = Math.min(100, Math.max(0, num));
   const color = clipped < 40 ? "var(--green)" : clipped > 60 ? "var(--red)" : "var(--amber)";
-  const label = reading || (clipped < 40 ? "Below average" : clipped > 60 ? "Above average" : "Near average");
+  const rawLabel = reading || (clipped < 40 ? "Below average" : clipped > 60 ? "Above average" : "Near average");
+  const label = rawLabel.replace(/\s*\(.*?\)/g, "").trim();
   const data = [{ value: clipped }, { value: 100 - clipped }];
 
   return (
