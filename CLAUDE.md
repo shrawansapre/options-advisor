@@ -1,5 +1,11 @@
 # CLAUDE.md — Options Advisor
 
+## Session hygiene
+
+- Read `STATUS.md` at the start of every session before touching code
+- After every commit, add a one-line bullet to the "Recently Completed" section of `STATUS.md`
+- Keep STATUS.md high-level — what shipped, not how
+
 ## Project overview
 
 AI-powered options trade recommendation app for Robinhood users. Enter a ticker (or leave blank to scan the market), and the app calls the Anthropic API with live web search to generate comprehensive, actionable trade recommendations with exit strategies, Greek explanations, risk analysis, and step-by-step Robinhood execution instructions.

@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import {
   TrendingUp, TrendingDown, Clock, AlertTriangle, Globe,
   Timer, Zap, Activity, Crosshair, Target, Ban,
   Lightbulb, ExternalLink, ChevronRight, CircleDot,
-  CheckCircle2, BookOpen, Layers, History, X
+  CheckCircle2, BookOpen, Layers, History, X, Moon, Sun
 } from "lucide-react";
 import { fetchRecommendation } from "./api";
 import "./styles.css";
@@ -96,59 +96,119 @@ const LOADING_MESSAGES = [
 
 function LoadingMessages({ ticker, progress }) {
   const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setIndex(i => (i + 1) % LOADING_MESSAGES.length), 2600);
-    return () => clearInterval(id);
-  }, []);
+  const [completedSteps, setCompletedSteps] = useState([]);
+  const intervalRef = useRef(null);
 
   const strings = progress?.type === "text" ? (progress.strings ?? []) : [];
   const isWriting = strings.length > 0;
-  const searchLabel = progress?.type === "search" ? `Running web search ${progress.count}…` : null;
+
+  useEffect(() => {
+    if (isWriting) {
+      clearInterval(intervalRef.current);
+      return;
+    }
+    intervalRef.current = setInterval(() => {
+      setIndex(i => {
+        setCompletedSteps(prev => [...prev, LOADING_MESSAGES[i]].slice(-5));
+        return (i + 1) % LOADING_MESSAGES.length;
+      });
+    }, 2600);
+    return () => clearInterval(intervalRef.current);
+  }, [isWriting]);
+  const searchCount = progress?.type === "search" ? progress.count : 0;
 
   return (
     <div className="loading-wrap">
-      <div className="loading-ring" />
-      {ticker && <div className="loading-ticker">Analyzing <span>{ticker}</span></div>}
-
-      {isWriting ? (
-        <div className="stream-preview">
-          <AnimatePresence initial={false}>
-            {strings.slice(-4).map((s, i, arr) => (
-              <motion.div
-                key={s.slice(0, 40)}
-                className={`stream-line ${i < arr.length - 1 ? "stream-line--faded" : ""}`}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+      <motion.div
+        className="loading-panel"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Header */}
+        <div className="lp-header">
+          <div className="lp-pulse-dot" />
+          <span className="lp-title">
+            {ticker
+              ? <><span className="lp-dim">Analyzing </span><strong>{ticker}</strong></>
+              : "Scanning the market"}
+          </span>
+          <AnimatePresence>
+            {searchCount > 0 && (
+              <motion.span
+                className="lp-search-badge"
+                key={searchCount}
+                initial={{ opacity: 0, scale: 0.75 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2 }}
               >
-                {s.length > 120 ? s.slice(0, 120) + "…" : s}
+                {searchCount} {searchCount === 1 ? "search" : "searches"}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Completed + active steps */}
+        <div className="lp-steps">
+          <AnimatePresence initial={false}>
+            {completedSteps.map(step => (
+              <motion.div
+                key={step}
+                className="lp-step lp-step--done"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.22 }}
+              >
+                <CheckCircle2 size={11} className="lp-check-icon" />
+                <span>{step}</span>
               </motion.div>
             ))}
           </AnimatePresence>
-        </div>
-      ) : (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={searchLabel ?? index}
-            className="loading-message"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          >
-            {searchLabel ?? LOADING_MESSAGES[index]}
-          </motion.div>
-        </AnimatePresence>
-      )}
 
-      {!isWriting && (
-        <div className="loading-progress">
-          {LOADING_MESSAGES.map((_, i) => (
-            <div key={i} className={`loading-pip ${i === index ? "active" : i < index ? "done" : ""}`} />
-          ))}
+          {!isWriting && (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                className="lp-step lp-step--active"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22 }}
+              >
+                <div className="lp-step-dot" />
+                <span>{LOADING_MESSAGES[index]}</span>
+              </motion.div>
+            </AnimatePresence>
+          )}
         </div>
-      )}
+
+        {/* Writing stream */}
+        {isWriting && (
+          <motion.div
+            className="lp-stream"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="lp-stream-label">Writing analysis</div>
+            <div className="lp-stream-lines">
+              <AnimatePresence initial={false}>
+                {strings.slice(-5).map((s, i, arr) => (
+                  <motion.div
+                    key={s.slice(0, 40)}
+                    className={`lp-stream-line${i < arr.length - 1 ? " lp-stream-line--faded" : ""}`}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    {s.length > 110 ? s.slice(0, 110) + "…" : s}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </motion.div>
     </div>
   );
 }
@@ -467,7 +527,7 @@ function TradeCard({ trade, index, analysedAt }) {
               <span className={`risk-label risk-label--${riskColor}`}>{riskLabel} risk</span>
             </div>
             <ul className="risk-list">
-              {riskFactors.map((f, i) => (
+              {(riskFactors ?? []).map((f, i) => (
                 <li key={i}><Ban size={11} className="risk-icon" /><span>{f}</span></li>
               ))}
             </ul>
@@ -506,7 +566,7 @@ function TradeCard({ trade, index, analysedAt }) {
                 <TrendingUp size={13} /> Bullish signals
               </div>
               <ul className="signal-list">
-                {watchFor.bullishSignals.map((s, i) => (
+                {(watchFor?.bullishSignals ?? []).map((s, i) => (
                   <li key={i}><ChevronRight size={11} className="signal-arrow green-text" /><span>{s}</span></li>
                 ))}
               </ul>
@@ -516,7 +576,7 @@ function TradeCard({ trade, index, analysedAt }) {
                 <TrendingDown size={13} /> Warning signs
               </div>
               <ul className="signal-list">
-                {watchFor.warningSignals.map((s, i) => (
+                {(watchFor?.warningSignals ?? []).map((s, i) => (
                   <li key={i}><ChevronRight size={11} className="signal-arrow red-text" /><span>{s}</span></li>
                 ))}
               </ul>
@@ -546,7 +606,7 @@ function TradeCard({ trade, index, analysedAt }) {
         <div className="card">
           <div className="card-label">How to execute on Robinhood</div>
           <div className="steps-flow">
-            {robinhoodSteps.map((step, i) => (
+            {(robinhoodSteps ?? []).map((step, i) => (
               <div key={i} className="step-row">
                 <div className="step-num">{i + 1}</div>
                 <span>{step}</span>
@@ -570,9 +630,26 @@ export default function App() {
   const [error, setError]       = useState(null);
   const { history, addEntry, clearHistory } = useSearchHistory();
 
+  const [dark, setDark] = useState(() => {
+    const stored = localStorage.getItem("oa-theme");
+    if (stored) return stored === "dark";
+    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    localStorage.setItem("oa-theme", dark ? "dark" : "light");
+  }, [dark]);
+
   async function handleAnalyze(explicitTicker) {
     const t = explicitTicker !== undefined ? explicitTicker : ticker.trim();
     if (explicitTicker !== undefined) setTicker(explicitTicker);
+
+    if (t && !/^[A-Z]{1,5}([.\-][A-Z]{0,2})?$/.test(t)) {
+      setError(`"${t}" doesn't look like a valid US ticker. Try something like NVDA, SPY, or BRK.B.`);
+      return;
+    }
+
     setLoading(true);
     setProgress(null);
     setError(null);
@@ -596,12 +673,15 @@ export default function App() {
       <header className="app-header">
         <div className="header-inner">
           <div className="header-brand">
-            <Target size={19} className="brand-icon" />
-            <div>
+            <span className="brand-mark">◈</span>
+            <div className="header-text">
               <div className="header-title">Options Advisor</div>
               <div className="header-sub">AI-powered analysis · For Robinhood</div>
             </div>
           </div>
+          <button className="theme-toggle" onClick={() => setDark(d => !d)} aria-label="Toggle theme">
+            {dark ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
         </div>
       </header>
 

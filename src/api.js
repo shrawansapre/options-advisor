@@ -14,6 +14,8 @@ CRITICAL — SOURCES: For every news article, earnings date, or market data poin
 
 CRITICAL — JSON SAFETY: The output is parsed by JSON.parse(). Never include unescaped double-quote characters inside a string value — if you need to quote a term within a string, use single quotes instead (e.g. 'delta effect' not "delta effect"). Never include literal newline characters inside a string value — write everything on one continuous line within each string. This is the most common cause of parse failures.
 
+CRITICAL — INVALID TICKER: If the ticker symbol does not exist, is not traded on US markets, has been delisted, or cannot be found via web search, respond with ONLY this JSON and nothing else: {"error": "Ticker not found", "message": "Could not find [SYMBOL] on US markets. Please check the symbol and try again."}
+
 Recommend 1-2 specific, actionable options trades. You MUST respond with ONLY a valid JSON object — no markdown fences, no preamble, no explanation. Just raw JSON.
 
 Use this exact structure:
@@ -259,9 +261,12 @@ export async function fetchRecommendation(ticker, onProgress) {
   const end = accumulated.lastIndexOf("}");
   if (start === -1 || end === -1) throw new Error("No JSON found in response — the model may not have finished. Please try again.");
   const slice = accumulated.slice(start, end + 1);
+  let parsed;
   try {
-    return JSON.parse(slice);
+    parsed = JSON.parse(slice);
   } catch (_) {
-    return JSON.parse(jsonrepair(slice));
+    parsed = JSON.parse(jsonrepair(slice));
   }
+  if (parsed.error) throw new Error(parsed.message || "Ticker not found. Please check the symbol and try again.");
+  return parsed;
 }
