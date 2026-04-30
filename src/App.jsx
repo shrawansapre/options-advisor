@@ -330,17 +330,17 @@ function TradeCard({ trade, index, analysedAt }) {
       {/* ── Header ── */}
       <div className="trade-header">
         <div className="trade-header-top">
-          <div className="trade-title-row">
-            <h2 className="trade-ticker">{trade.ticker}</h2>
+          <h2 className="trade-ticker">{trade.ticker}</h2>
+          <div className="trade-badges-row">
             <div className="strategy-badge" style={{ "--dot": dotColor }}>
               <span className="strategy-dot" />
               {trade.strategy}
             </div>
-          </div>
-          <div className="trade-conviction" style={{ "--conv": convictionColor }}>
-            <CircleDot size={13} />
-            <span>{summary.conviction} conviction</span>
-            <span className="conv-score">{summary.confidenceScore}%</span>
+            <div className="trade-conviction" style={{ "--conv": convictionColor }}>
+              <CircleDot size={13} />
+              <span>{summary.conviction} conviction</span>
+              <span className="conv-score">{summary.confidenceScore}%</span>
+            </div>
           </div>
         </div>
 

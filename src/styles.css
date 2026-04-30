@@ -488,7 +488,7 @@ body {
   margin-bottom: 6px;
 }
 
-.trade-title-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.trade-badges-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 .trade-ticker {
   font-family: var(--serif);
@@ -961,6 +961,11 @@ body {
   .key-detail        { flex: 1 1 50%; padding-right: 4px; }
   .key-detail-value  { font-size: 14px; }
   .key-detail-label  { font-size: 9px; }
+
+  /* Trade header — compact badges so they fit side-by-side on one line */
+  .strategy-badge  { padding: 4px 10px; font-size: 12px; }
+  .trade-conviction { padding: 4px 10px; font-size: 12px; }
+  .conv-score      { font-size: 11px; }
 
   /* Header */
   .brand-mark   { font-size: 28px; }
