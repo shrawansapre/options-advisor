@@ -1793,6 +1793,8 @@ body {
 /* ─── Learn responsive ──────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .learn-strategies-grid { grid-template-columns: repeat(2, 1fr); }
+  .learn-forces { grid-template-columns: repeat(2, 1fr); }
+  .learn-force-card:last-child { grid-column: span 2; }
 }
 
 @media (max-width: 620px) {
@@ -1803,11 +1805,15 @@ body {
   .learn-strategies-grid { grid-template-columns: 1fr; }
   .learn-gauge-row { gap: 8px; }
   .learn-iv-label { min-width: unset; font-size: 10px; }
-  .learn-forces { grid-template-columns: 1fr; }
-  .learn-cmp-header, .learn-cmp-row { grid-template-columns: 1.2fr 1fr 1fr; gap: 4px; padding: 8px; }
-  .learn-cmp-label { font-size: 11px; }
+  .learn-forces { grid-template-columns: 1fr; gap: 8px; }
+  .learn-cmp-header { grid-template-columns: 1.4fr 1fr 1fr; gap: 4px; padding: 8px 10px; font-size: 9px; }
+  .learn-cmp-row    { grid-template-columns: 1.4fr 1fr 1fr; gap: 4px; padding: 8px 10px; }
+  .learn-cmp-label  { font-size: 11px; }
   .learn-cmp-stock, .learn-cmp-call { font-size: 11px; }
   .learn-intro-hook { font-size: 17px; }
   .learn-pl-note { display: none; }
+  .learn-pl-display { gap: 6px; padding: 8px 10px; }
+  .learn-pl-value { font-size: 17px; }
   .learn-slider-labels { flex-direction: column; gap: 2px; }
+  .learn-itm-intrinsic { display: none; }
 }
