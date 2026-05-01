@@ -43,6 +43,8 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
     }
   }
 
+  const expiryExpired = trade.expiry && analysedAt && new Date(trade.expiry) < analysedAt;
+
   const validSources = sources?.filter(s => s.url?.startsWith("http")) ?? [];
   const dotColor = STRATEGY_COLORS[trade.strategyType] || STRATEGY_COLORS.neutral;
   const isSpread = !!trade.strike2;
@@ -80,6 +82,13 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: index * 0.12 }}
     >
+      {expiryExpired && (
+        <div className="expired-warning">
+          <AlertTriangle size={14} />
+          <span>This option expired on <strong>{trade.expiryLabel}</strong>. The recommendation is stale — please search again to get a current trade.</span>
+        </div>
+      )}
+
       {/* ── Header ── */}
       <div className="trade-header">
         <div className="trade-header-top">

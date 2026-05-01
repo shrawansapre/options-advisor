@@ -232,9 +232,10 @@ const USE_PROXY = !import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 export async function fetchRecommendation(ticker, onProgress) {
   const safeTicker = (ticker || "").replace(/[^A-Z0-9.\-]/gi, "").slice(0, 10).toUpperCase();
+  const today = new Date().toISOString().slice(0, 10);
   const userMessage = safeTicker
-    ? `Give me a comprehensive options trade recommendation for ${safeTicker}. Use web search to get the current stock price, IV rank, upcoming earnings date, recent news, and technical levels before recommending.`
-    : `Scan the US stock market and identify the single best options trade opportunity available today. Look for a stock with a clear catalyst, a defined technical setup, and reasonable implied volatility. Use web search to find current data and confirm the setup before recommending.`;
+    ? `Today is ${today}. Give me a comprehensive options trade recommendation for ${safeTicker}. All recommended expiry dates must be at least 21 days in the future from today. Use web search to get the current stock price, IV rank, upcoming earnings date, recent news, and technical levels before recommending.`
+    : `Today is ${today}. Scan the US stock market and identify the single best options trade opportunity available today. All recommended expiry dates must be at least 21 days in the future from today. Look for a stock with a clear catalyst, a defined technical setup, and reasonable implied volatility. Use web search to find current data and confirm the setup before recommending.`;
 
   const headers = { "Content-Type": "application/json" };
   if (!USE_PROXY) {
