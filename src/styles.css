@@ -569,14 +569,51 @@ body {
   align-self: center;
 }
 
+.trade-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  gap: 8px;
+}
+
 .trade-analysis-time {
   font-family: var(--mono);
   font-size: 10px;
   font-weight: 300;
   color: var(--t3);
-  text-align: right;
-  padding-bottom: 10px;
   letter-spacing: 0.02em;
+}
+
+.share-claude-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--blue);
+  background: transparent;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.share-claude-btn:hover {
+  background: var(--blue);
+  color: #fff;
+}
+
+.share-claude-btn--copied {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.share-claude-btn--copied:hover {
+  background: var(--green);
+  color: #fff;
 }
 
 /* Stats strip */
