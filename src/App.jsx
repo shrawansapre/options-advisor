@@ -180,7 +180,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="app-main">
+      <main className={`app-main${analyses.length === 0 ? " app-main--landing" : ""}`}>
         <div className="search-wrap">
           <div className="search-bar">
             <input
@@ -228,7 +228,17 @@ export default function App() {
         <AnimatePresence mode="wait">
           {!active && (
             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <p className="empty-hint">Search a ticker above to get started.</p>
+              <div className="landing">
+                <p className="landing-label">Popular tickers</p>
+                <div className="landing-chips">
+                  {["NVDA", "AAPL", "TSLA", "SPY", "AMZN", "META"].map(t => (
+                    <button key={t} className="landing-chip" onClick={() => handleAnalyze(t)}>{t}</button>
+                  ))}
+                </div>
+                <button className="landing-scan" onClick={() => handleAnalyze("")}>
+                  Scan market for best opportunity →
+                </button>
+              </div>
             </motion.div>
           )}
 
