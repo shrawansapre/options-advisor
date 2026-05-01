@@ -577,12 +577,10 @@ body {
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 .tab:hover { border-color: var(--t3); color: var(--t1); }
-.tab--active {
-  background: var(--navy);
-  border-color: var(--navy);
-  color: #fff;
-}
-[data-theme="dark"] .tab--active { color: #080808; }
+.tab--active,
+.tab--active:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
+[data-theme="dark"] .tab--active,
+[data-theme="dark"] .tab--active:hover { color: #080808; }
 
 .tab-dot {
   width: 7px; height: 7px;
@@ -1404,10 +1402,10 @@ body {
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 .learn-btn:hover { color: var(--t1); border-color: var(--t2); background: var(--surface-2); }
-.learn-btn--active {
-  background: var(--navy); border-color: var(--navy); color: #fff;
-}
-[data-theme="dark"] .learn-btn--active { color: #080808; }
+.learn-btn--active,
+.learn-btn--active:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
+[data-theme="dark"] .learn-btn--active,
+[data-theme="dark"] .learn-btn--active:hover { color: #080808; }
 
 /* ─── Learn Page ────────────────────────────────────────────────────────── */
 .learn-page { padding-bottom: 80px; }
@@ -1444,8 +1442,10 @@ body {
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 .learn-nav-btn:hover { color: var(--t1); border-color: var(--t2); }
-.learn-nav-btn--active { background: var(--navy); border-color: var(--navy); color: #fff; }
-[data-theme="dark"] .learn-nav-btn--active { color: #080808; }
+.learn-nav-btn--active,
+.learn-nav-btn--active:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
+[data-theme="dark"] .learn-nav-btn--active,
+[data-theme="dark"] .learn-nav-btn--active:hover { color: #080808; }
 
 /* ─── Learn Grids ───────────────────────────────────────────────────────── */
 .learn-grid {
@@ -1793,8 +1793,6 @@ body {
 /* ─── Learn responsive ──────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .learn-strategies-grid { grid-template-columns: repeat(2, 1fr); }
-  .learn-forces { grid-template-columns: repeat(2, 1fr); }
-  .learn-force-card:last-child { grid-column: span 2; }
 }
 
 @media (max-width: 620px) {
@@ -1806,6 +1804,7 @@ body {
   .learn-gauge-row { gap: 8px; }
   .learn-iv-label { min-width: unset; font-size: 10px; }
   .learn-forces { grid-template-columns: 1fr; gap: 8px; }
+  .learn-force-card { grid-column: auto; }
   .learn-cmp-header { grid-template-columns: 1.4fr 1fr 1fr; gap: 4px; padding: 8px 10px; font-size: 9px; }
   .learn-cmp-row    { grid-template-columns: 1.4fr 1fr 1fr; gap: 4px; padding: 8px 10px; }
   .learn-cmp-label  { font-size: 11px; }
