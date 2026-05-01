@@ -28,6 +28,13 @@ export default function App() {
     localStorage.setItem("oa-theme", dark ? "dark" : "light");
   }, [dark]);
 
+  function handleSelectCached(cachedResult, cachedAt) {
+    setResult(cachedResult);
+    setAnalysedAt(cachedAt);
+    setError(null);
+    setTicker(cachedResult.trades?.[0]?.ticker ?? "");
+  }
+
   async function handleAnalyze(explicitTicker) {
     const t = explicitTicker !== undefined ? explicitTicker : ticker.trim();
     if (explicitTicker !== undefined) setTicker(explicitTicker);
@@ -46,7 +53,7 @@ export default function App() {
       setResult(data);
       const now = new Date();
       setAnalysedAt(now);
-      if (data.trades?.[0]) addEntry(t, data.trades[0]);
+      if (data.trades?.[0]) addEntry(t, data.trades[0], data);
     } catch (e) {
       setError(e.message || "Could not generate a recommendation. Please try again.");
       console.error(e);
@@ -97,6 +104,7 @@ export default function App() {
           <SearchHistory
             history={history}
             onSelect={t => handleAnalyze(t)}
+            onSelectCached={handleSelectCached}
             onClear={clearHistory}
           />
         </div>

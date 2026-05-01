@@ -8,7 +8,7 @@ export function useSearchHistory() {
     catch { return []; }
   });
 
-  function addEntry(ticker, trade) {
+  function addEntry(ticker, trade, fullResult) {
     const entry = {
       id: Date.now().toString(),
       ticker: ticker || "",
@@ -16,6 +16,7 @@ export function useSearchHistory() {
       strategy: trade.strategy ?? "",
       strategyType: trade.strategyType ?? "neutral",
       confidenceScore: trade.summary?.confidenceScore ?? 0,
+      result: fullResult ?? null,
     };
     const next = [entry, ...history].slice(0, 20);
     setHistory(next);
@@ -30,7 +31,7 @@ export function useSearchHistory() {
   return { history, addEntry, clearHistory };
 }
 
-export function SearchHistory({ history, onSelect, onClear }) {
+export function SearchHistory({ history, onSelect, onSelectCached, onClear }) {
   const [open, setOpen] = useState(false);
   if (!history.length) return null;
 
@@ -52,7 +53,7 @@ export function SearchHistory({ history, onSelect, onClear }) {
             style={{ overflow: "hidden" }}
           >
             {history.map(h => (
-              <button key={h.id} className="history-row" onClick={() => onSelect(h.ticker)}>
+              <button key={h.id} className="history-row" onClick={() => h.result ? onSelectCached(h.result, new Date(h.ts)) : onSelect(h.ticker)}>
                 <span className={`history-dot history-dot--${h.strategyType}`} />
                 <span className="history-ticker">{h.ticker || "Market scan"}</span>
                 <span className="history-strategy">{h.strategy}</span>
