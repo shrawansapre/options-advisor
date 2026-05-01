@@ -428,6 +428,88 @@ body {
 }
 .lp-stream-line--faded { color: rgba(255,255,255,0.18); }
 
+/* ─── Analysis Tabs ────────────────────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin-bottom: 20px;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px 7px 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--t2);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.tab:hover { border-color: var(--t3); color: var(--t1); }
+.tab--active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+[data-theme="dark"] .tab--active { color: #080808; }
+
+.tab-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tab--active .tab-dot { opacity: 0.85; }
+
+/* CSS spinner for loading tabs */
+.tab-spinner {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  flex-shrink: 0;
+  animation: tab-spin 0.7s linear infinite;
+}
+@keyframes tab-spin { to { transform: rotate(360deg); } }
+
+.tab-ticker { letter-spacing: 0.06em; }
+
+.tab-close {
+  font-size: 14px;
+  line-height: 1;
+  color: currentColor;
+  opacity: 0.5;
+  padding: 0 0 0 2px;
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+.tab-close:hover { opacity: 1; }
+
+.empty-hint {
+  text-align: center;
+  color: var(--t3);
+  font-size: 13px;
+  margin-top: 48px;
+  font-family: var(--mono);
+}
+
+/* Mobile: slightly more compact tabs */
+@media (max-width: 600px) {
+  .tab { padding: 6px 10px 6px 8px; font-size: 11px; gap: 5px; }
+  .tab-close { font-size: 13px; }
+}
+
 /* ─── Error ────────────────────────────────────────────────────────────── */
 .error-bar {
   display: flex; align-items: center; gap: 10px;
@@ -437,6 +519,20 @@ body {
   border-radius: var(--r-md);
   font-size: 13px; font-family: var(--mono); color: var(--red);
 }
+
+/* ─── Background-ready banner ──────────────────────────────────────────── */
+.bg-ready-banner {
+  display: block; width: 100%; margin-bottom: 12px;
+  padding: 12px 16px;
+  background: var(--green-light);
+  border: 1px solid rgba(22,101,52,0.2);
+  border-radius: var(--r-md);
+  font-size: 13px; font-family: var(--mono); color: var(--green);
+  text-align: center; cursor: pointer;
+  transition: background 0.15s;
+}
+.bg-ready-banner:hover { background: #bbf7d0; }
+[data-theme="dark"] .bg-ready-banner { background: var(--green-light); border-color: rgba(0,230,118,0.2); }
 
 /* ─── Market Banner ────────────────────────────────────────────────────── */
 .market-banner {

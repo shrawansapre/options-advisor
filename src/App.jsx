@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Globe, Moon, Sun } from "lucide-react";
 import { fetchRecommendation } from "./api";
@@ -6,16 +6,32 @@ import { useSearchHistory, SearchHistory } from "./components/SearchHistory";
 import LoadingMessages from "./components/LoadingMessages";
 import TradeCard from "./components/TradeCard";
 import ErrorBoundary from "./components/ErrorBoundary";
+import AnalysisTabs from "./components/AnalysisTabs";
 import "./styles.css";
 
+const MAX_TABS = 6;
+
+function makeAnalysis(ticker) {
+  return {
+    id: Date.now().toString(),
+    ticker: ticker || "",
+    status: "loading",
+    result: null,
+    progress: null,
+    error: null,
+    analysedAt: null,
+    strategyType: "neutral",
+  };
+}
+
 export default function App() {
-  const [ticker, setTicker]     = useState("");
-  const [loading, setLoading]   = useState(false);
-  const [progress, setProgress] = useState(null);
-  const [result, setResult]     = useState(null);
-  const [analysedAt, setAnalysedAt] = useState(null);
-  const [error, setError]       = useState(null);
+  const [ticker, setTicker] = useState("");
+  const [analyses, setAnalyses] = useState([]);
+  const [activeId, setActiveId] = useState(null);
   const { history, addEntry, clearHistory } = useSearchHistory();
+
+  const update = (id, patch) =>
+    setAnalyses(prev => prev.map(a => a.id === id ? { ...a, ...patch } : a));
 
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("oa-theme");
@@ -28,39 +44,81 @@ export default function App() {
     localStorage.setItem("oa-theme", dark ? "dark" : "light");
   }, [dark]);
 
+  function openTab(analysis) {
+    setAnalyses(prev => {
+      let next = [analysis, ...prev];
+      if (next.length > MAX_TABS) {
+        // drop oldest non-active tab
+        const dropIdx = [...next].reverse().findIndex(a => a.id !== activeId && a.id !== analysis.id);
+        if (dropIdx !== -1) next.splice(next.length - 1 - dropIdx, 1);
+      }
+      return next;
+    });
+    setActiveId(analysis.id);
+  }
+
+  function closeTab(id) {
+    setAnalyses(prev => {
+      const next = prev.filter(a => a.id !== id);
+      if (activeId === id && next.length) {
+        const idx = Math.max(0, prev.findIndex(a => a.id === id) - 1);
+        setActiveId(next[Math.min(idx, next.length - 1)].id);
+      } else if (!next.length) {
+        setActiveId(null);
+      }
+      return next;
+    });
+  }
+
   function handleSelectCached(cachedResult, cachedAt) {
-    setResult(cachedResult);
-    setAnalysedAt(cachedAt);
-    setError(null);
-    setTicker(cachedResult.trades?.[0]?.ticker ?? "");
+    const existing = analyses.find(a =>
+      a.analysedAt?.toISOString() === cachedAt?.toISOString()
+    );
+    if (existing) { setActiveId(existing.id); return; }
+
+    const a = {
+      ...makeAnalysis(cachedResult.trades?.[0]?.ticker ?? ""),
+      status: "done",
+      result: cachedResult,
+      analysedAt: cachedAt,
+      strategyType: cachedResult.trades?.[0]?.strategyType ?? "neutral",
+    };
+    openTab(a);
   }
 
   async function handleAnalyze(explicitTicker) {
-    const t = explicitTicker !== undefined ? explicitTicker : ticker.trim();
+    const t = (explicitTicker !== undefined ? explicitTicker : ticker).trim();
     if (explicitTicker !== undefined) setTicker(explicitTicker);
 
     if (t && !/^[A-Z]{1,5}([.\-][A-Z]{0,2})?$/.test(t)) {
-      setError(`"${t}" doesn't look like a valid US ticker. Try something like NVDA, SPY, or BRK.B.`);
+      const errAnalysis = {
+        ...makeAnalysis(t),
+        status: "error",
+        error: `"${t}" doesn't look like a valid US ticker. Try NVDA, SPY, or BRK.B.`,
+      };
+      openTab(errAnalysis);
       return;
     }
 
-    setLoading(true);
-    setProgress(null);
-    setError(null);
-    setResult(null);
+    const a = makeAnalysis(t);
+    openTab(a);
+
     try {
-      const data = await fetchRecommendation(t, setProgress);
-      setResult(data);
-      const now = new Date();
-      setAnalysedAt(now);
+      const data = await fetchRecommendation(t, progress => update(a.id, { progress }));
+      update(a.id, {
+        status: "done",
+        result: data,
+        analysedAt: new Date(),
+        strategyType: data.trades?.[0]?.strategyType ?? "neutral",
+      });
       if (data.trades?.[0]) addEntry(t, data.trades[0], data);
     } catch (e) {
-      setError(e.message || "Could not generate a recommendation. Please try again.");
+      update(a.id, { status: "error", error: e.message || "Could not generate a recommendation. Please try again." });
       console.error(e);
-    } finally {
-      setLoading(false);
     }
   }
+
+  const active = analyses.find(a => a.id === activeId) ?? null;
 
   return (
     <div className="app">
@@ -90,12 +148,12 @@ export default function App() {
               placeholder="Enter a ticker — NVDA, SPY, TSLA — or leave blank to scan the market"
               value={ticker}
               onChange={e => setTicker(e.target.value.toUpperCase().replace(/[^A-Z0-9.\-]/g, "").slice(0, 10))}
-              onKeyDown={e => e.key === "Enter" && !loading && handleAnalyze()}
+              onKeyDown={e => e.key === "Enter" && handleAnalyze()}
               autoComplete="off"
               spellCheck="false"
             />
-            <button className="search-btn" onClick={() => handleAnalyze()} disabled={loading}>
-              {loading ? "…" : "Analyze"}
+            <button className="search-btn" onClick={() => handleAnalyze()}>
+              Analyze
             </button>
           </div>
           <p className="search-hint">
@@ -109,41 +167,54 @@ export default function App() {
           />
         </div>
 
+        <AnalysisTabs
+          analyses={analyses}
+          activeId={activeId}
+          onSelect={setActiveId}
+          onClose={closeTab}
+        />
+
         <AnimatePresence mode="wait">
-          {loading && (
-            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <LoadingMessages ticker={ticker.trim()} progress={progress} />
+          {!active && (
+            <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <p className="empty-hint">Search a ticker above to get started.</p>
             </motion.div>
           )}
 
-          {error && (
-            <motion.div key="error" className="error-bar"
-              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+          {active?.status === "loading" && (
+            <motion.div key={`loading-${active.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <LoadingMessages ticker={active.ticker} progress={active.progress} />
+            </motion.div>
+          )}
+
+          {active?.status === "error" && (
+            <motion.div key={`error-${active.id}`} className="error-bar"
+              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <AlertTriangle size={15} />
-              <span>{error}</span>
+              <span>{active.error}</span>
             </motion.div>
           )}
 
-          {result && (
-            <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-              {result.marketContext && (
+          {active?.status === "done" && active.result && (
+            <motion.div key={`done-${active.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+              {active.result.marketContext && (
                 <div className="market-banner">
                   <Globe size={13} className="market-icon" />
                   <span className="market-label">Market</span>
-                  <span className="market-text">{result.marketContext}</span>
-                  {analysedAt && (
+                  <span className="market-text">{active.result.marketContext}</span>
+                  {active.analysedAt && (
                     <span className="analysis-time">
-                      Analysed {analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} at {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                      Analysed {active.analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} at {active.analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   )}
                 </div>
               )}
-              {result.trades?.map((trade, i) => (
+              {active.result.trades?.map((trade, i) => (
                 <ErrorBoundary key={i}>
-                  <TradeCard trade={trade} index={i} analysedAt={analysedAt} marketContext={result.marketContext} />
+                  <TradeCard trade={trade} index={i} analysedAt={active.analysedAt} marketContext={active.result.marketContext} />
                 </ErrorBoundary>
               ))}
-              {result.disclaimer && <p className="disclaimer">{result.disclaimer}</p>}
+              {active.result.disclaimer && <p className="disclaimer">{active.result.disclaimer}</p>}
             </motion.div>
           )}
         </AnimatePresence>
