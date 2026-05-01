@@ -267,9 +267,12 @@ export async function fetchRecommendation(ticker, onProgress) {
     }
   }
 
-  const start = accumulated.indexOf("{");
+  // Prefer finding our known top-level keys so any preamble text with stray { } is skipped
+  let start = accumulated.indexOf('{"trades"');
+  if (start === -1) start = accumulated.indexOf('{"error"');
+  if (start === -1) start = accumulated.indexOf("{");
   const end = accumulated.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error("No JSON found in response — the model may not have finished. Please try again.");
+  if (start === -1 || end === -1 || end < start) throw new Error("No JSON found in response — the model may not have finished. Please try again.");
   const slice = accumulated.slice(start, end + 1);
   let parsed;
   try {
