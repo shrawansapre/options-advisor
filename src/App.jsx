@@ -396,7 +396,26 @@ function TradeCard({ trade, index, analysedAt, marketContext }) {
     navigator.clipboard.writeText(md).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    window.open("https://claude.ai", "_blank", "noopener");
+
+    // claude.ai/new?q= pre-fills the message box.
+    // On iOS, Universal Links open the Claude app directly if installed.
+    // Keep the URL param under ~8 KB so no browser truncates it;
+    // full markdown is always in the clipboard as a fallback.
+    const MAX = 8000;
+    const prompt = md.length > MAX
+      ? md.slice(0, MAX) + "\n\n[Full analysis copied to clipboard — paste it here to continue]"
+      : md;
+    const url = "https://claude.ai/new?q=" + encodeURIComponent(prompt);
+
+    // iOS Safari: window.open is blocked unless called synchronously from a
+    // user gesture. location.href keeps it in the same tab on mobile which
+    // is a better experience than a blocked popup.
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      window.location.href = url;
+    } else {
+      window.open(url, "_blank", "noopener");
+    }
   }
 
   const validSources = sources?.filter(s => s.url?.startsWith("http")) ?? [];
