@@ -108,7 +108,7 @@
 
 /* ─── Reset ────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; }
+html { font-size: 16px; scrollbar-gutter: stable; }
 body {
   font-family: var(--font);
   background: var(--bg);
@@ -1392,4 +1392,422 @@ body {
   .search-input::placeholder { font-size: 12px; }
   .search-btn   { padding: 0 14px; }
   .search-hint  { font-size: 10px; }
+}
+
+/* ─── Learn Button (header) ─────────────────────────────────────────────── */
+.learn-btn {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 6px 12px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--t2); cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.learn-btn:hover { color: var(--t1); border-color: var(--t2); background: var(--surface-2); }
+.learn-btn--active {
+  background: var(--navy); border-color: var(--navy); color: #fff;
+}
+[data-theme="dark"] .learn-btn--active { color: #080808; }
+
+/* ─── Learn Page ────────────────────────────────────────────────────────── */
+.learn-page { padding-bottom: 80px; }
+
+.learn-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  margin-bottom: 24px; padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.learn-topbar-left { display: flex; align-items: center; gap: 16px; }
+
+.learn-back-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: 1px solid var(--border); border-radius: var(--r-sm);
+  color: var(--t2); font-family: var(--mono); font-size: 11px;
+  padding: 5px 10px; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.learn-back-btn:hover { color: var(--t1); border-color: var(--t2); }
+
+.learn-heading {
+  font-family: var(--serif); font-style: italic;
+  font-size: 22px; font-weight: 500; color: var(--t1); letter-spacing: -0.01em;
+}
+
+.learn-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.learn-nav-btn {
+  padding: 6px 14px; border-radius: var(--r-md);
+  border: 1px solid var(--border); background: var(--surface);
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  color: var(--t2); cursor: pointer; letter-spacing: 0.04em; white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.learn-nav-btn:hover { color: var(--t1); border-color: var(--t2); }
+.learn-nav-btn--active { background: var(--navy); border-color: var(--navy); color: #fff; }
+[data-theme="dark"] .learn-nav-btn--active { color: #080808; }
+
+/* ─── Learn Grids ───────────────────────────────────────────────────────── */
+.learn-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+}
+.learn-greeks-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+}
+.learn-strategies-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+
+/* ─── Learn Cards ───────────────────────────────────────────────────────── */
+.learn-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 20px;
+}
+.learn-card--wide { grid-column: span 2; }
+
+.learn-card-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.learn-card-sub {
+  font-family: var(--mono); font-size: 11px; color: var(--t3);
+}
+
+.learn-tag {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px;
+}
+.learn-tag--green  { background: var(--green-light);  color: var(--green); }
+.learn-tag--red    { background: var(--red-light);    color: var(--red); }
+.learn-tag--navy   { background: var(--navy-light);   color: var(--navy); }
+.learn-tag--amber  { background: var(--amber-light);  color: var(--amber); }
+.learn-tag--violet { background: var(--violet-light); color: var(--violet); }
+
+.learn-body {
+  font-size: 13px; line-height: 1.72; color: var(--t2); margin-bottom: 14px;
+}
+.learn-body strong { color: var(--t1); font-weight: 600; }
+.learn-body em { font-style: italic; color: var(--t1); }
+
+/* ─── Analogy block ─────────────────────────────────────────────────────── */
+.learn-analogy {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--navy-light); border-left: 3px solid var(--navy);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  padding: 10px 13px; margin-bottom: 14px;
+  font-size: 12px; line-height: 1.65; color: var(--t2);
+}
+.learn-analogy-icon {
+  color: var(--navy); font-size: 14px; flex-shrink: 0; margin-top: 1px;
+}
+
+/* ─── SVG diagrams ──────────────────────────────────────────────────────── */
+.learn-payoff-svg { width: 100%; height: auto; margin: 10px 0 4px; display: block; }
+.learn-diagram-caption {
+  font-family: var(--mono); font-size: 10px; color: var(--t3);
+  text-align: center; margin-top: 4px;
+}
+
+/* ─── Strike visualiser ─────────────────────────────────────────────────── */
+.learn-strike-viz { margin-top: 14px; }
+.learn-strike-track {
+  position: relative; height: 6px;
+  background: var(--surface-3); border-radius: 3px; margin: 24px 0 10px;
+}
+.learn-strike-current {
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--navy); border: 2px solid var(--surface);
+}
+.learn-strike-price-label {
+  position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9px; color: var(--navy); white-space: nowrap;
+}
+.learn-strike-flag {
+  position: absolute; top: -18px; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9px; color: var(--amber);
+  white-space: nowrap;
+}
+.learn-meta-note { font-family: var(--mono); font-size: 10px; color: var(--t3); line-height: 1.5; }
+
+/* ─── Expiry visualiser ─────────────────────────────────────────────────── */
+.learn-expiry-viz { margin-top: 14px; }
+.learn-expiry-track {
+  position: relative; height: 6px;
+  background: var(--surface-3); border-radius: 3px; margin-bottom: 6px; overflow: visible;
+}
+.learn-expiry-fill {
+  height: 100%; border-radius: 3px; background: var(--amber);
+}
+.learn-expiry-today {
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--amber); border: 2px solid var(--surface);
+}
+.learn-expiry-labels {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 9px; color: var(--t3); margin-bottom: 6px;
+}
+.learn-expiry-now { color: var(--amber); font-weight: 600; }
+
+/* ─── Premium breakdown ─────────────────────────────────────────────────── */
+.learn-premium-breakdown {
+  margin-top: 14px; background: var(--surface-2);
+  border: 1px solid var(--border-2); border-radius: var(--r-md); overflow: hidden;
+}
+.learn-premium-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 13px; font-size: 12px; color: var(--t2);
+  border-bottom: 1px solid var(--border-2);
+}
+.learn-premium-row:last-child { border-bottom: none; }
+.learn-premium-row--total { background: var(--surface-3); font-weight: 600; color: var(--t1); }
+.learn-premium-val { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--t1); }
+
+/* ─── Greek cards ───────────────────────────────────────────────────────── */
+.learn-greek-card { }
+.learn-greek-top {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px;
+}
+.learn-greek-badge {
+  width: 40px; height: 40px; border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.learn-greek-symbol {
+  font-family: var(--serif); font-style: italic;
+  font-size: 22px; font-weight: 700; line-height: 1;
+}
+.learn-greek-meta { flex: 1; min-width: 0; }
+.learn-greek-name { font-size: 13px; font-weight: 700; color: var(--t1); }
+.learn-greek-tagline {
+  font-family: var(--mono); font-size: 11px; color: var(--t2); margin-top: 2px;
+}
+.learn-greek-viz-wrap { flex-shrink: 0; }
+.learn-greek-viz { width: 56px; height: 38px; display: block; }
+
+.learn-example-chip {
+  font-family: var(--mono); font-size: 11px; color: var(--navy);
+  background: var(--navy-light); border-radius: var(--r-sm);
+  padding: 8px 11px; margin-top: 10px; line-height: 1.5;
+}
+
+/* ─── IV bars ───────────────────────────────────────────────────────────── */
+.learn-iv-bars { margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
+.learn-iv-row { display: flex; align-items: center; gap: 10px; }
+.learn-iv-ticker {
+  font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--t1); min-width: 38px;
+}
+.learn-iv-track {
+  flex: 1; height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden;
+}
+.learn-iv-fill { height: 100%; border-radius: 3px; }
+.learn-iv-label { font-family: var(--mono); font-size: 11px; color: var(--t2); min-width: 130px; }
+
+/* ─── IV Gauges ─────────────────────────────────────────────────────────── */
+.learn-gauge-row {
+  display: flex; gap: 12px; margin: 16px 0; justify-content: center; flex-wrap: wrap;
+}
+.learn-gauge-block { text-align: center; flex: 1; min-width: 90px; }
+.learn-iv-gauge { width: 100%; max-width: 120px; height: auto; display: block; margin: 0 auto; }
+.learn-gauge-label {
+  font-family: var(--mono); font-size: 10px; color: var(--t2);
+  line-height: 1.4; margin-top: 6px;
+}
+
+/* ─── Strategy cards ────────────────────────────────────────────────────── */
+.learn-strategy-card .learn-payoff-svg { margin-bottom: 0; }
+.learn-when {
+  font-size: 12px; color: var(--t2); line-height: 1.55;
+  background: var(--surface-2); border-radius: var(--r-sm);
+  padding: 8px 11px; margin-top: 10px;
+}
+.learn-when-label {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--t1); margin-right: 4px;
+}
+
+/* ─── Strategy risk note ────────────────────────────────────────────────── */
+.learn-risk-note {
+  font-size: 12px; color: var(--t2); line-height: 1.55;
+  border-radius: var(--r-sm); padding: 8px 11px; margin-top: 6px;
+}
+.learn-risk-note--green { background: var(--green-light);  color: var(--green); }
+.learn-risk-note--amber { background: var(--amber-light);  color: var(--amber); }
+
+/* ─── Interactive payoff ────────────────────────────────────────────────── */
+.learn-interactive-wrap { margin: 10px 0 4px; }
+
+.learn-pl-display {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: var(--r-md);
+  margin: 8px 0 10px;
+  background: var(--surface-2); border: 1px solid var(--border-2);
+}
+.learn-pl-display--profit { border-left: 3px solid var(--green); }
+.learn-pl-display--loss   { border-left: 3px solid var(--red); }
+.learn-pl-price { font-family: var(--mono); font-size: 12px; color: var(--t2); }
+.learn-pl-value {
+  font-family: var(--serif); font-style: italic;
+  font-size: 20px; font-weight: 700; letter-spacing: -0.02em;
+}
+.learn-pl-display--profit .learn-pl-value { color: var(--green); }
+.learn-pl-display--loss   .learn-pl-value { color: var(--red); }
+.learn-pl-note { font-family: var(--mono); font-size: 10px; color: var(--t3); margin-left: auto; }
+
+.learn-slider {
+  width: 100%; accent-color: var(--navy);
+  height: 4px; cursor: pointer;
+}
+.learn-slider-labels {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 10px; color: var(--t3);
+  margin-top: 6px;
+}
+
+/* ─── ITM / ATM / OTM ───────────────────────────────────────────────────── */
+.learn-itm-status {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: var(--r-md);
+  border: 1px solid var(--border); margin-bottom: 16px;
+}
+.learn-itm-badge {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; padding: 3px 10px; border-radius: 20px;
+  color: #fff;
+}
+.learn-itm-label { font-size: 13px; font-weight: 600; }
+.learn-itm-intrinsic { font-family: var(--mono); font-size: 11px; color: var(--t3); margin-left: auto; }
+
+.learn-itm-track-wrap { margin-bottom: 8px; }
+.learn-itm-track {
+  position: relative; height: 10px; border-radius: 5px; overflow: visible;
+  display: flex; margin-bottom: 6px;
+}
+.learn-itm-zone-otm {
+  flex: 1; height: 100%; background: var(--red-light);
+  border-radius: 5px 0 0 5px;
+}
+.learn-itm-zone-itm {
+  flex: 1; height: 100%; background: var(--green-light);
+  border-radius: 0 5px 5px 0;
+}
+.learn-itm-strike-pin {
+  position: absolute; left: 50%; top: -4px;
+  width: 2px; height: 18px; background: var(--t2);
+  transform: translateX(-50%);
+}
+.learn-itm-dot {
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2.5px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: left 0.1s;
+}
+.learn-itm-axis {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 9px; color: var(--t3);
+}
+.learn-itm-explain {
+  font-size: 13px; line-height: 1.7; color: var(--t2); margin-top: 12px;
+}
+.learn-itm-explain strong { color: var(--t1); }
+
+/* ─── Intro hero ────────────────────────────────────────────────────────── */
+.learn-intro-hero {
+  background: var(--navy-light);
+  border-color: rgba(30,58,95,0.18);
+}
+[data-theme="dark"] .learn-intro-hero {
+  background: rgba(255,140,0,0.07);
+  border-color: rgba(255,140,0,0.2);
+}
+.learn-intro-hook {
+  font-family: var(--serif); font-style: italic;
+  font-size: 20px; font-weight: 500; color: var(--t1);
+  line-height: 1.45; letter-spacing: -0.01em; margin-bottom: 10px;
+}
+.learn-intro-sub { font-size: 13px; color: var(--t2); line-height: 1.65; }
+
+/* ─── Comparison table ──────────────────────────────────────────────────── */
+.learn-cmp-table {
+  border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden;
+}
+.learn-cmp-header {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  background: var(--surface-3); border-bottom: 1px solid var(--border);
+  padding: 8px 12px; gap: 8px;
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--t3);
+}
+.learn-cmp-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  padding: 10px 12px; gap: 8px;
+  border-bottom: 1px solid var(--border-2);
+  align-items: center;
+}
+.learn-cmp-row:last-child { border-bottom: none; }
+.learn-cmp-label { font-size: 12px; color: var(--t2); }
+.learn-cmp-stock { font-family: var(--mono); font-size: 12px; color: var(--t2); }
+.learn-cmp-call  { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--t1); }
+.learn-cmp-call--green { color: var(--green); }
+.learn-cmp-call--red   { color: var(--red); }
+.learn-cmp-note {
+  font-family: var(--mono); font-size: 10px; color: var(--t3);
+  margin-top: 10px; line-height: 1.6;
+}
+
+/* ─── 3 Forces ──────────────────────────────────────────────────────────── */
+.learn-forces {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 4px;
+}
+.learn-force-card {
+  border-radius: var(--r-md); padding: 16px;
+  border: 1px solid var(--border-2);
+}
+.learn-force-card--navy   { background: var(--navy-light);   border-color: rgba(30,58,95,0.15); }
+.learn-force-card--red    { background: var(--red-light);    border-color: rgba(153,27,27,0.15); }
+.learn-force-card--violet { background: var(--violet-light); border-color: rgba(91,33,182,0.15); }
+.learn-force-icon {
+  margin-bottom: 8px;
+}
+.learn-force-card--navy   .learn-force-icon { color: var(--navy); }
+.learn-force-card--red    .learn-force-icon { color: var(--red); }
+.learn-force-card--violet .learn-force-icon { color: var(--violet); }
+.learn-force-greek {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; color: var(--t3); margin-bottom: 4px;
+}
+.learn-force-title {
+  font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 8px;
+}
+.learn-force-body { font-size: 12px; line-height: 1.65; color: var(--t2); }
+
+/* ─── Landing "Learn" link ──────────────────────────────────────────────── */
+.landing-learn-link {
+  background: none; border: none; padding: 0;
+  font-family: var(--mono); font-size: 12px; color: var(--t3);
+  cursor: pointer; letter-spacing: 0.04em;
+  transition: color 0.15s; display: block; margin-top: 8px;
+}
+.landing-learn-link:hover { color: var(--navy); }
+
+/* ─── Learn responsive ──────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .learn-strategies-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .learn-topbar { flex-direction: column; align-items: flex-start; }
+  .learn-grid { grid-template-columns: 1fr; }
+  .learn-card--wide { grid-column: span 1; }
+  .learn-greeks-grid { grid-template-columns: 1fr; }
+  .learn-strategies-grid { grid-template-columns: 1fr; }
+  .learn-gauge-row { gap: 8px; }
+  .learn-iv-label { min-width: unset; font-size: 10px; }
+  .learn-forces { grid-template-columns: 1fr; }
+  .learn-cmp-header, .learn-cmp-row { grid-template-columns: 1.2fr 1fr 1fr; gap: 4px; padding: 8px; }
+  .learn-cmp-label { font-size: 11px; }
+  .learn-cmp-stock, .learn-cmp-call { font-size: 11px; }
+  .learn-intro-hook { font-size: 17px; }
+  .learn-pl-note { display: none; }
+  .learn-slider-labels { flex-direction: column; gap: 2px; }
 }

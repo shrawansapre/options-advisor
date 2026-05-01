@@ -18,7 +18,7 @@ AI-powered options trade recommendation app for Robinhood users. Enter a ticker 
 - Anthropic API (`claude-sonnet-4-20250514`) with `web_search_20250305` tool
 - Vanilla CSS with Apple HIG design tokens (no Tailwind, no CSS-in-JS)
 - No state management library — useState is sufficient at current scale
-- No routing — single page app
+- `react-router-dom` v7 — BrowserRouter in `main.jsx`; two routes: `/` (main app) and `/learn` (Learn page)
 
 ## Project structure
 
@@ -86,6 +86,15 @@ App
 ```
 
 When the app grows, split into `src/components/` — each section becomes its own file. Keep the tab orchestration in TradeCard.
+
+### Auth (`src/components/AuthContext.jsx`, `AuthModal.jsx`, `src/lib/supabase.js`)
+
+- Supabase client in `supabase.js` — exports `null` if env vars missing (safe for local dev)
+- `AuthProvider` exposes `{ user, signInWithGoogle, signInWithEmail, signOut }` via `useAuth()`
+- `user === undefined` → loading | `null` → guest | object → signed in
+- Both OAuth and magic link use `redirectTo: window.location.origin` — works in dev and prod automatically
+- History is localStorage for guests; on first sign-in, localStorage is bulk-migrated to Supabase `analyses` table then cleared
+- **Supabase dashboard config** — if OAuth redirects to localhost in production, the Site URL in Authentication → URL Configuration is still set to localhost. Fix: set Site URL to the Vercel URL and add both URLs to the Redirect allow-list.
 
 ### Styling (`src/styles.css`)
 

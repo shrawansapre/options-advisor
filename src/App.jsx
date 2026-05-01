@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Globe, Moon, Sun, LogOut, X } from "lucide-react";
 import { fetchRecommendation } from "./api";
@@ -8,6 +9,7 @@ import TradeCard from "./components/TradeCard";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AnalysisTabs from "./components/AnalysisTabs";
 import AuthModal from "./components/AuthModal";
+import LearnPage from "./components/LearnPage";
 import { useAuth } from "./components/AuthContext";
 import "./styles.css";
 
@@ -34,6 +36,9 @@ export default function App() {
   const { user, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const showLearn = pathname === "/learn";
   const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const avatarRef = useRef(null);
 
@@ -163,6 +168,12 @@ export default function App() {
             </div>
           </div>
           <div className="header-actions">
+            <button
+              className={`learn-btn${showLearn ? " learn-btn--active" : ""}`}
+              onClick={() => navigate(showLearn ? "/" : "/learn")}
+            >
+              Learn
+            </button>
             <button className="theme-toggle" onClick={() => setDark(d => !d)} aria-label="Toggle theme">
               {dark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
@@ -180,8 +191,12 @@ export default function App() {
         </div>
       </header>
 
-      <main className={`app-main${analyses.length === 0 ? " app-main--landing" : ""}`}>
-        <div className="search-wrap">
+      <main className={`app-main${!showLearn && analyses.length === 0 ? " app-main--landing" : ""}`}>
+        <Routes>
+          <Route path="/learn" element={<LearnPage />} />
+        </Routes>
+
+        <div className="search-wrap" style={{ display: showLearn ? "none" : undefined }}>
           <div className="search-bar">
             <input
               id="ticker-input"
@@ -210,7 +225,7 @@ export default function App() {
           />
         </div>
 
-        {showNudge && (
+        {!showLearn && showNudge && (
           <div className="signin-nudge">
             <span>Sign in to save your analyses across devices</span>
             <button className="signin-nudge-btn" onClick={() => setShowAuth(true)}>Sign in</button>
@@ -218,14 +233,16 @@ export default function App() {
           </div>
         )}
 
-        <AnalysisTabs
-          analyses={analyses}
-          activeId={activeId}
-          onSelect={setActiveId}
-          onClose={closeTab}
-        />
+        {!showLearn && (
+          <AnalysisTabs
+            analyses={analyses}
+            activeId={activeId}
+            onSelect={setActiveId}
+            onClose={closeTab}
+          />
+        )}
 
-        <AnimatePresence mode="wait">
+        {!showLearn && <AnimatePresence mode="wait">
           {!active && (
             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="landing">
@@ -237,6 +254,9 @@ export default function App() {
                 </div>
                 <button className="landing-scan" onClick={() => handleAnalyze("")}>
                   Scan market for best opportunity →
+                </button>
+                <button className="landing-learn-link" onClick={() => navigate("/learn")}>
+                  New to options? Learn the basics →
                 </button>
               </div>
             </motion.div>
@@ -278,7 +298,7 @@ export default function App() {
               {active.result.disclaimer && <p className="disclaimer">{active.result.disclaimer}</p>}
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence>}
       </main>
       {showUserMenu && (
         <div className="user-menu" style={{ top: menuPos.top, right: menuPos.right }} onClick={() => setShowUserMenu(false)}>
