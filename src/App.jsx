@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Globe, Moon, Sun } from "lucide-react";
+import { AlertTriangle, Globe, Moon, Sun, LogOut, X } from "lucide-react";
 import { fetchRecommendation } from "./api";
 import { useSearchHistory, SearchHistory } from "./components/SearchHistory";
 import LoadingMessages from "./components/LoadingMessages";
 import TradeCard from "./components/TradeCard";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AnalysisTabs from "./components/AnalysisTabs";
+import AuthModal from "./components/AuthModal";
+import { useAuth } from "./components/AuthContext";
 import "./styles.css";
 
 const MAX_TABS = 6;
@@ -29,6 +31,26 @@ export default function App() {
   const [analyses, setAnalyses] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const { history, addEntry, clearHistory } = useSearchHistory();
+  const { user, signOut } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+  const avatarRef = useRef(null);
+
+  useEffect(() => {
+    if (!showUserMenu) return;
+    const close = () => setShowUserMenu(false);
+    const t = setTimeout(() => document.addEventListener("click", close), 0);
+    return () => { clearTimeout(t); document.removeEventListener("click", close); };
+  }, [showUserMenu]);
+
+  function openUserMenu() {
+    if (avatarRef.current) {
+      const r = avatarRef.current.getBoundingClientRect();
+      setMenuPos({ top: r.bottom + 8, right: window.innerWidth - r.right });
+    }
+    setShowUserMenu(m => !m);
+  }
 
   const update = (id, patch) =>
     setAnalyses(prev => prev.map(a => a.id === id ? { ...a, ...patch } : a));
@@ -119,6 +141,15 @@ export default function App() {
   }
 
   const active = analyses.find(a => a.id === activeId) ?? null;
+  const [nudgeDismissed, setNudgeDismissed] = useState(
+    () => localStorage.getItem("oa-nudge-dismissed") === "1"
+  );
+  const showNudge = !user && !nudgeDismissed && analyses.length >= 3;
+
+  function dismissNudge() {
+    setNudgeDismissed(true);
+    localStorage.setItem("oa-nudge-dismissed", "1");
+  }
 
   return (
     <div className="app">
@@ -131,9 +162,21 @@ export default function App() {
               <div className="header-sub">AI-powered analysis · For Robinhood</div>
             </div>
           </div>
-          <button className="theme-toggle" onClick={() => setDark(d => !d)} aria-label="Toggle theme">
-            {dark ? <Sun size={14} /> : <Moon size={14} />}
-          </button>
+          <div className="header-actions">
+            <button className="theme-toggle" onClick={() => setDark(d => !d)} aria-label="Toggle theme">
+              {dark ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
+            {user ? (
+              <button className="avatar-btn" ref={avatarRef} onClick={openUserMenu}>
+                {user.user_metadata?.avatar_url
+                  ? <img src={user.user_metadata.avatar_url} alt="" className="avatar-img" />
+                  : <span className="avatar-initials">{(user.email?.[0] ?? "?").toUpperCase()}</span>
+                }
+              </button>
+            ) : (
+              <button className="signin-btn" onClick={() => setShowAuth(true)}>Sign in</button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -166,6 +209,14 @@ export default function App() {
             onClear={clearHistory}
           />
         </div>
+
+        {showNudge && (
+          <div className="signin-nudge">
+            <span>Sign in to save your analyses across devices</span>
+            <button className="signin-nudge-btn" onClick={() => setShowAuth(true)}>Sign in</button>
+            <button className="signin-nudge-close" onClick={dismissNudge}><X size={11} /></button>
+          </div>
+        )}
 
         <AnalysisTabs
           analyses={analyses}
@@ -219,6 +270,15 @@ export default function App() {
           )}
         </AnimatePresence>
       </main>
+      {showUserMenu && (
+        <div className="user-menu" style={{ top: menuPos.top, right: menuPos.right }} onClick={() => setShowUserMenu(false)}>
+          <div className="user-menu-email">{user?.email}</div>
+          <button className="user-menu-item" onClick={signOut}>
+            <LogOut size={12} /> Sign out
+          </button>
+        </div>
+      )}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </div>
   );
 }
