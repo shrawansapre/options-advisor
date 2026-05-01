@@ -1805,10 +1805,26 @@ body {
   .learn-iv-label { min-width: unset; font-size: 10px; }
   .learn-forces { grid-template-columns: 1fr; gap: 8px; }
   .learn-force-card { grid-column: auto; }
-  .learn-cmp-header { grid-template-columns: 1.4fr 1fr 1fr; gap: 4px; padding: 8px 10px; font-size: 9px; }
-  .learn-cmp-row    { grid-template-columns: 1.4fr 1fr 1fr; gap: 4px; padding: 8px 10px; }
-  .learn-cmp-label  { font-size: 11px; }
-  .learn-cmp-stock, .learn-cmp-call { font-size: 11px; }
+  .learn-cmp-header { display: none; }
+  .learn-cmp-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "label label" "stock call";
+    gap: 2px 8px;
+    padding: 10px 12px;
+  }
+  .learn-cmp-label { grid-area: label; font-size: 12px; font-weight: 500; color: var(--t1); padding-bottom: 6px; }
+  .learn-cmp-stock { grid-area: stock; font-size: 12px; }
+  .learn-cmp-call  { grid-area: call;  font-size: 12px; text-align: right; }
+  .learn-cmp-stock::before {
+    content: "STOCK"; display: block;
+    font-family: var(--mono); font-size: 9px; color: var(--t3);
+    letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px;
+  }
+  .learn-cmp-call::before {
+    content: "OPTION"; display: block;
+    font-family: var(--mono); font-size: 9px; color: var(--t3);
+    letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; text-align: right;
+  }
   .learn-intro-hook { font-size: 17px; }
   .learn-pl-note { display: none; }
   .learn-pl-display { gap: 6px; padding: 8px 10px; }
