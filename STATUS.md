@@ -8,15 +8,16 @@
 - **Search history** — localStorage, last 20 entries, re-run from history
 - **Responsive design** — three breakpoints (≤900px, ≤600px, ≤380px) covering all screen sizes
 - **Open Graph** — static `og.png` (logo mark on navy), correct meta tags for all platforms
-- **Bug fix** — `.map()` on undefined arrays (riskFactors, robinhoodSteps, bullishSignals, warningSignals) caused blank page in production; guarded with `?? []`
+- **Mobile header fixes** — `min-width: 0` on flex containers; subtitle truncates; brand mark scales across breakpoints
+- **iOS zoom fix** — search input kept at 16px on mobile
+- **Header animations removed** — static header, no sweep/pulse animations
 
-- **Mobile header fixes** — `min-width: 0` on flex containers prevents overflow; subtitle truncates with ellipsis; brand mark scales 36→28→24px across breakpoints; letter-spacing reduced; subtitle hidden at ≤380px
-- **Loading panel step alignment** — `align-items: flex-start` on `.lp-step` so icon pins to first line when text wraps on narrow screens
-- **iOS zoom fix** — search input kept at 16px on mobile (iOS auto-zooms on inputs below 16px)
-- **JSON parse resilience** — third repair pass strips control characters before retrying `jsonrepair`; all failures now show user-friendly "try again" message instead of raw position error
-- **Header animations removed** — sweep line and ◈ pulse replaced with static versions
-- **Code cleanup** — `--amber-ui` CSS token, `validSources` derived once per render, `completedSteps` keyed by index
+- **Analysis tabs** — each search opens its own tab with independent loading state; spinner on loading tabs; history items switch to existing tab if already open; max 6 tabs
+- **System prompt trim** — replaced full example JSON with compact schema; ~60% smaller prompt; 1 trade output
+- **History caching** — full API result stored in localStorage per history entry; clicking history restores instantly without re-fetching
+- **User profiles (Phases 1–4)** — Supabase auth with Google OAuth + magic link; avatar/user menu in header; analyses persisted to Supabase when signed in; localStorage migration on first sign-in; history resets on sign-out; sign-in nudge after 3+ guest analyses
+- **Mobile landing** — vertically positioned search bar with popular ticker chips (NVDA, AAPL, TSLA, SPY, AMZN, META) and market scan shortcut; header subtitle hidden on mobile
 
 ## Known Issues / Next Up
 
-- None outstanding
+- Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)
