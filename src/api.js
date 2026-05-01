@@ -18,168 +18,95 @@ CRITICAL — RESPONSE LENGTH: Your entire JSON response must stay well under 700
 
 CRITICAL — INVALID TICKER: If the ticker symbol does not exist, is not traded on US markets, has been delisted, or cannot be found via web search, respond with ONLY this JSON and nothing else: {"error": "Ticker not found", "message": "Could not find [SYMBOL] on US markets. Please check the symbol and try again."}
 
-Recommend 1-2 specific, actionable options trades. You MUST respond with ONLY a valid JSON object — no markdown fences, no preamble, no explanation. Just raw JSON.
+Recommend exactly 1 specific, actionable options trade. You MUST respond with ONLY a valid JSON object — no markdown fences, no preamble, no explanation. Just raw JSON.
 
-Use this exact structure:
+Schema (use exact field names, types, and nesting):
 
 {
-  "trades": [
-    {
-      "ticker": "NVDA",
-      "strategy": "Buy Call",
-      "strategyType": "bullish",
-
-      "summary": {
-        "headline": "Short punchy headline explaining why this trade makes sense right now",
-        "plainEnglish": "Buy 1 call option on NVDA expiring Jun 20 at the $900 strike for about $350 total risk",
-        "expectedOutcome": "Profit if NVDA climbs above $903.50 before Jun 20",
-        "conviction": "High",
-        "confidenceScore": 74,
-        "whenToBuySimple": "Buy now or on a dip to $875 — avoid chasing if stock gaps up more than 2%",
-        "whenToSellSimple": "Sell if up 50%+, or if stock drops below $865, or with 7 days left"
-      },
-
-      "strategyRationale": "We chose a long call over a bull call spread because IV rank is at the 34th percentile — options are cheap enough that buying outright premium is justified. A spread would cap upside at the short strike; given the catalyst size (earnings + AI narrative), uncapped upside is worth the extra premium. We rejected puts because the trend and technicals are clearly bullish. We rejected a shorter expiry because we need at least 45 DTE to survive any pre-earnings chop without extreme theta decay.",
-
-      "expiry": "2025-06-20",
-      "expiryLabel": "Jun 20, 2025",
-      "daysToExpiry": 52,
-      "strike": "900",
-      "strike2": null,
-      "entryPrice": "3.50",
-      "totalCost": "$350",
-      "maxProfit": "Unlimited",
-      "maxLoss": "$350",
-      "breakeven": "903.50",
-      "currentPrice": "883.20",
-      "ivRank": "34",
-      "impliedVolatility": "42",
-
-      "greeks": {
-        "delta": {
-          "value": "0.42",
-          "direction": "bullish",
-          "insight": "For every $1 NVDA moves up, your contract gains $42. You need NVDA to climb ~$20 just to break even at expiry."
-        },
-        "theta": {
-          "value": "-0.08",
-          "dailyCost": "$8",
-          "weeklyDrain": "$56",
-          "insight": "Time is your enemy — you are paying $8 per day for the privilege of holding this option. Two weeks of sideways action costs you $112 before the stock even moves."
-        },
-        "gamma": {
-          "value": "0.012",
-          "insight": "If NVDA rips $10 in one session, your delta jumps from 0.42 to ~0.52. Momentum accelerates your gains as the stock moves your way — this works best near the strike."
-        },
-        "vega": {
-          "value": "0.25",
-          "insight": "A volatility spike (like pre-earnings uncertainty or a macro scare) adds $25 to your option per 1% rise in IV. You benefit if fear picks up before you exit."
-        },
-        "ivRankReading": "Low (34th percentile)",
-        "ivRankInsight": "IV is near the low end of its 1-year range — options are cheap relative to history. This is an ideal time to be a buyer, not a seller. You are not overpaying for uncertainty."
-      },
-
-      "exitStrategy": {
-        "profitTarget": {
-          "optionPrice": "5.25",
-          "returnPct": "50",
-          "stockPrice": "$920",
-          "rule": "Close when the option hits $5.25 — a clean 50% gain on your money"
-        },
-        "stopLoss": {
-          "optionPrice": "1.75",
-          "lossPct": "50",
-          "stockPrice": "$865",
-          "rule": "Exit if the option drops to $1.75 — the setup has failed and further losses are not worth it"
-        },
-        "timeStop": {
-          "date": "Jun 13, 2025",
-          "daysBeforeExpiry": 7,
-          "rule": "Close by Jun 13 regardless of position — theta decay accelerates sharply in the final week and can destroy value fast"
-        },
-        "earningsWarning": "NVDA reports earnings around May 28. Even if the stock moves in your direction, implied volatility typically collapses immediately after the report (IV crush) and can cut your option value in half. Strongly consider exiting before the earnings announcement."
-      },
-
-      "predictions": {
-        "bullCase": {
-          "stockTarget": "$945",
-          "optionReturn": "+120%",
-          "probability": "28%",
-          "scenario": "AI infrastructure spending accelerates — hyperscalers raise capex guidance and NVDA announces new H200 partnerships, driving a momentum surge."
-        },
-        "baseCase": {
-          "stockTarget": "$910",
-          "optionReturn": "+45%",
-          "probability": "47%",
-          "scenario": "Gradual continuation of the current uptrend. NVDA holds above $890 support and grinds higher into earnings on steady institutional accumulation."
-        },
-        "bearCase": {
-          "stockTarget": "$848",
-          "optionReturn": "-100%",
-          "probability": "25%",
-          "scenario": "Broader tech rotation accelerates, rising rate fears hit high-multiple names, or surprise China export restriction headlines tank the semiconductor sector."
-        }
-      },
-
-      "watchFor": {
-        "bullishSignals": [
-          "NVDA holds above $875 on any pullbacks — confirms support is intact",
-          "Daily volume stays above 40M shares — institutional accumulation signal",
-          "Positive datacenter capex announcements from Microsoft, Google, or Amazon",
-          "Broader market (SPY) continues above its 20-day moving average"
-        ],
-        "warningSignals": [
-          "NVDA closes below $865 on high volume — exit immediately",
-          "Semiconductor sector ETF (SOXX) breaks down through its 50-day MA",
-          "Surprise news on US chip export restrictions to China",
-          "VIX spikes above 25 — systemic fear often hits high-beta names hardest"
-        ],
-        "keyDates": [
-          { "date": "May 28", "event": "NVDA Earnings Report", "impact": "Critical" },
-          { "date": "Jun 11", "event": "FOMC Rate Decision", "impact": "Moderate" },
-          { "date": "Jun 13", "event": "Time stop — close trade", "impact": "Action Required" }
-        ]
-      },
-
-      "rationale": "NVDA has broken out of a 3-week consolidation on above-average volume, suggesting institutional accumulation ahead of earnings. Implied volatility is near the low end of its 1-year range, making calls unusually cheap relative to historical pricing. The AI infrastructure buildout narrative remains intact with all major hyperscalers increasing datacenter spend. A defined-risk call captures upside while capping total loss to the premium paid.",
-
-      "riskLevel": 3,
-      "riskFactors": [
-        "Earnings IV crush could erase gains even on a bullish stock move if you hold through the report",
-        "Daily theta decay of $8 punishes holding during periods of sideways price action",
-        "Macro risk: Fed rate surprises hit high-multiple tech names fastest and hardest"
-      ],
-
-      "sources": [
-        { "title": "NVDA breaks out on heavy volume — Investor's Business Daily", "url": "https://www.investors.com/..." },
-        { "title": "NVIDIA options IV rank data — Barchart", "url": "https://www.barchart.com/..." },
-        { "title": "Hyperscaler capex forecasts Q1 2025 — Bloomberg", "url": "https://www.bloomberg.com/..." }
-      ],
-
-      "robinhoodSteps": [
-        "Open Robinhood and tap the search icon",
-        "Type NVDA and open the stock page",
-        "Tap Trade, then select Trade Options",
-        "Tap Call at the top to filter to calls only",
-        "Scroll to find the $900 strike — look for the row showing your strike",
-        "Tap to select it, then choose the Jun 20 expiry from the date selector",
-        "Set quantity to 1 contract (= 100 shares of exposure)",
-        "Check the Ask price is near $3.50 — if it has moved significantly, reassess",
-        "Tap Review Order, review the total debit, then Submit"
+  "trades": [{
+    "ticker": "NVDA",
+    "strategy": "Buy Call",
+    "strategyType": "bullish",
+    "summary": {
+      "headline": "Short punchy headline ≤120 chars",
+      "plainEnglish": "Plain-English trade description ≤120 chars",
+      "expectedOutcome": "Expected outcome ≤120 chars",
+      "conviction": "High",
+      "confidenceScore": 74,
+      "whenToBuySimple": "Entry timing with specific price level ≤120 chars",
+      "whenToSellSimple": "Exit trigger ≤120 chars"
+    },
+    "strategyRationale": "Why this strategy over alternatives. 2-3 sentences, ≤300 chars. Bold key facts with **double asterisks**.",
+    "expiry": "2025-06-20",
+    "expiryLabel": "Jun 20, 2025",
+    "daysToExpiry": 52,
+    "strike": "900",
+    "strike2": null,
+    "entryPrice": "3.50",
+    "totalCost": "$350",
+    "maxProfit": "Unlimited",
+    "maxLoss": "$350",
+    "breakeven": "903.50",
+    "currentPrice": "883.20",
+    "ivRank": "34",
+    "impliedVolatility": "42",
+    "greeks": {
+      "delta": { "value": "0.42", "direction": "bullish", "insight": "Dollar impact per $1 move ≤120 chars" },
+      "theta": { "value": "-0.08", "dailyCost": "$8", "weeklyDrain": "$56", "insight": "Daily cost in dollar terms ≤120 chars" },
+      "gamma": { "value": "0.012", "insight": "Acceleration effect ≤120 chars" },
+      "vega": { "value": "0.25", "insight": "IV sensitivity in dollar terms ≤120 chars" },
+      "ivRankReading": "Low (34th percentile)",
+      "ivRankInsight": "What IV rank means for this trade ≤120 chars"
+    },
+    "exitStrategy": {
+      "profitTarget": { "optionPrice": "5.25", "returnPct": "50", "stockPrice": "$920", "rule": "≤100 chars" },
+      "stopLoss": { "optionPrice": "1.75", "lossPct": "50", "stockPrice": "$865", "rule": "≤100 chars" },
+      "timeStop": { "date": "Jun 13, 2025", "daysBeforeExpiry": 7, "rule": "≤100 chars" },
+      "earningsWarning": "Earnings/IV crush warning if applicable ≤150 chars"
+    },
+    "predictions": {
+      "bullCase": { "stockTarget": "$945", "optionReturn": "+120%", "probability": "28%", "scenario": "≤100 chars" },
+      "baseCase": { "stockTarget": "$910", "optionReturn": "+45%",  "probability": "47%", "scenario": "≤100 chars" },
+      "bearCase": { "stockTarget": "$848", "optionReturn": "-100%", "probability": "25%", "scenario": "≤100 chars" }
+    },
+    "watchFor": {
+      "bullishSignals": ["Signal 1 ≤80 chars", "Signal 2 ≤80 chars", "Signal 3 ≤80 chars"],
+      "warningSignals": ["Warning 1 ≤80 chars", "Warning 2 ≤80 chars", "Warning 3 ≤80 chars"],
+      "keyDates": [
+        { "date": "May 28", "event": "NVDA Earnings", "impact": "Critical" },
+        { "date": "Jun 11", "event": "FOMC Decision", "impact": "Moderate" },
+        { "date": "Jun 13", "event": "Time stop", "impact": "Action Required" }
       ]
-    }
-  ],
-  "marketContext": "1-2 sentences describing current market conditions relevant to the recommended trades.",
+    },
+    "rationale": "Trade thesis. 2-3 sentences, ≤300 chars. Bold key facts with **double asterisks**.",
+    "riskLevel": 3,
+    "riskFactors": ["Risk 1 ≤100 chars", "Risk 2 ≤100 chars"],
+    "sources": [
+      { "title": "Source title", "url": "https://real-url-from-search.com" }
+    ],
+    "robinhoodSteps": [
+      "Step 1 ≤80 chars",
+      "Step 2 ≤80 chars",
+      "Step 3 ≤80 chars",
+      "Step 4 ≤80 chars",
+      "Step 5 ≤80 chars"
+    ]
+  }],
+  "marketContext": "1-2 sentences on current market conditions.",
   "disclaimer": "This is AI-generated analysis for educational purposes only. Options trading involves substantial risk of loss and is not appropriate for all investors. Past performance does not guarantee future results. Always do your own research before trading."
 }
 
-strategyType must be one of: bullish, bearish, neutral
-riskLevel is an integer from 1 (lowest) to 5 (highest)
-conviction is one of: High, Medium, Low
-whenToBuySimple: one sentence on ideal entry timing — when to enter, what price level or condition to wait for, what to avoid (e.g. don't chase a gap-up). Reference the current stock price and a specific entry trigger.
-If recommending a spread, set strike2 to the second strike string; otherwise null
-keyDates impact must be one of: Critical, Moderate, Action Required, Low
-sources must contain real URLs from your web search — omit any entry where you do not have a real URL
+Field rules:
+- strategyType: bullish | bearish | neutral
+- riskLevel: integer 1–5
+- conviction: High | Medium | Low
+- strike2: second strike string for spreads, otherwise null
+- keyDates impact: Critical | Moderate | Action Required | Low
+- bullishSignals, warningSignals: exactly 3 items each
+- riskFactors: exactly 2 items
+- robinhoodSteps: exactly 5 steps
+- keyDates: exactly 3 items
+- sources: only real URLs retrieved during this session; omit entries without a real URL
 RESPOND ONLY WITH THE JSON OBJECT. No preamble. No explanation. No code fences.`;
 
 // ─── JSON repair helpers ──────────────────────────────────────────────────────
