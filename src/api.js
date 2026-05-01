@@ -14,6 +14,8 @@ CRITICAL — SOURCES: For every news article, earnings date, or market data poin
 
 CRITICAL — JSON SAFETY: The output is parsed by JSON.parse(). Never include unescaped double-quote characters inside a string value — if you need to quote a term within a string, use single quotes instead (e.g. 'delta effect' not "delta effect"). Never include literal newline characters inside a string value — write everything on one continuous line within each string. This is the most common cause of parse failures.
 
+CRITICAL — RESPONSE LENGTH: Your entire JSON response must stay well under 7000 tokens. Enforce these hard limits on every string value you write: headline, plainEnglish, expectedOutcome, whenToSellSimple — max 120 characters each. insight fields (delta, theta, gamma, vega, ivRankInsight) — max 120 characters each. scenario in predictions — max 100 characters each. rule in exitStrategy — max 100 characters each. rationale and strategyRationale — max 300 characters each. earningsWarning — max 150 characters. Each robinhoodStep — max 80 characters; use exactly 5 steps. bullishSignals and warningSignals — exactly 3 items each, max 80 characters each. riskFactors — exactly 2 items, max 100 characters each. keyDates — exactly 3 items. sources — max 3 items. Violating these limits risks truncation and a broken response.
+
 CRITICAL — INVALID TICKER: If the ticker symbol does not exist, is not traded on US markets, has been delisted, or cannot be found via web search, respond with ONLY this JSON and nothing else: {"error": "Ticker not found", "message": "Could not find [SYMBOL] on US markets. Please check the symbol and try again."}
 
 Recommend 1-2 specific, actionable options trades. You MUST respond with ONLY a valid JSON object — no markdown fences, no preamble, no explanation. Just raw JSON.
@@ -178,6 +180,43 @@ keyDates impact must be one of: Critical, Moderate, Action Required, Low
 sources must contain real URLs from your web search — omit any entry where you do not have a real URL
 RESPOND ONLY WITH THE JSON OBJECT. No preamble. No explanation. No code fences.`;
 
+// ─── JSON repair helpers ──────────────────────────────────────────────────────
+
+// Replace unescaped double-quotes that appear mid-string-value with single quotes.
+// Walks character-by-character, tracking string state and skipping real escape sequences.
+function fixUnescapedQuotes(str) {
+  let result = "";
+  let inStr = false;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (ch === "\\" && inStr) {
+      result += ch + (str[i + 1] ?? "");
+      i++;
+      continue;
+    }
+    if (ch === '"') {
+      if (!inStr) {
+        inStr = true;
+        result += ch;
+        continue;
+      }
+      // Peek past whitespace to decide if this closes the string
+      let j = i + 1;
+      while (j < str.length && " \t\r\n".includes(str[j])) j++;
+      const peek = str[j];
+      if (!peek || ":,}]".includes(peek)) {
+        inStr = false;
+        result += ch;
+      } else {
+        result += "'"; // interior unescaped quote → single quote
+      }
+      continue;
+    }
+    result += ch;
+  }
+  return result;
+}
+
 // ─── Stream helpers ───────────────────────────────────────────────────────────
 
 function extractReadableStrings(text) {
@@ -275,22 +314,16 @@ export async function fetchRecommendation(ticker, onProgress) {
   if (start === -1 || end === -1 || end < start) throw new Error("No JSON found in response — the model may not have finished. Please try again.");
   const slice = accumulated.slice(start, end + 1);
   let parsed;
-  try {
-    parsed = JSON.parse(slice);
-  } catch (_) {
-    try {
-      parsed = JSON.parse(jsonrepair(slice));
-    } catch (_2) {
-      // Last resort: strip literal control characters (newlines, tabs) inside strings
-      // then retry jsonrepair — covers the case where the model emits real \n mid-string
-      const scrubbed = slice.replace(/[\x00-\x1F\x7F]/g, " ");
-      try {
-        parsed = JSON.parse(jsonrepair(scrubbed));
-      } catch {
-        throw new Error("The AI returned malformed data. Please try again — this usually resolves on retry.");
-      }
-    }
+  const attempts = [
+    () => JSON.parse(slice),
+    () => JSON.parse(jsonrepair(slice)),
+    () => { const s = slice.replace(/[\x00-\x1F\x7F]/g, " "); return JSON.parse(jsonrepair(s)); },
+    () => { const s = fixUnescapedQuotes(slice.replace(/[\x00-\x1F\x7F]/g, " ")); return JSON.parse(jsonrepair(s)); },
+  ];
+  for (const attempt of attempts) {
+    try { parsed = attempt(); break; } catch (_) {}
   }
+  if (!parsed) throw new Error("The AI returned malformed data. Please try again — this usually resolves on retry.");
   if (parsed.error) throw new Error(parsed.message || "Ticker not found. Please check the symbol and try again.");
   return parsed;
 }
