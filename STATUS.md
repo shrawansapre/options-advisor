@@ -17,6 +17,8 @@
 - **History caching** — full API result stored in localStorage per history entry; clicking history restores instantly without re-fetching
 - **User profiles (Phases 1–4)** — Supabase auth with Google OAuth + magic link; avatar/user menu in header; analyses persisted to Supabase when signed in; localStorage migration on first sign-in; history resets on sign-out; sign-in nudge after 3+ guest analyses
 - **Mobile landing** — vertically positioned search bar with popular ticker chips (NVDA, AAPL, TSLA, SPY, AMZN, META) and market scan shortcut; header subtitle hidden on mobile
+- **Learn page** — `/learn` route with 5 sections (Start Here, Basics, Greeks, Volatility, Strategies); interactive payoff diagrams with live sliders; ITM/ATM/OTM explainer; IV gauge; strategy P&L diagrams; mobile responsive
+- **Active tab text fix** — hover pseudo-class was overriding active state color; fixed for learn nav, header Learn button, and analysis tabs
 
 ## Known Issues / Next Up
 
