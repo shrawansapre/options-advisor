@@ -5,6 +5,7 @@ import { fetchRecommendation } from "./api";
 import { useSearchHistory, SearchHistory } from "./components/SearchHistory";
 import LoadingMessages from "./components/LoadingMessages";
 import TradeCard from "./components/TradeCard";
+import ErrorBoundary from "./components/ErrorBoundary";
 import "./styles.css";
 
 export default function App() {
@@ -128,7 +129,9 @@ export default function App() {
                 </div>
               )}
               {result.trades?.map((trade, i) => (
-                <TradeCard key={i} trade={trade} index={i} analysedAt={analysedAt} marketContext={result.marketContext} />
+                <ErrorBoundary key={i}>
+                  <TradeCard trade={trade} index={i} analysedAt={analysedAt} marketContext={result.marketContext} />
+                </ErrorBoundary>
               ))}
               {result.disclaimer && <p className="disclaimer">{result.disclaimer}</p>}
             </motion.div>
