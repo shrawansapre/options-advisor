@@ -76,6 +76,8 @@ export default function App() {
         <div className="search-wrap">
           <div className="search-bar">
             <input
+              id="ticker-input"
+              name="ticker"
               className="search-input"
               type="text"
               placeholder="Enter a ticker — NVDA, SPY, TSLA — or leave blank to scan the market"

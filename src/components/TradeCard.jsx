@@ -7,6 +7,7 @@ import {
   CheckCircle2, BookOpen, Layers, Share2
 } from "lucide-react";
 import IVGauge from "./IVGauge";
+import { PayoffChart, ThetaDecayChart } from "./TradeCharts";
 import { STRATEGY_COLORS, ordinalSuffix, impactClass, impactDotColor, formatTradeAsMarkdown } from "../utils";
 
 function parseBold(text) {
@@ -156,139 +157,104 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
         </div>
       </div>
 
-      {/* ── Body ── */}
-      <div className="trade-body">
+      {/* ── Content ── */}
+      <div className="trade-content">
 
-        {/* ── Left column ── */}
-        <div className="trade-col-left">
-
-          <div className="card card-hero">
-            <h3 className="headline">{summary.headline}</h3>
-            <p className="plain-english">{summary.plainEnglish}</p>
-            <div className="sell-hint">
-              <CheckCircle2 size={13} className="sell-hint-icon" />
-              <span>{summary.whenToSellSimple}</span>
-            </div>
-          </div>
-
-          {strategyRationale && (
-            <div className="card card-rationale">
-              <div className="card-label">
-                <Layers size={11} />
-                Why {trade.strategy}
-              </div>
-              <p className="rationale-text">{parseBold(strategyRationale)}</p>
+        {/* Hero — full width, highest priority */}
+        <div className="card card-hero">
+          <h3 className="headline">{summary.headline}</h3>
+          <p className="plain-english">{summary.plainEnglish}</p>
+          {summary.whenToBuySimple && (
+            <div className="entry-hint">
+              <Target size={13} className="entry-hint-icon" />
+              <span>{summary.whenToBuySimple}</span>
             </div>
           )}
-
-          <div className="card">
-            <div className="card-label">
-              <Target size={11} />
-              Exit strategy
-            </div>
-            <div className="exit-grid">
-              <div className="exit-rule profit">
-                <div className="exit-rule-head">
-                  <TrendingUp size={14} className="exit-icon-svg green-text" />
-                  <span className="exit-title">Take profit</span>
-                  <span className="exit-pct green-text">+{exitStrategy.profitTarget.returnPct}%</span>
-                </div>
-                <p className="exit-desc">{exitStrategy.profitTarget.rule}</p>
-                <div className="exit-meta">Stock at {exitStrategy.profitTarget.stockPrice}</div>
-              </div>
-              <div className="exit-rule stop">
-                <div className="exit-rule-head">
-                  <TrendingDown size={14} className="exit-icon-svg red-text" />
-                  <span className="exit-title">Stop loss</span>
-                  <span className="exit-pct red-text">−{exitStrategy.stopLoss.lossPct}%</span>
-                </div>
-                <p className="exit-desc">{exitStrategy.stopLoss.rule}</p>
-                <div className="exit-meta">Stock at {exitStrategy.stopLoss.stockPrice}</div>
-              </div>
-              <div className="exit-rule time">
-                <div className="exit-rule-head">
-                  <Clock size={14} className="exit-icon-svg amber-text" />
-                  <span className="exit-title">Time stop</span>
-                </div>
-                <p className="exit-desc">{exitStrategy.timeStop.rule}</p>
-                <div className="exit-meta">Close by {exitStrategy.timeStop.date}</div>
-              </div>
-            </div>
-            {exitStrategy.earningsWarning && (
-              <div className="earnings-warning">
-                <AlertTriangle size={13} />
-                <span>{exitStrategy.earningsWarning}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="card">
-            <div className="card-label">
-              <BookOpen size={11} />
-              Outcome scenarios
-            </div>
-            <div className="scenarios-grid">
-              {[
-                { key: "bull", label: "Bull case", data: predictions.bullCase, colorClass: "green-text", fillClass: "prob-fill--bull" },
-                { key: "base", label: "Base case", data: predictions.baseCase, colorClass: "navy-text", fillClass: "prob-fill--base" },
-                { key: "bear", label: "Bear case", data: predictions.bearCase, colorClass: "red-text",  fillClass: "prob-fill--bear" },
-              ].map(({ key, label, data, colorClass, fillClass }) => (
-                <div key={key} className="scenario-card">
-                  <div className="scenario-top">
-                    <span className="scenario-label">{label}</span>
-                    <span className="scenario-prob">{data.probability}</span>
-                  </div>
-                  <div className={`scenario-return ${colorClass}`}>{data.optionReturn}</div>
-                  <div className="scenario-target">→ {data.stockTarget}</div>
-                  <div className="prob-bar">
-                    <div className={`prob-fill ${fillClass}`} style={{ width: data.probability }} />
-                  </div>
-                  <p className="scenario-desc">{data.scenario}</p>
-                </div>
-              ))}
-            </div>
+          <div className="sell-hint">
+            <CheckCircle2 size={13} className="sell-hint-icon" />
+            <span>{summary.whenToSellSimple}</span>
           </div>
         </div>
 
-        {/* ── Right column: Greeks ── */}
-        <div className="trade-col-right">
-          <div className="card card-iv">
-            <div className="card-label">
-              <Activity size={11} />
-              Implied volatility rank
+        {/* Exit strategy — full width */}
+        <div className="card">
+          <div className="card-label"><Target size={11} /> Exit strategy</div>
+          <div className="exit-grid">
+            <div className="exit-rule profit">
+              <div className="exit-rule-head">
+                <TrendingUp size={14} className="exit-icon-svg green-text" />
+                <span className="exit-title">Take profit</span>
+                <span className="exit-pct green-text">+{exitStrategy.profitTarget.returnPct}%</span>
+              </div>
+              <p className="exit-desc">{exitStrategy.profitTarget.rule}</p>
+              <div className="exit-meta">Stock at {exitStrategy.profitTarget.stockPrice}</div>
             </div>
+            <div className="exit-rule stop">
+              <div className="exit-rule-head">
+                <TrendingDown size={14} className="exit-icon-svg red-text" />
+                <span className="exit-title">Stop loss</span>
+                <span className="exit-pct red-text">−{exitStrategy.stopLoss.lossPct}%</span>
+              </div>
+              <p className="exit-desc">{exitStrategy.stopLoss.rule}</p>
+              <div className="exit-meta">Stock at {exitStrategy.stopLoss.stockPrice}</div>
+            </div>
+            <div className="exit-rule time">
+              <div className="exit-rule-head">
+                <Clock size={14} className="exit-icon-svg amber-text" />
+                <span className="exit-title">Time stop</span>
+              </div>
+              <p className="exit-desc">{exitStrategy.timeStop.rule}</p>
+              <div className="exit-meta">Close by {exitStrategy.timeStop.date}</div>
+            </div>
+          </div>
+          {exitStrategy.earningsWarning && (
+            <div className="earnings-warning">
+              <AlertTriangle size={13} />
+              <span>{exitStrategy.earningsWarning}</span>
+            </div>
+          )}
+        </div>
+
+        {/* IV gauge + strategy rationale — one card, internal 2-col. Gap inside card = invisible. */}
+        <div className="card card-inner-split">
+          <div className="card-inner-col">
+            <div className="card-label"><Activity size={11} /> Implied volatility rank</div>
             <IVGauge value={trade.ivRank} reading={greeks.ivRankReading} />
             <p className="iv-insight">{greeks.ivRankInsight}</p>
           </div>
-
-          <div className="greek-grid">
-            {greekDefs.map(({ Icon, color, name, symbol, value, tagline, insight }) => (
-              <div key={name} className="card greek-card">
-                <div className="greek-watermark">{symbol}</div>
-                <div className="greek-top">
-                  <div className={`greek-icon-wrap color-${color}`}>
-                    <Icon size={14} />
-                  </div>
-                  <div className="greek-meta">
-                    <div className="greek-name">{name}</div>
-                    <div className="greek-tagline">{tagline}</div>
-                  </div>
-                  <div className="greek-value">{value}</div>
-                </div>
-                <p className="greek-insight">{insight}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="card card-thesis">
-            <div className="card-label">
-              <Lightbulb size={11} />
-              Thesis
+          {strategyRationale && (
+            <div className="card-inner-col">
+              <div className="card-label"><Layers size={11} /> Why {trade.strategy}</div>
+              <p className="rationale-text">{parseBold(strategyRationale)}</p>
             </div>
+          )}
+        </div>
+
+        {/* Greeks 2×2 — equal height by nature */}
+        <div className="greek-grid">
+          {greekDefs.map(({ Icon, color, name, symbol, value, tagline, insight }) => (
+            <div key={name} className="card greek-card">
+              <div className="greek-watermark">{symbol}</div>
+              <div className="greek-top">
+                <div className={`greek-icon-wrap color-${color}`}><Icon size={14} /></div>
+                <div className="greek-meta">
+                  <div className="greek-name">{name}</div>
+                  <div className="greek-tagline">{tagline}</div>
+                </div>
+                <div className="greek-value">{value}</div>
+              </div>
+              <p className="greek-insight">{insight}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Thesis + risk — one card, internal 2-col. Gap inside card = invisible. */}
+        <div className="card card-inner-split">
+          <div className="card-inner-col">
+            <div className="card-label"><Lightbulb size={11} /> Thesis</div>
             <p className="rationale">{parseBold(rationale)}</p>
           </div>
-
-          <div className="card card-risk">
+          <div className="card-inner-col">
             <div className="card-label">Risk profile</div>
             <div className="risk-meter">
               <div className="risk-segments">
@@ -305,36 +271,41 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
             </ul>
           </div>
         </div>
-      </div>
 
-      {/* ── Full-width sections ── */}
-      <div className="trade-full">
-
-        {watchFor.keyDates?.length > 0 && (
-          <div className="card">
-            <div className="card-label">Key dates</div>
-            <div className="timeline">
-              <div className="timeline-line" />
-              {watchFor.keyDates.map((d, i) => (
-                <div key={i} className="timeline-item">
-                  <div className="timeline-dot" style={{ background: impactDotColor(d.impact) }} />
-                  <div className="timeline-content">
-                    <div className="timeline-date">{d.date}</div>
-                    <div className="timeline-event">{d.event}</div>
-                    <span className={`impact-tag ${impactClass(d.impact)}`}>{d.impact}</span>
-                  </div>
+        {/* Scenarios — full width, 3-col inside */}
+        <div className="card">
+          <div className="card-label"><BookOpen size={11} /> Outcome scenarios</div>
+          <div className="scenarios-grid">
+            {[
+              { key: "bull", label: "Bull case", data: predictions.bullCase, colorClass: "green-text", fillClass: "prob-fill--bull" },
+              { key: "base", label: "Base case", data: predictions.baseCase, colorClass: "navy-text", fillClass: "prob-fill--base" },
+              { key: "bear", label: "Bear case", data: predictions.bearCase, colorClass: "red-text",  fillClass: "prob-fill--bear" },
+            ].map(({ key, label, data, colorClass, fillClass }) => (
+              <div key={key} className="scenario-card">
+                <div className="scenario-top">
+                  <span className="scenario-label">{label}</span>
+                  <span className="scenario-prob">{data.probability}</span>
                 </div>
-              ))}
-            </div>
+                <div className={`scenario-return ${colorClass}`}>{data.optionReturn}</div>
+                <div className="scenario-target">→ {data.stockTarget}</div>
+                <div className="prob-bar">
+                  <div className={`prob-fill ${fillClass}`} style={{ width: data.probability }} />
+                </div>
+                <p className="scenario-desc">{data.scenario}</p>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
 
+        {/* Charts — full width, breathe on wide screens */}
+        <PayoffChart trade={trade} />
+        <ThetaDecayChart trade={trade} analysedAt={analysedAt} />
+
+        {/* Signals */}
         <div className="card signals-card">
           <div className="signals-cols">
             <div>
-              <div className="signals-head green-text">
-                <TrendingUp size={13} /> Bullish signals
-              </div>
+              <div className="signals-head green-text"><TrendingUp size={13} /> Bullish signals</div>
               <ul className="signal-list">
                 {(watchFor?.bullishSignals ?? []).map((s, i) => (
                   <li key={i}><ChevronRight size={11} className="signal-arrow green-text" /><span>{s}</span></li>
@@ -342,9 +313,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
               </ul>
             </div>
             <div>
-              <div className="signals-head red-text">
-                <TrendingDown size={13} /> Warning signs
-              </div>
+              <div className="signals-head red-text"><TrendingDown size={13} /> Warning signs</div>
               <ul className="signal-list">
                 {(watchFor?.warningSignals ?? []).map((s, i) => (
                   <li key={i}><ChevronRight size={11} className="signal-arrow red-text" /><span>{s}</span></li>
@@ -355,19 +324,13 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
         </div>
 
         {validSources.length > 0 && (
-          <div className="card">
-            <div className="card-label">
-              <ExternalLink size={11} />
-              Sources
-            </div>
-            <div className="sources-grid">
-              {validSources.map((s, i) => (
-                <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="source-card">
-                  <span className="source-title">{s.title}</span>
-                  <ExternalLink size={11} className="source-icon" />
-                </a>
-              ))}
-            </div>
+          <div className="sources-bar">
+            <span className="sources-bar-label"><ExternalLink size={10} /> Sources</span>
+            {validSources.map((s, i) => (
+              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="sources-bar-link">
+                {s.title}{i < validSources.length - 1 && <span className="sources-bar-sep">·</span>}
+              </a>
+            ))}
           </div>
         )}
 
@@ -382,6 +345,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
             ))}
           </div>
         </div>
+
       </div>
     </motion.article>
   );

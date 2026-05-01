@@ -61,6 +61,7 @@ export function formatTradeAsMarkdown(trade, marketContext, analysedAt) {
     "",
     summary.plainEnglish,
     "",
+    ...(summary.whenToBuySimple ? [`*When to buy: ${summary.whenToBuySimple}*`] : []),
     `*When to sell: ${summary.whenToSellSimple}*`,
   ];
 

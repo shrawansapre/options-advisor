@@ -14,7 +14,7 @@ CRITICAL — SOURCES: For every news article, earnings date, or market data poin
 
 CRITICAL — JSON SAFETY: The output is parsed by JSON.parse(). Never include unescaped double-quote characters inside a string value — if you need to quote a term within a string, use single quotes instead (e.g. 'delta effect' not "delta effect"). Never include literal newline characters inside a string value — write everything on one continuous line within each string. This is the most common cause of parse failures.
 
-CRITICAL — RESPONSE LENGTH: Your entire JSON response must stay well under 7000 tokens. Enforce these hard limits on every string value you write: headline, plainEnglish, expectedOutcome, whenToSellSimple — max 120 characters each. insight fields (delta, theta, gamma, vega, ivRankInsight) — max 120 characters each. scenario in predictions — max 100 characters each. rule in exitStrategy — max 100 characters each. rationale and strategyRationale — max 300 characters each. earningsWarning — max 150 characters. Each robinhoodStep — max 80 characters; use exactly 5 steps. bullishSignals and warningSignals — exactly 3 items each, max 80 characters each. riskFactors — exactly 2 items, max 100 characters each. keyDates — exactly 3 items. sources — max 3 items. Violating these limits risks truncation and a broken response.
+CRITICAL — RESPONSE LENGTH: Your entire JSON response must stay well under 7000 tokens. Enforce these hard limits on every string value you write: headline, plainEnglish, expectedOutcome, whenToBuySimple, whenToSellSimple — max 120 characters each. insight fields (delta, theta, gamma, vega, ivRankInsight) — max 120 characters each. scenario in predictions — max 100 characters each. rule in exitStrategy — max 100 characters each. rationale and strategyRationale — max 300 characters each. earningsWarning — max 150 characters. Each robinhoodStep — max 80 characters; use exactly 5 steps. bullishSignals and warningSignals — exactly 3 items each, max 80 characters each. riskFactors — exactly 2 items, max 100 characters each. keyDates — exactly 3 items. sources — max 3 items. Violating these limits risks truncation and a broken response.
 
 CRITICAL — INVALID TICKER: If the ticker symbol does not exist, is not traded on US markets, has been delisted, or cannot be found via web search, respond with ONLY this JSON and nothing else: {"error": "Ticker not found", "message": "Could not find [SYMBOL] on US markets. Please check the symbol and try again."}
 
@@ -35,6 +35,7 @@ Use this exact structure:
         "expectedOutcome": "Profit if NVDA climbs above $903.50 before Jun 20",
         "conviction": "High",
         "confidenceScore": 74,
+        "whenToBuySimple": "Buy now or on a dip to $875 — avoid chasing if stock gaps up more than 2%",
         "whenToSellSimple": "Sell if up 50%+, or if stock drops below $865, or with 7 days left"
       },
 
@@ -175,6 +176,7 @@ Use this exact structure:
 strategyType must be one of: bullish, bearish, neutral
 riskLevel is an integer from 1 (lowest) to 5 (highest)
 conviction is one of: High, Medium, Low
+whenToBuySimple: one sentence on ideal entry timing — when to enter, what price level or condition to wait for, what to avoid (e.g. don't chase a gap-up). Reference the current stock price and a specific entry trigger.
 If recommending a spread, set strike2 to the second strike string; otherwise null
 keyDates impact must be one of: Critical, Moderate, Action Required, Low
 sources must contain real URLs from your web search — omit any entry where you do not have a real URL
@@ -273,53 +275,78 @@ export async function fetchRecommendation(ticker, onProgress) {
   let searchCount = 0;
   let lastStringCount = 0;
 
+  const processLine = (line) => {
+    if (!line.startsWith("data: ")) return;
+    const raw = line.slice(6).trim();
+    if (!raw || raw === "[DONE]") return;
+    try {
+      const evt = JSON.parse(raw);
+      if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta") {
+        accumulated += evt.delta.text;
+        const strings = extractReadableStrings(accumulated);
+        if (strings.length !== lastStringCount) {
+          lastStringCount = strings.length;
+          onProgress?.({ type: "text", strings });
+        }
+      } else if (evt.type === "content_block_start") {
+        if (evt.content_block?.type === "tool_use") {
+          searchCount++;
+          onProgress?.({ type: "search", count: searchCount });
+        } else if (evt.content_block?.type === "text") {
+          accumulated = "";
+          lastStringCount = 0;
+        }
+      }
+    } catch (_) {}
+  };
+
   while (true) {
     const { done, value } = await reader.read();
-    if (done) break;
+
+    if (done) {
+      // Flush decoder and process any line that wasn't terminated with \n
+      lineBuffer += decoder.decode();
+      if (lineBuffer.trim()) processLine(lineBuffer.trim());
+      break;
+    }
 
     lineBuffer += decoder.decode(value, { stream: true });
     const lines = lineBuffer.split("\n");
     lineBuffer = lines.pop();
-
-    for (const line of lines) {
-      if (!line.startsWith("data: ")) continue;
-      const raw = line.slice(6).trim();
-      if (!raw || raw === "[DONE]") continue;
-      try {
-        const evt = JSON.parse(raw);
-        if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta") {
-          accumulated += evt.delta.text;
-          const strings = extractReadableStrings(accumulated);
-          if (strings.length !== lastStringCount) {
-            lastStringCount = strings.length;
-            onProgress?.({ type: "text", strings });
-          }
-        } else if (evt.type === "content_block_start") {
-          if (evt.content_block?.type === "tool_use") {
-            searchCount++;
-            onProgress?.({ type: "search", count: searchCount });
-          } else if (evt.content_block?.type === "text") {
-            accumulated = "";
-            lastStringCount = 0;
-          }
-        }
-      } catch (_) {}
-    }
+    for (const line of lines) processLine(line);
   }
 
-  // Prefer finding our known top-level keys so any preamble text with stray { } is skipped
+  // Walk from the known opening brace using balanced brackets so any trailing
+  // text the model appends (e.g. "Note: {today}") can't corrupt the slice.
   let start = accumulated.indexOf('{"trades"');
   if (start === -1) start = accumulated.indexOf('{"error"');
   if (start === -1) start = accumulated.indexOf("{");
-  const end = accumulated.lastIndexOf("}");
-  if (start === -1 || end === -1 || end < start) throw new Error("No JSON found in response — the model may not have finished. Please try again.");
-  const slice = accumulated.slice(start, end + 1);
+  if (start === -1) throw new Error("No JSON found in response — the model may not have finished. Please try again.");
+
+  let slice = "";
+  {
+    let depth = 0, inStr = false, i = start;
+    while (i < accumulated.length) {
+      const ch = accumulated[i];
+      if (ch === "\\" && inStr) { i += 2; continue; }
+      if (ch === '"') inStr = !inStr;
+      else if (!inStr) {
+        if (ch === "{" || ch === "[") depth++;
+        else if (ch === "}" || ch === "]") { depth--; if (depth === 0) { slice = accumulated.slice(start, i + 1); break; } }
+      }
+      i++;
+    }
+    // If we never closed (truncated response), take everything from start
+    if (!slice) slice = accumulated.slice(start);
+  }
+
   let parsed;
+  const scrubbed = () => slice.replace(/[\x00-\x1F\x7F]/g, " ");
   const attempts = [
     () => JSON.parse(slice),
     () => JSON.parse(jsonrepair(slice)),
-    () => { const s = slice.replace(/[\x00-\x1F\x7F]/g, " "); return JSON.parse(jsonrepair(s)); },
-    () => { const s = fixUnescapedQuotes(slice.replace(/[\x00-\x1F\x7F]/g, " ")); return JSON.parse(jsonrepair(s)); },
+    () => JSON.parse(jsonrepair(scrubbed())),
+    () => JSON.parse(jsonrepair(fixUnescapedQuotes(scrubbed()))),
   ];
   for (const attempt of attempts) {
     try { parsed = attempt(); break; } catch (_) {}
