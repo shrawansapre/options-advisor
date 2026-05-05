@@ -86,7 +86,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
       {expiryExpired && (
         <div className="expired-warning">
           <AlertTriangle size={14} />
-          <span>This option expired on <strong>{trade.expiryLabel}</strong>. The recommendation is stale — please search again to get a current trade.</span>
+          <span>This option expired on <strong>{trade.expiryLabel}</strong>. This analysis is stale — please search again for a current trade.</span>
         </div>
       )}
 

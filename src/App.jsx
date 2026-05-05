@@ -140,7 +140,7 @@ export default function App() {
       });
       if (data.trades?.[0]) addEntry(t, data.trades[0], data);
     } catch (e) {
-      update(a.id, { status: "error", error: e.message || "Could not generate a recommendation. Please try again." });
+      update(a.id, { status: "error", error: e.message || "Could not generate an analysis. Please try again." });
       console.error(e);
     }
   }
@@ -196,6 +196,12 @@ export default function App() {
           <Route path="/learn" element={<LearnPage />} />
         </Routes>
 
+        {!showLearn && analyses.length === 0 && (
+          <div className="landing-hero">
+            <p className="landing-tagline">Understand the trade.<br/>Before you make it.</p>
+          </div>
+        )}
+
         <div className="search-wrap" style={{ display: showLearn ? "none" : undefined }}>
           <div className="search-bar">
             <input
@@ -203,7 +209,7 @@ export default function App() {
               name="ticker"
               className="search-input"
               type="text"
-              placeholder="Enter a ticker — NVDA, SPY, TSLA — or leave blank to scan the market"
+              placeholder="Enter a ticker — NVDA, SPY, TSLA"
               value={ticker}
               onChange={e => setTicker(e.target.value.toUpperCase().replace(/[^A-Z0-9.\-]/g, "").slice(0, 10))}
               onKeyDown={e => e.key === "Enter" && handleAnalyze()}
@@ -215,7 +221,7 @@ export default function App() {
             </button>
           </div>
           <p className="search-hint">
-            Live web search · Verified Greeks · Price, IV rank, news, technicals · Educational purposes only
+            <span className="hint-full">Live web search · Verified Greeks · Price, IV rank, news, technicals · </span>Educational purposes only
           </p>
           <SearchHistory
             history={history}
@@ -246,14 +252,14 @@ export default function App() {
           {!active && (
             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="landing">
-                <p className="landing-label">Popular tickers</p>
                 <div className="landing-chips">
                   {["NVDA", "AAPL", "TSLA", "SPY", "AMZN", "META"].map(t => (
                     <button key={t} className="landing-chip" onClick={() => handleAnalyze(t)}>{t}</button>
                   ))}
                 </div>
                 <button className="landing-scan" onClick={() => handleAnalyze("")}>
-                  Scan market for best opportunity →
+                  <span>Scan market for best opportunity</span>
+                  <span className="landing-scan-arrow">→</span>
                 </button>
                 <button className="landing-learn-link" onClick={() => navigate("/learn")}>
                   New to options? Learn the basics →

@@ -93,7 +93,7 @@ Schema (use exact field names, types, and nesting):
     ]
   }],
   "marketContext": "1-2 sentences on current market conditions.",
-  "disclaimer": "This is AI-generated analysis for educational purposes only. Options trading involves substantial risk of loss and is not appropriate for all investors. Past performance does not guarantee future results. Always do your own research before trading."
+  "disclaimer": "This is AI-generated analysis for educational and informational purposes only. It does not constitute financial advice, a solicitation, or a recommendation to buy or sell any security. Options trading involves substantial risk of loss and is not suitable for all investors. Past performance does not guarantee future results. Always consult a qualified financial advisor and do your own research before trading."
 }
 
 Field rules:

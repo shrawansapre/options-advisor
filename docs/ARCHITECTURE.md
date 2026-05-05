@@ -84,14 +84,19 @@ Request from browser
 │  1. Receive POST body from browser                     │
 │     { model, messages, system, tools, max_tokens }     │
 │                                                        │
-│  2. Read ANTHROPIC_API_KEY from Vercel env vars        │
+│  2. Validate request                                   │
+│     model must be in allowlist (claude-sonnet-4-6)     │
+│     max_tokens must be ≤ 8000                          │
+│     → returns 403 if either check fails                │
+│                                                        │
+│  3. Read ANTHROPIC_API_KEY from Vercel env vars        │
 │     (server-only — the browser never sees this)        │
 │                                                        │
-│  3. Forward body to Anthropic with auth header added   │
+│  4. Forward body to Anthropic with auth header added   │
 │     POST https://api.anthropic.com/v1/messages         │
 │     x-api-key: sk-ant-...  ◄── injected here           │
 │                                                        │
-│  4. Stream Anthropic's response straight back          │
+│  5. Stream Anthropic's response straight back          │
 │     SSE stream passes through unchanged                │
 └────────────────────────────────────────────────────────┘
         │

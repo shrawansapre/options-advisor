@@ -20,6 +20,11 @@
 - **Learn page** — `/learn` route with 5 sections (Start Here, Basics, Greeks, Volatility, Strategies); interactive payoff diagrams with live sliders; ITM/ATM/OTM explainer; IV gauge; strategy P&L diagrams; mobile responsive
 - **Active tab text fix** — hover pseudo-class was overriding active state color; fixed for learn nav, header Learn button, and analysis tabs
 
+- **Security hardened** — `api/analyze.js` validates model allowlist + max_tokens; "recommendation" → "analysis" throughout UI; disclaimer strengthened to explicitly exclude financial advice/solicitation language.
+
+- **Mobile landing redesign** — tagline ("Understand the trade. Before you make it.") in Fraunces serif italic above search bar; top-anchored layout (no more vertical centering void); scan CTA is filled navy primary button; learn link de-emphasized to plain text; tagline visible on desktop too (26px) and mobile (30px)
+
 ## Known Issues / Next Up
 
 - Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)
+- See PLANS.md for future feature roadmap

@@ -7,11 +7,13 @@ git clone https://github.com/shrawansapre/options-advisor
 cd options-advisor
 npm install
 cp .env.example .env
-# paste your Anthropic key into .env
+# fill in your keys (see .env.example for what's needed)
 npm run dev
 ```
 
 App runs at `http://localhost:3000`.
+
+Auth (Google OAuth + magic link) requires Supabase credentials — see `.env.example`. The app works without them; history just stays local.
 
 ---
 
@@ -31,74 +33,76 @@ App runs at `http://localhost:3000`.
 options-advisor/
 │
 ├── api/
-│   └── analyze.js        ← Vercel Edge Function — backend proxy to Anthropic
+│   └── analyze.js           ← Vercel Edge Function — proxy to Anthropic
+│                               Validates model allowlist + max_tokens before forwarding
 │
 ├── src/
-│   ├── main.jsx          ← React root mount (3 lines, don't touch)
-│   ├── App.jsx           ← Every component lives here
-│   │                        SearchHistory, LoadingMessages, IVGauge,
-│   │                        TradeCard, and the root App
-│   ├── api.js            ← System prompt + fetchRecommendation()
-│   └── styles.css        ← All styles (CSS custom properties at the top)
+│   ├── main.jsx             ← React root mount + BrowserRouter + AuthProvider
+│   ├── App.jsx              ← Layout, routing, tab state, analyze flow
+│   ├── api.js               ← SYSTEM_PROMPT constant + fetchRecommendation()
+│   ├── styles.css           ← All styles (design tokens at top)
+│   ├── utils.js             ← Shared helpers (share markdown, etc.)
+│   │
+│   ├── lib/
+│   │   └── supabase.js      ← Supabase client (exports null if env vars missing)
+│   │
+│   └── components/
+│       ├── TradeCard.jsx    ← Main trade card with tab orchestration
+│       ├── AnalysisTabs.jsx ← Tab bar for switching between open analyses
+│       ├── SearchHistory.jsx← Recent searches row + history sync
+│       ├── LoadingMessages.jsx ← Streaming progress display
+│       ├── LearnPage.jsx    ← /learn route — interactive options education
+│       ├── IVGauge.jsx      ← IV rank gauge component
+│       ├── TradeCharts.jsx  ← Payoff diagram charts
+│       ├── AuthContext.jsx  ← useAuth() hook + AuthProvider
+│       ├── AuthModal.jsx    ← Sign-in modal (Google OAuth + magic link)
+│       └── ErrorBoundary.jsx
 │
-├── docs/
-│   ├── ARCHITECTURE.md   ← How the two-mode proxy works
-│   ├── DEPLOYMENT.md     ← Vercel setup
-│   └── DEVELOPMENT.md    ← You are here
-│
-├── index.html            ← Entry point (loads src/main.jsx)
+├── docs/                    ← You are here
+├── public/
+│   └── og.png               ← Open Graph image
+├── index.html
 ├── vite.config.js
-├── .env                  ← Local secrets (gitignored)
-└── .env.example          ← Template — safe to commit
+├── vercel.json              ← SPA rewrite rule
+├── .env                     ← Local secrets (gitignored)
+└── .env.example             ← Template — safe to commit
 ```
 
 ---
 
 ## Key design decisions
 
-**Everything in one file (`App.jsx`)**
-At current scale this is simpler than splitting into `src/components/`. When the file
-exceeds ~600 lines meaningfully, split into `components/TradeCard.jsx`, etc.
+**Components split out of App.jsx**
+`App.jsx` handles layout, routing, tab state, and the analyze flow. Individual trade display, auth, history, loading, and education each live in their own file under `src/components/`.
 
 **System prompt in `src/api.js`**
-The prompt is ~4 KB and drives every field in the UI. If you rename a field in the
-prompt, grep the codebase for the old name — components read it directly.
+The prompt is the source of truth for the JSON schema. Every field in the UI maps to a field defined there. If you rename a field in the prompt, grep the codebase for the old name — components read it directly.
 
 **No TypeScript**
-Keep it plain JS unless the project grows substantially. The JSON schema is documented
-in `CLAUDE.md` and validated at runtime via optional chaining throughout.
+Plain JS. The JSON schema is documented in `CLAUDE.md` and validated at runtime via optional chaining throughout.
 
 **No state management library**
-`useState` is enough. The only global state is `result`, `loading`, `error`,
-`analysedAt`, and the localStorage history. If you add routing or shared state
-across multiple pages, consider Zustand.
+`useState` is enough. Global state (analyses array, active tab, auth) all lives in `App.jsx`. If you add cross-component shared state beyond what's there, consider Zustand.
 
-**Streaming without a parser**
-Rather than trying to parse partial JSON (which breaks), `extractReadableStrings()`
-regex-extracts completed string values from the raw SSE stream for the loading preview.
-The full JSON is only parsed after the stream ends.
+**Streaming without a partial-JSON parser**
+Rather than trying to parse partial JSON (which breaks), `extractReadableStrings()` regex-extracts completed string values from the raw SSE stream for the loading preview. The full JSON is only parsed after the stream ends, with up to 4 repair attempts.
+
+**Supabase is optional**
+`src/lib/supabase.js` exports `null` when env vars are missing. `useAuth()` degrades gracefully — the app works fully without it, history just stays in localStorage.
 
 ---
 
 ## Changing the JSON schema
 
-The API returns a specific JSON shape defined by the system prompt. The shape is
-documented in `CLAUDE.md`. If you add or rename a field:
+The API returns a specific JSON shape defined by the system prompt. The shape is documented in `CLAUDE.md`. If you add or rename a field:
 
-1. Update the field name in `SYSTEM_PROMPT` inside `src/api.js`
-2. Update the example JSON in the same prompt so the model knows what to output
-3. Update the component that reads the field in `App.jsx`
-4. Check for optional chaining — the component should degrade gracefully if the field is missing
+1. Update the field in `SYSTEM_PROMPT` inside `src/api.js`
+2. Update the example JSON in the same prompt
+3. Update the component that reads the field
+4. Use optional chaining so the component degrades gracefully if the field is absent
 
 ---
 
-## Planned features
+## Future features
 
-1. **Trade journal** — localStorage log of trades entered, with entry/exit price and P&L
-2. **Watchlist** — save tickers and re-scan with one tap
-3. **Dark mode** — CSS variables are set up for it; add `@media (prefers-color-scheme: dark)`
-4. **P&L calculator** — given entry price and current option price, show live gain/loss
-5. **Portfolio Greeks** — aggregate delta/theta/vega across open positions
-6. **Backend hardening** — move system prompt server-side so it's not visible in the bundle
-7. **Rate limiting** — add request throttling in `api/analyze.js` per IP
-8. **Broker support** — Tastytrade/IBKR execution steps alongside Robinhood
+See [PLANS.md](../PLANS.md) for the full roadmap.
