@@ -118,6 +118,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
   ];
 
   return (
+    <>
     <motion.article
       ref={cardRef}
       className="trade-card"
@@ -498,5 +499,6 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
         Educational purposes only · options-advisor-sepia.vercel.app
       </div>
     </div>
+    </>
   );
 }
