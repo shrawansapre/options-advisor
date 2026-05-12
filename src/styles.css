@@ -1569,11 +1569,21 @@ body {
   .kdt-event-row .impact-tag { order: 4; }
   .kdt-event-name { order: 5; flex: 0 0 100%; padding-left: 15px; overflow-wrap: break-word; }
 
-  /* History: hide secondary info on mobile */
-  .history-meta { display: none; }
-  .history-expiry { display: none; }
-  .history-strikes { font-size: 11px; }
-  .history-strategy { font-size: 11px; }
+  /* History: two-line grid layout on mobile */
+  .history-row {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    grid-template-rows: auto auto;
+    column-gap: 8px;
+    row-gap: 3px;
+    padding: 10px 12px;
+  }
+  .history-dot     { grid-column: 1; grid-row: 1 / 3; align-self: start; margin-top: 5px; }
+  .history-ticker  { grid-column: 2; grid-row: 1; font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-meta    { grid-column: 3; grid-row: 1; display: flex; margin-left: 0; font-size: 10px; white-space: nowrap; }
+  .history-strategy{ grid-column: 2; grid-row: 2; font-size: 11px; color: var(--t3); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-strikes { grid-column: 3; grid-row: 2; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .history-expiry  { display: none; }
 }
 
 /* ── Very small phones  ≤ 380px ────────────────────────────────────────── */
