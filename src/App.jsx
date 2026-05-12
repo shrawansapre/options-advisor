@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Moon, Sun, LogOut, X } from "lucide-react";
 import { fetchRecommendation } from "./api";
+import { fmtElapsed } from "./utils";
 import { useSearchHistory, SearchHistory } from "./components/SearchHistory";
 import LoadingMessages from "./components/LoadingMessages";
 import MultiTradeView from "./components/MultiTradeView";
@@ -24,6 +25,8 @@ function makeAnalysis(ticker) {
     progress: null,
     error: null,
     analysedAt: null,
+    startedAt: Date.now(),
+    elapsedMs: null,
     strategyType: "neutral",
   };
 }
@@ -136,6 +139,7 @@ export default function App() {
         status: "done",
         result: data,
         analysedAt: new Date(),
+        elapsedMs: Date.now() - a.startedAt,
         strategyType: data.trades?.[0]?.strategyType ?? "neutral",
       });
       if (data.trades?.[0]) addEntry(t, data.trades[0], data);
@@ -271,7 +275,7 @@ export default function App() {
 
           {active?.status === "loading" && (
             <motion.div key={`loading-${active.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <LoadingMessages ticker={active.ticker} progress={active.progress} />
+              <LoadingMessages ticker={active.ticker} progress={active.progress} startedAt={active.startedAt} />
             </motion.div>
           )}
 
@@ -304,6 +308,9 @@ export default function App() {
                 marketContext={active.result.marketContext}
               />
               {active.result.disclaimer && <p className="disclaimer">{active.result.disclaimer}</p>}
+              {active.elapsedMs != null && (
+                <p className="analyzed-in">Analyzed in {fmtElapsed(active.elapsedMs)}</p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>}

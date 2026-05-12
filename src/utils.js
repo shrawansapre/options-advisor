@@ -1,5 +1,10 @@
 export const STRATEGY_COLORS = { bullish: "var(--green)", bearish: "var(--red)", neutral: "var(--amber)" };
 
+export function fmtElapsed(ms) {
+  const s = Math.round(ms / 1000);
+  return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
+}
+
 export function ordinalSuffix(n) {
   if (n % 100 >= 11 && n % 100 <= 13) return "th";
   switch (n % 10) {

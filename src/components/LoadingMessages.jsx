@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
+import { fmtElapsed } from "../utils";
 
 const LOADING_MESSAGES = [
   "Pulling the live options chain…",
@@ -15,9 +16,10 @@ const LOADING_MESSAGES = [
   "Assembling your Robinhood execution steps…",
 ];
 
-export default function LoadingMessages({ ticker, progress }) {
+export default function LoadingMessages({ ticker, progress, startedAt }) {
   const [index, setIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
+  const [elapsed, setElapsed] = useState(0);
   const intervalRef = useRef(null);
 
   const strings = progress?.type === "text" ? (progress.strings ?? []) : [];
@@ -36,6 +38,12 @@ export default function LoadingMessages({ ticker, progress }) {
     }, 2600);
     return () => clearInterval(intervalRef.current);
   }, [isWriting]);
+
+  useEffect(() => {
+    if (!startedAt) return;
+    const t = setInterval(() => setElapsed(Date.now() - startedAt), 1000);
+    return () => clearInterval(t);
+  }, [startedAt]);
 
   const searchCount = progress?.type === "search" ? progress.count : 0;
 
@@ -67,6 +75,9 @@ export default function LoadingMessages({ ticker, progress }) {
               </motion.span>
             )}
           </AnimatePresence>
+          {elapsed > 0 && (
+            <span className="lp-elapsed">{fmtElapsed(elapsed)}</span>
+          )}
         </div>
 
         <div className="lp-steps">

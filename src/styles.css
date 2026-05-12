@@ -521,6 +521,13 @@ body {
   padding: 3px 9px;
   border-radius: 100px;
 }
+.lp-elapsed {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: rgba(255,255,255,0.28);
+  margin-left: auto;
+  flex-shrink: 0;
+}
 
 /* Steps */
 .lp-steps {
@@ -1503,6 +1510,10 @@ body {
   font-family: var(--mono); font-size: 10px; font-weight: 300;
   color: var(--t3); text-align: center; line-height: 1.75;
   padding: 0 20px; margin-top: 8px;
+}
+.analyzed-in {
+  font-family: var(--mono); font-size: 10px; font-weight: 300;
+  color: var(--t3); text-align: center; margin-top: 6px; padding-bottom: 20px;
 }
 
 /* ─── Trade Charts ──────────────────────────────────────────────────────── */
