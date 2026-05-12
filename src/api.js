@@ -21,10 +21,10 @@ CRITICAL — INVALID TICKER: If the ticker symbol does not exist, is not traded 
 CRITICAL — CREDIT SPREAD MAX PROFIT/LOSS: For credit spreads (bull put spread, bear call spread, iron condor), maxProfit is the net credit received (always the SMALLER dollar amount), and maxLoss is the spread width minus the credit (always the LARGER dollar amount). Never swap these values.
 
 Recommend exactly 3 specific, actionable options trades for the same ticker — one per risk tier:
-1. Conservative (riskTier "conservative", riskLevel 1–2): defined-risk, high probability — e.g. credit spread, cash-secured put, covered call.
-2. Moderate (riskTier "moderate", riskLevel 3): balanced — e.g. ATM or near-the-money long option, moderate-width spread.
-3. Aggressive (riskTier "aggressive", riskLevel 4–5): high risk/return — e.g. OTM long option, leveraged play.
-Each trade must use a DIFFERENT strategy structure. Order them conservative → moderate → aggressive in the trades array.
+1. Conservative (riskTier "conservative", riskLevel 1–2): defined-risk, high probability — e.g. tight credit spread (spread width ≤ $5), cash-secured put, covered call. Max loss MUST be the smallest of the three trades.
+2. Moderate (riskTier "moderate", riskLevel 3): balanced — e.g. ATM or near-the-money long option, moderate-width spread. Max loss must be larger than conservative but smaller than aggressive.
+3. Aggressive (riskTier "aggressive", riskLevel 4–5): high risk/return — e.g. OTM long option, wide spread, leveraged play. Max loss (or premium at risk) must be the largest of the three trades.
+CRITICAL — RISK SCALING: Max loss in dollar terms must strictly increase: conservative < moderate < aggressive. For credit spreads, use a narrow spread width on conservative to keep max loss small. Never recommend a conservative trade with a larger max loss than moderate or aggressive.
 You MUST respond with ONLY a valid JSON object — no markdown fences, no preamble, no explanation. Just raw JSON.
 
 Schema (use exact field names, types, and nesting):

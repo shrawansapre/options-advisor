@@ -777,9 +777,9 @@ body {
   overflow: hidden;
   margin-bottom: 28px;
 }
-.trade-card[data-strategy="bullish"] { border-top-color: var(--green); }
-.trade-card[data-strategy="bearish"] { border-top-color: var(--red); }
-.trade-card[data-strategy="neutral"] { border-top-color: var(--amber); }
+.trade-card[data-strategy="bullish"],
+.trade-card[data-strategy="bearish"],
+.trade-card[data-strategy="neutral"] { border-top-color: var(--navy); }
 
 /* ─── Risk Tier Badge ───────────────────────────────────────────────────── */
 /* ─── Risk Tier Badge ───────────────────────────────────────────────────── */
@@ -2300,22 +2300,20 @@ body {
   .tier-tab--active .tier-tab-row { display: flex; }
 }
 @media (max-width: 600px) {
-  /* Phone: compact segmented control — one row, 3 equal segments */
+  /* Phone: 3 individual cards in a row — same border/shadow treatment as desktop */
   .tier-selector {
-    display: flex; flex-direction: row; gap: 0;
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-lg);
-    overflow: hidden;
+    display: flex; flex-direction: row; gap: 8px;
+    border: none; background: none; overflow: visible;
     margin-bottom: 16px;
-    background: var(--surface);
   }
   .tier-tab {
     flex: 1; flex-direction: column; align-items: center; justify-content: center;
-    gap: 5px; padding: 11px 6px;
-    border: none; border-radius: 0; box-shadow: none;
-    border-right: 1px solid var(--border);
+    gap: 5px; padding: 12px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: none;
+    overflow: hidden;
   }
-  .tier-tab:last-child { border-right: none; }
   .tier-tab-active-bar { display: none; }
   .tier-tab-sub      { display: none; }
   .tier-tab-strategy { display: none; }
@@ -2324,15 +2322,14 @@ body {
   .tier-tab-icon     { width: 24px; height: 24px; }
   .tier-tab-label    { font-size: 11px; font-weight: 600; }
 
-  /* Active segment: colored tint fill */
-  .tier-tab--green.tier-tab--active { background: color-mix(in srgb, var(--green) 10%, var(--surface)); }
-  .tier-tab--amber.tier-tab--active { background: color-mix(in srgb, var(--amber) 10%, var(--surface)); }
-  .tier-tab--red.tier-tab--active   { background: color-mix(in srgb, var(--red)   10%, var(--surface)); }
-  /* Override desktop active border styles so they don't add borders on phone */
-  .tier-tab--green.tier-tab--active,
-  .tier-tab--amber.tier-tab--active,
-  .tier-tab--red.tier-tab--active   { border-color: transparent; border-right: 1px solid var(--border); }
-  .tier-tab--red.tier-tab--active:last-child,
-  .tier-tab--amber.tier-tab--active:last-child,
-  .tier-tab--green.tier-tab--active:last-child { border-right: none; }
+  /* All tabs: shadow so they lift off the background */
+  .tier-tab { box-shadow: var(--shadow-sm); }
+
+  /* Active: same per-tier color as desktop */
+  .tier-tab--green.tier-tab--active { border-color: var(--green); background: color-mix(in srgb, var(--green) 5%, var(--surface)); box-shadow: var(--shadow-md); }
+  .tier-tab--amber.tier-tab--active { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 5%, var(--surface)); box-shadow: var(--shadow-md); }
+  .tier-tab--red.tier-tab--active   { border-color: var(--red);   background: color-mix(in srgb, var(--red)   5%, var(--surface)); box-shadow: var(--shadow-md); }
+
+  /* Inactive hover: subtle lift */
+  .tier-tab:hover:not(.tier-tab--active) { box-shadow: var(--shadow-md); }
 }
