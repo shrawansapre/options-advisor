@@ -4,6 +4,32 @@ Future features by priority. Move items to STATUS.md when shipped.
 
 ---
 
+## Real-Time Market Data — Tradier Integration
+
+Replace Claude's web search for market data with a live Tradier API call before each analysis. Data is injected directly into the prompt so Claude analyses real numbers, not potentially stale search results.
+
+**Provider:** Tradier (~$10/month). Paper-trading sandbox is free for development.
+
+**What to fetch per search:**
+- Current stock quote (last, bid, ask, change%)
+- Options chain for the nearest 2–3 expiries (all strikes within ~20% of current price) — returns delta, theta, gamma, vega, IV, bid/ask per contract
+- Historical daily close IV for the past 52 weeks → compute IV rank client-side: `(currentIV - low52) / (high52 - low52) * 100`
+
+**Architecture:**
+1. New Vercel function `api/market.js` — receives `{ ticker }`, calls Tradier, returns `{ quote, chains, ivRank }`. Keeps the Tradier API key server-side.
+2. `src/api.js` — before calling Claude, fire `fetchMarketData(ticker)` and prepend the result to the user message as a structured block: `"[LIVE DATA as of HH:MM ET] Stock: $X.XX ...  Option chain: ..."`
+3. System prompt update — add a note that live data is pre-injected; Claude should use it directly and skip web search for price/chain/greeks (still search for news, earnings, catalysts).
+
+**Env vars needed:**
+- `TRADIER_API_KEY` in Vercel (production + preview)
+- `TRADIER_SANDBOX` = `true` during development (points to sandbox base URL)
+
+**Fallback:** If Tradier call fails, fall back to current web-search behaviour and surface a subtle "Live data unavailable — using web search" indicator on the card.
+
+**Cost:** ~$10/month Tradier + negligible Vercel function invocations.
+
+---
+
 ## Phase 5 — Trade Feedback (ready to build)
 
 Thumbs up/down + report button on each trade card. Supabase DB columns already exist (`feedback`, `reported` on `analyses` table). Just needs UI + write path.

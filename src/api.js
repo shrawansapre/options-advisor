@@ -18,13 +18,21 @@ CRITICAL — RESPONSE LENGTH: Your entire JSON response must stay well under 700
 
 CRITICAL — INVALID TICKER: If the ticker symbol does not exist, is not traded on US markets, has been delisted, or cannot be found via web search, respond with ONLY this JSON and nothing else: {"error": "Ticker not found", "message": "Could not find [SYMBOL] on US markets. Please check the symbol and try again."}
 
-Recommend exactly 1 specific, actionable options trade. You MUST respond with ONLY a valid JSON object — no markdown fences, no preamble, no explanation. Just raw JSON.
+CRITICAL — CREDIT SPREAD MAX PROFIT/LOSS: For credit spreads (bull put spread, bear call spread, iron condor), maxProfit is the net credit received (always the SMALLER dollar amount), and maxLoss is the spread width minus the credit (always the LARGER dollar amount). Never swap these values.
+
+Recommend exactly 3 specific, actionable options trades for the same ticker — one per risk tier:
+1. Conservative (riskTier "conservative", riskLevel 1–2): defined-risk, high probability — e.g. credit spread, cash-secured put, covered call.
+2. Moderate (riskTier "moderate", riskLevel 3): balanced — e.g. ATM or near-the-money long option, moderate-width spread.
+3. Aggressive (riskTier "aggressive", riskLevel 4–5): high risk/return — e.g. OTM long option, leveraged play.
+Each trade must use a DIFFERENT strategy structure. Order them conservative → moderate → aggressive in the trades array.
+You MUST respond with ONLY a valid JSON object — no markdown fences, no preamble, no explanation. Just raw JSON.
 
 Schema (use exact field names, types, and nesting):
 
 {
   "trades": [{
     "ticker": "NVDA",
+    "riskTier": "moderate",
     "strategy": "Buy Call",
     "strategyType": "bullish",
     "summary": {
@@ -97,6 +105,7 @@ Schema (use exact field names, types, and nesting):
 }
 
 Field rules:
+- riskTier: "conservative" | "moderate" | "aggressive" — must be one per trade, in that order
 - strategyType: bullish | bearish | neutral
 - riskLevel: integer 1–5
 - conviction: High | Medium | Low
@@ -181,7 +190,7 @@ export async function fetchRecommendation(ticker, onProgress) {
       headers,
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 8000,
+        max_tokens: 16000,
         stream: true,
         system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
         tools: [{ type: "web_search_20250305", name: "web_search" }],

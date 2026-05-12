@@ -24,9 +24,16 @@ function buildPayoffData(trade) {
   const costPerShare = parseFloat(trade.entryPrice) || 0;
   const current = parseFloat(trade.currentPrice) || strike;
   const strat = (trade.strategy || "").toLowerCase();
-  const isCall = strat.includes("call") || (!strat.includes("put") && trade.strategyType === "bullish");
+  const stratType = trade.strategyType || "neutral";
+  const isCall = strat.includes("call") || (!strat.includes("put") && stratType === "bullish");
 
   if (isNaN(strike) || isNaN(costPerShare) || !current) return null;
+
+  // Credit spreads receive premium upfront: bull put spread, bear call spread
+  const isCredit = !!strike2 && (
+    (!isCall && stratType === "bullish") ||
+    (isCall  && stratType === "bearish")
+  );
 
   const range = Math.max(current * 0.28, 20);
   const min = current - range;
@@ -34,15 +41,20 @@ function buildPayoffData(trade) {
 
   return Array.from({ length: 81 }, (_, i) => {
     const s = min + (i / 80) * (max - min);
-    let intrinsic;
+    let pnl;
     if (strike2) {
-      intrinsic = isCall
-        ? Math.max(0, s - strike) - Math.max(0, s - strike2)
-        : Math.max(0, strike - s) - Math.max(0, strike2 - s);
+      const kHigh = Math.max(strike, strike2);
+      const kLow  = Math.min(strike, strike2);
+      const spreadVal = isCall
+        ? Math.max(0, s - kLow)  - Math.max(0, s - kHigh)
+        : Math.max(0, kHigh - s) - Math.max(0, kLow  - s);
+      pnl = isCredit
+        ? Math.round((costPerShare - spreadVal) * 100)
+        : Math.round((spreadVal   - costPerShare) * 100);
     } else {
-      intrinsic = isCall ? Math.max(0, s - strike) : Math.max(0, strike - s);
+      const intrinsic = isCall ? Math.max(0, s - strike) : Math.max(0, strike - s);
+      pnl = Math.round((intrinsic - costPerShare) * 100);
     }
-    const pnl = Math.round((intrinsic - costPerShare) * 100);
     return {
       price: Math.round(s * 100) / 100,
       profit: pnl >= 0 ? pnl : null,

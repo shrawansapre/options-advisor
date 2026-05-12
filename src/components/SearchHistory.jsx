@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { History, ChevronRight, X } from "lucide-react";
 import { supabase } from "../lib/supabase";
@@ -108,10 +108,21 @@ export function useSearchHistory() {
 
 export function SearchHistory({ history, onSelect, onSelectCached, onClear }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onOutside);
+    return () => document.removeEventListener("mousedown", onOutside);
+  }, [open]);
+
   if (!history.length) return null;
 
   return (
-    <div className="search-history">
+    <div className="search-history" ref={ref}>
       <button className="history-toggle" onClick={() => setOpen(o => !o)}>
         <History size={11} />
         <span>Recent searches ({history.length})</span>
@@ -128,12 +139,21 @@ export function SearchHistory({ history, onSelect, onSelectCached, onClear }) {
             style={{ overflow: "hidden" }}
           >
             {history.map(h => (
-              <button key={h.id} className="history-row" onClick={() => h.result ? onSelectCached(h.result, new Date(h.ts)) : onSelect(h.ticker)}>
+              <button key={h.id} className="history-row" onClick={() => { setOpen(false); h.result ? onSelectCached(h.result, new Date(h.ts)) : onSelect(h.ticker); }}>
                 <span className={`history-dot history-dot--${h.strategyType}`} />
                 <span className="history-ticker">{h.ticker || "Market scan"}</span>
                 <span className="history-strategy">{h.strategy}</span>
+                {(() => {
+                  const t0 = h.result?.trades?.[0];
+                  const strike = t0?.strike2 ? `$${t0.strike}/$${t0.strike2}` : t0?.strike ? `$${t0.strike}` : null;
+                  const expiry = t0?.expiryLabel?.replace(/, \d{4}$/, "") ?? null;
+                  return <>
+                    <span className="history-strikes">{strike ?? "—"}</span>
+                    <span className="history-expiry">{expiry ?? "—"}</span>
+                  </>;
+                })()}
                 <span className="history-meta">
-                  {h.confidenceScore}% · {new Date(h.ts).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  {new Date(h.ts).toLocaleDateString(undefined, { month: "short", day: "numeric" })} · {new Date(h.ts).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </button>
             ))}

@@ -1,7 +1,7 @@
 export const config = { runtime: 'edge' };
 
 const ALLOWED_MODELS = new Set(['claude-sonnet-4-6', 'claude-sonnet-4-20250514']);
-const MAX_TOKENS_LIMIT = 8000;
+const MAX_TOKENS_LIMIT = 16000;
 
 export default async function handler(req) {
   if (req.method !== 'POST') {
