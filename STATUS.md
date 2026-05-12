@@ -24,6 +24,17 @@
 
 - **Mobile landing redesign** — tagline ("Understand the trade. Before you make it.") in Fraunces serif italic above search bar; top-anchored layout (no more vertical centering void); scan CTA is filled navy primary button; learn link de-emphasized to plain text; tagline visible on desktop too (26px) and mobile (30px)
 
+- **3-tier trade system** — system prompt now returns 3 trades per analysis (conservative / moderate / aggressive); `riskTier` field added to schema; max_tokens raised to 16000
+- **MultiTradeView** — tier selector above a single mounted TradeCard; `useAnimationControls` fade-out/in on tier switch (no remount); icons updated to Shield / Activity / Zap
+- **Unified data block** — contract specs + financial outcomes merged into one bordered container with internal divider; old separate strips removed
+- **Inline strategy meta line** — replaced bordered pill badges with `● strategy · conviction` inline text; risk tier appended on desktop, hidden on mobile (redundant with tier selector)
+- **Market banner** — column layout (MARKET label above paragraph text); Globe icon removed; tightened on mobile
+- **Mobile UI overhaul** — tier selector collapses to compact segmented control on ≤600px (colored tint on active); inactive tabs slim on ≤768px; financials row goes 1-col at ≤380px; stock price scales down; card margin reduced; meta line wraps cleanly
+- **Search history mobile** — two-line grid layout on ≤600px: ticker + date on row 1, strategy + strikes on row 2; long names truncate with ellipsis; date restored to top-right slot
+- **Credit spread payoff fix** — TradeCharts correctly models bull put / bear call credit spreads (received premium, kHigh/kLow normalisation)
+- **Share button** — moved to top-right of card header; outside-click closes menu
+- **html-to-image** — added as dependency for share card download / native share
+
 ## Known Issues / Next Up
 
 - Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)
