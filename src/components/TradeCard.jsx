@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { toPng } from "html-to-image";
 import {
   TrendingUp, TrendingDown, Clock, AlertTriangle,
   Timer, Zap, Activity, Crosshair, Target, Ban,
-  Lightbulb, ExternalLink, ChevronRight, CircleDot,
-  CheckCircle2, BookOpen, Layers, Share2
+  Lightbulb, ExternalLink, ChevronRight,
+  CheckCircle2, BookOpen, Layers, Share2, Download, ChevronDown
 } from "lucide-react";
 import IVGauge from "./IVGauge";
 import { PayoffChart, ThetaDecayChart } from "./TradeCharts";
@@ -22,26 +23,66 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
           rationale, riskLevel, riskFactors, robinhoodSteps,
           strategyRationale, sources } = trade;
 
-  const [copied, setCopied] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareRef = useRef(null);
+  const cardRef = useRef(null);
 
-  function handleShare() {
+  useEffect(() => {
+    if (!shareOpen) return;
+    function onOutsideClick(e) {
+      if (shareRef.current && !shareRef.current.contains(e.target)) setShareOpen(false);
+    }
+    document.addEventListener("mousedown", onOutsideClick);
+    return () => document.removeEventListener("mousedown", onOutsideClick);
+  }, [shareOpen]);
+
+  function handleOpenInClaude() {
+    setShareOpen(false);
     const md = formatTradeAsMarkdown(trade, marketContext, analysedAt);
     navigator.clipboard.writeText(md).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-
     const MAX = 8000;
     const prompt = md.length > MAX
       ? md.slice(0, MAX) + "\n\n[Full analysis copied to clipboard — paste it here to continue]"
       : md;
     const url = "https://claude.ai/new?q=" + encodeURIComponent(prompt);
-
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (isIOS) {
-      window.location.href = url;
-    } else {
-      window.open(url, "_blank", "noopener");
-    }
+    if (isIOS) window.location.href = url;
+    else window.open(url, "_blank", "noopener");
+  }
+
+  async function handleDownloadImage() {
+    setShareOpen(false);
+    if (!cardRef.current) return;
+    const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, skipFonts: false });
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `${trade.ticker}-options-analysis.png`;
+    a.click();
+  }
+
+  function handleShareX() {
+    setShareOpen(false);
+    const text = `$${trade.ticker} ${trade.strategy} — ${trade.summary?.headline ?? ""}\n\nConviction: ${trade.summary?.conviction ?? "—"} · Risk: ${trade.riskLevel ?? "—"}/5\n\nvia Options Advisor`;
+    window.open(`https://x.com/intent/post?text=${encodeURIComponent(text + "\n\nhttps://options-advisor-sepia.vercel.app")}`, "_blank", "noopener");
+  }
+
+  async function handleNativeShare() {
+    setShareOpen(false);
+    try {
+      const dataUrl = cardRef.current
+        ? await toPng(cardRef.current, { pixelRatio: 2, skipFonts: false })
+        : null;
+      const title = `${trade.ticker} Options Analysis`;
+      const text = trade.summary?.headline ?? "";
+      if (dataUrl) {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], `${trade.ticker}-analysis.png`, { type: "image/png" });
+        const payload = { title, text, files: [file] };
+        if (navigator.canShare?.(payload)) { await navigator.share(payload); return; }
+      }
+      await navigator.share({ title, text, url: "https://options-advisor-sepia.vercel.app" });
+    } catch (_) {}
   }
 
   const expiryExpired = trade.expiry && analysedAt && new Date(trade.expiry) < analysedAt;
@@ -77,6 +118,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
 
   return (
     <motion.article
+      ref={cardRef}
       className="trade-card"
       data-strategy={trade.strategyType}
       initial={{ opacity: 0, y: 28 }}
@@ -92,69 +134,121 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
 
       {/* ── Header ── */}
       <div className="trade-header">
-        <div className="trade-header-top">
+
+        {/* Top bar: tier + time on left, share on right */}
+        <div className="trade-top-bar">
+          <div className="trade-top-bar-left">
+            {analysedAt && (
+              <span className="trade-analysis-time">
+                <Clock size={11} />
+                {analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+          </div>
+          <div className="trade-top-bar-right">
+            <div className="share-menu-wrap" ref={shareRef}>
+              <button
+                className={`share-trigger-btn${shareOpen ? " share-trigger-btn--open" : ""}`}
+                onClick={() => setShareOpen(v => !v)}
+              >
+                <Share2 size={13} />
+                Share
+                <ChevronDown size={11} />
+              </button>
+              {shareOpen && (
+                <div className="share-menu">
+                  <button className="share-menu-item" onClick={handleOpenInClaude}>
+                    <ExternalLink size={14} />
+                    Open in Claude
+                  </button>
+                  <button className="share-menu-item" onClick={handleDownloadImage}>
+                    <Download size={14} />
+                    Download image
+                  </button>
+                  <button className="share-menu-item" onClick={handleShareX}>
+                    <span className="x-logo-icon">𝕏</span>
+                    Share on X
+                  </button>
+                  {typeof navigator.share === "function" && (
+                    <button className="share-menu-item" onClick={handleNativeShare}>
+                      <Share2 size={14} />
+                      Share…
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Ticker + stock price */}
+        <div className="trade-hero-row">
           <h2 className="trade-ticker">{trade.ticker}</h2>
-          <div className="trade-badges-row">
-            <div className="strategy-badge" style={{ "--dot": dotColor }}>
-              <span className="strategy-dot" />
-              {trade.strategy}
-            </div>
-            <div className="trade-conviction" style={{ "--conv": convictionColor }}>
-              <CircleDot size={13} />
-              <span>{summary.conviction} conviction</span>
-              <span className="conv-score">{summary.confidenceScore}%</span>
-            </div>
+          <div className="trade-stock-price">
+            <span className="stock-price-value">${trade.currentPrice}</span>
+            <span className="stock-price-label">current price</span>
           </div>
         </div>
 
-        <div className="trade-key-details">
-          <div className="key-detail">
-            <div className="key-detail-label">Strike</div>
-            <div className="key-detail-value">{strikeDisplay}</div>
-          </div>
-          <div className="key-detail-sep" />
-          <div className="key-detail">
-            <div className="key-detail-label">Expiry</div>
-            <div className="key-detail-value">{trade.expiryLabel}</div>
-          </div>
-          <div className="key-detail-sep" />
-          <div className="key-detail">
-            <div className="key-detail-label">Entry price</div>
-            <div className="key-detail-value">${trade.entryPrice}<span className="key-detail-unit"> / contract</span></div>
-          </div>
-          <div className="key-detail-sep" />
-          <div className="key-detail">
-            <div className="key-detail-label">Days to expiry</div>
-            <div className="key-detail-value">{trade.daysToExpiry}<span className="key-detail-unit">d</span></div>
-          </div>
-        </div>
-
-        <div className="trade-meta-row">
-          {analysedAt && (
-            <span className="trade-analysis-time">
-              Analysed {analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} at {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+        {/* Strategy + conviction + risk tier — inline text, no pills */}
+        <div className="trade-meta-line">
+          <span className="trade-meta-dot" style={{ background: dotColor }} />
+          <span className="trade-meta-strategy">{trade.strategy}</span>
+          <span className="trade-meta-sep">·</span>
+          <span className="trade-meta-conviction" style={{ color: convictionColor }}>{summary.conviction} conviction</span>
+          {trade.riskTier && (
+            <span className="trade-meta-risk-wrap">
+              <span className="trade-meta-sep">·</span>
+              <span className={`trade-meta-risk trade-meta-risk--${trade.riskTier}`}>
+                {trade.riskTier === "conservative" ? "Conservative" :
+                 trade.riskTier === "moderate"     ? "Moderate"     : "Aggressive"}
+              </span>
             </span>
           )}
-          <button className={`share-claude-btn${copied ? " share-claude-btn--copied" : ""}`} onClick={handleShare}>
-            {copied ? <><CheckCircle2 size={13} /> Copied!</> : <><Share2 size={13} /> Share to Claude</>}
-          </button>
         </div>
 
-        <div className="stats-strip">
-          {[
-            { label: "Stock price", value: `$${trade.currentPrice}` },
-            { label: "Total risk",  value: trade.totalCost },
-            { label: "Break-even",  value: `$${trade.breakeven}` },
-            { label: "Max profit",  value: trade.maxProfit },
-            { label: "IV rank",     value: `${trade.ivRank}${ordinalSuffix(ivNum)}` },
-            { label: "Max loss",    value: trade.maxLoss },
-          ].map(({ label, value }) => (
-            <div key={label} className="stat-cell">
-              <div className="stat-label">{label}</div>
-              <div className="stat-value">{value}</div>
+        {/* Headline */}
+        <h3 className="trade-header-headline">{summary.headline}</h3>
+
+        {/* Unified data block: contract specs + financial outcomes */}
+        <div className="trade-data-block">
+          <div className="data-row data-row--contract">
+            <div className="data-cell data-cell--primary">
+              <span className="data-label">Strike{isSpread ? "s" : ""}</span>
+              <span className="data-value">{strikeDisplay}</span>
             </div>
-          ))}
+            <div className="data-cell">
+              <span className="data-label">Break-even</span>
+              <span className="data-value">${trade.breakeven}</span>
+            </div>
+            <div className="data-cell">
+              <span className="data-label">Expiry</span>
+              <span className="data-value">{trade.expiryLabel}</span>
+              <span className="data-sub">{trade.daysToExpiry} days</span>
+            </div>
+            <div className="data-cell">
+              <span className="data-label">IV rank</span>
+              <span className="data-value">{trade.ivRank}<sup className="data-ord">{ordinalSuffix(ivNum)}</sup></span>
+            </div>
+          </div>
+          <div className="data-row-divider" />
+          <div className="data-row data-row--financials">
+            <div className="data-cell">
+              <span className="data-label">Entry cost</span>
+              <span className="data-value">{trade.totalCost}</span>
+            </div>
+            <div className="data-cell">
+              <span className="data-label">Max profit</span>
+              <span className="data-value data-value--profit">{trade.maxProfit}</span>
+            </div>
+            <div className="data-cell">
+              <span className="data-label">Max loss</span>
+              <span className="data-value data-value--loss">{trade.maxLoss}</span>
+            </div>
+          </div>
         </div>
+
+
       </div>
 
       {/* ── Content ── */}
@@ -162,7 +256,6 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
 
         {/* Hero — full width, highest priority */}
         <div className="card card-hero">
-          <h3 className="headline">{summary.headline}</h3>
           <p className="plain-english">{summary.plainEnglish}</p>
           {summary.whenToBuySimple && (
             <div className="entry-hint">

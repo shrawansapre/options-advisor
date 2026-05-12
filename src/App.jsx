@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Globe, Moon, Sun, LogOut, X } from "lucide-react";
+import { AlertTriangle, Moon, Sun, LogOut, X } from "lucide-react";
 import { fetchRecommendation } from "./api";
 import { useSearchHistory, SearchHistory } from "./components/SearchHistory";
 import LoadingMessages from "./components/LoadingMessages";
-import TradeCard from "./components/TradeCard";
+import MultiTradeView from "./components/MultiTradeView";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AnalysisTabs from "./components/AnalysisTabs";
 import AuthModal from "./components/AuthModal";
@@ -194,6 +194,7 @@ export default function App() {
       <main className={`app-main${!showLearn && analyses.length === 0 ? " app-main--landing" : ""}`}>
         <Routes>
           <Route path="/learn" element={<LearnPage />} />
+          <Route path="*" element={null} />
         </Routes>
 
         {!showLearn && analyses.length === 0 && (
@@ -286,21 +287,22 @@ export default function App() {
             <motion.div key={`done-${active.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
               {active.result.marketContext && (
                 <div className="market-banner">
-                  <Globe size={13} className="market-icon" />
-                  <span className="market-label">Market</span>
-                  <span className="market-text">{active.result.marketContext}</span>
-                  {active.analysedAt && (
-                    <span className="analysis-time">
-                      Analysed {active.analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} at {active.analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                  )}
+                  <div className="market-banner-top">
+                    <span className="market-label">Market</span>
+                    {active.analysedAt && (
+                      <span className="analysis-time">
+                        Analysed {active.analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} at {active.analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    )}
+                  </div>
+                  <p className="market-text">{active.result.marketContext}</p>
                 </div>
               )}
-              {active.result.trades?.map((trade, i) => (
-                <ErrorBoundary key={i}>
-                  <TradeCard trade={trade} index={i} analysedAt={active.analysedAt} marketContext={active.result.marketContext} />
-                </ErrorBoundary>
-              ))}
+              <MultiTradeView
+                trades={active.result.trades}
+                analysedAt={active.analysedAt}
+                marketContext={active.result.marketContext}
+              />
               {active.result.disclaimer && <p className="disclaimer">{active.result.disclaimer}</p>}
             </motion.div>
           )}
