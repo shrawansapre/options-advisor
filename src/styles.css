@@ -1399,6 +1399,106 @@ body {
 }
 .trade-error-retry:hover { background: var(--surface-2); }
 
+/* ─── Share Snapshot (off-screen compact card for image capture) ────────── */
+.share-snapshot {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 400px;
+  background: var(--surface);
+  border-top: 4px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  font-family: var(--font);
+}
+.share-snapshot[data-strategy="bullish"] { border-top-color: var(--green); }
+.share-snapshot[data-strategy="bearish"] { border-top-color: var(--red); }
+.share-snapshot[data-strategy="neutral"] { border-top-color: var(--amber); }
+
+.ss-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid var(--border-2);
+}
+.ss-brand {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--navy); letter-spacing: 0.06em;
+}
+.ss-brand-sub {
+  font-size: 10px; color: var(--t3);
+}
+
+.ss-hero {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 18px 20px 6px;
+}
+.ss-ticker {
+  font-family: var(--serif); font-style: italic; font-size: 42px;
+  font-weight: 700; color: var(--t1); letter-spacing: -0.02em; line-height: 1;
+}
+.ss-price-col {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding-top: 4px;
+}
+.ss-price {
+  font-family: var(--mono); font-size: 22px; font-weight: 700;
+  color: var(--t1); letter-spacing: -0.03em; line-height: 1;
+}
+.ss-price-label {
+  font-size: 9px; font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--t3);
+}
+
+.ss-meta {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 20px 8px;
+}
+.ss-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.ss-strategy  { font-size: 12px; font-weight: 600; color: var(--t2); }
+.ss-sep       { font-size: 11px; color: var(--t3); }
+.ss-conviction { font-size: 12px; font-weight: 600; }
+
+.ss-analysed {
+  font-family: var(--mono); font-size: 10px; color: var(--t3);
+  padding: 0 20px 10px; letter-spacing: 0.03em;
+}
+
+.ss-headline {
+  font-family: var(--serif); font-style: italic;
+  font-size: 17px; font-weight: 500; color: var(--t1);
+  line-height: 1.35; letter-spacing: -0.01em;
+  margin: 0; padding: 0 20px 16px;
+}
+
+.ss-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.ss-cell {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 14px;
+  border-right: 1px solid var(--border);
+}
+.ss-cell:nth-child(3n) { border-right: none; }
+.ss-cell:nth-child(n+4) { border-top: 1px solid var(--border); }
+.ss-cell--primary { background: color-mix(in srgb, var(--navy) 5%, transparent); }
+.ss-label {
+  font-size: 8px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--t3);
+}
+.ss-value {
+  font-family: var(--mono); font-size: 14px; font-weight: 600;
+  color: var(--t1); line-height: 1.1;
+}
+.ss-value--profit { color: var(--green); font-weight: 700; }
+.ss-value--loss   { color: var(--red);   font-weight: 700; }
+
+.ss-footer {
+  font-family: var(--mono); font-size: 9px; color: var(--t3);
+  text-align: center; padding: 10px 20px 14px; letter-spacing: 0.04em;
+}
+
 .disclaimer {
   font-family: var(--mono); font-size: 10px; font-weight: 300;
   color: var(--t3); text-align: center; line-height: 1.75;

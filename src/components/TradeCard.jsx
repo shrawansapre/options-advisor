@@ -26,6 +26,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
   const [shareOpen, setShareOpen] = useState(false);
   const shareRef = useRef(null);
   const cardRef = useRef(null);
+  const snapshotRef = useRef(null);
 
   useEffect(() => {
     if (!shareOpen) return;
@@ -52,8 +53,8 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
 
   async function handleDownloadImage() {
     setShareOpen(false);
-    if (!cardRef.current) return;
-    const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, skipFonts: false });
+    if (!snapshotRef.current) return;
+    const dataUrl = await toPng(snapshotRef.current, { pixelRatio: 2, skipFonts: false });
     const a = document.createElement("a");
     a.href = dataUrl;
     a.download = `${trade.ticker}-options-analysis.png`;
@@ -69,8 +70,8 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
   async function handleNativeShare() {
     setShareOpen(false);
     try {
-      const dataUrl = cardRef.current
-        ? await toPng(cardRef.current, { pixelRatio: 2, skipFonts: false })
+      const dataUrl = snapshotRef.current
+        ? await toPng(snapshotRef.current, { pixelRatio: 2, skipFonts: false })
         : null;
       const title = `${trade.ticker} Options Analysis`;
       const text = trade.summary?.headline ?? "";
@@ -441,5 +442,61 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
 
       </div>
     </motion.article>
+
+    {/* Off-screen compact snapshot — only used for image capture */}
+    <div ref={snapshotRef} className="share-snapshot" data-strategy={trade.strategyType}>
+      <div className="ss-header">
+        <span className="ss-brand">◈ Options Advisor</span>
+        <span className="ss-brand-sub">AI-powered options analysis</span>
+      </div>
+      <div className="ss-hero">
+        <span className="ss-ticker">{trade.ticker}</span>
+        <div className="ss-price-col">
+          <span className="ss-price">${trade.currentPrice}</span>
+          <span className="ss-price-label">current price</span>
+        </div>
+      </div>
+      <div className="ss-meta">
+        <span className="ss-dot" style={{ background: dotColor }} />
+        <span className="ss-strategy">{trade.strategy}</span>
+        <span className="ss-sep">·</span>
+        <span className="ss-conviction" style={{ color: convictionColor }}>{summary.conviction} conviction</span>
+      </div>
+      {analysedAt && (
+        <div className="ss-analysed">
+          Analysed {analysedAt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} at {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+        </div>
+      )}
+      <p className="ss-headline">{summary.headline}</p>
+      <div className="ss-grid">
+        <div className="ss-cell ss-cell--primary">
+          <span className="ss-label">Strike{isSpread ? "s" : ""}</span>
+          <span className="ss-value">{strikeDisplay}</span>
+        </div>
+        <div className="ss-cell">
+          <span className="ss-label">Expiry</span>
+          <span className="ss-value">{trade.expiryLabel}</span>
+        </div>
+        <div className="ss-cell">
+          <span className="ss-label">Entry</span>
+          <span className="ss-value">{trade.totalCost}</span>
+        </div>
+        <div className="ss-cell">
+          <span className="ss-label">Max profit</span>
+          <span className="ss-value ss-value--profit">{trade.maxProfit}</span>
+        </div>
+        <div className="ss-cell">
+          <span className="ss-label">Max loss</span>
+          <span className="ss-value ss-value--loss">{trade.maxLoss}</span>
+        </div>
+        <div className="ss-cell">
+          <span className="ss-label">Break-even</span>
+          <span className="ss-value">${trade.breakeven}</span>
+        </div>
+      </div>
+      <div className="ss-footer">
+        Educational purposes only · options-advisor-sepia.vercel.app
+      </div>
+    </div>
   );
 }
