@@ -1816,17 +1816,10 @@ body {
   .app-main--landing {
     min-height: calc(100dvh - 56px);
     display: flex; flex-direction: column; justify-content: center;
-    padding-top: 0; padding-bottom: 40px;
-  }
-
-  /* Landing — top-anchored layout */
-  .app-main--landing {
-    justify-content: flex-start;
-    padding-top: 36px;
-    padding-bottom: 40px;
+    padding-top: 0; padding-bottom: 60px;
   }
   .landing-tagline {
-    font-size: 30px; line-height: 1.15;
+    font-size: 28px; line-height: 1.2;
   }
   .landing { margin-top: 20px; }
   .landing-chips { margin-bottom: 16px; }
