@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Moon, Sun, LogOut, X } from "lucide-react";
@@ -10,9 +10,10 @@ import MultiTradeView from "./components/MultiTradeView";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AnalysisTabs from "./components/AnalysisTabs";
 import AuthModal from "./components/AuthModal";
-import LearnPage from "./components/LearnPage";
 import { useAuth } from "./components/AuthContext";
 import "./styles.css";
+
+const LearnPage = lazy(() => import("./components/LearnPage"));
 
 const MAX_TABS = 6;
 
@@ -197,7 +198,7 @@ export default function App() {
 
       <main className={`app-main${!showLearn && analyses.length === 0 ? " app-main--landing" : ""}`}>
         <Routes>
-          <Route path="/learn" element={<LearnPage />} />
+          <Route path="/learn" element={<Suspense fallback={null}><LearnPage /></Suspense>} />
           <Route path="*" element={null} />
         </Routes>
 
