@@ -201,11 +201,6 @@ export default function App() {
           <Route path="*" element={null} />
         </Routes>
 
-        {!showLearn && analyses.length === 0 && (
-          <div className="landing-hero">
-            <p className="landing-tagline">Understand the trade.<br/>Before you make it.</p>
-          </div>
-        )}
 
         <div className="search-wrap" style={{ display: showLearn ? "none" : undefined }}>
           <div className="search-bar">

@@ -1,15 +1,30 @@
-import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toPng } from "html-to-image";
 import {
-  TrendingUp, TrendingDown, Clock, AlertTriangle,
-  Timer, Zap, Activity, Crosshair, Target, Ban,
-  Lightbulb, ExternalLink, ChevronRight,
-  CheckCircle2, BookOpen, Layers, Share2, Download, ChevronDown
+  Activity,
+  AlertTriangle,
+  Ban,
+  BookOpen,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Crosshair,
+  Download,
+  ExternalLink,
+  Layers,
+  Lightbulb,
+  Share2,
+  Target,
+  Timer,
+  TrendingDown,
+  TrendingUp,
+  Zap
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { STRATEGY_COLORS, formatTradeAsMarkdown, ordinalSuffix } from "../utils";
 import IVGauge from "./IVGauge";
 import { PayoffChart, ThetaDecayChart } from "./TradeCharts";
-import { STRATEGY_COLORS, ordinalSuffix, impactClass, impactDotColor, formatTradeAsMarkdown } from "../utils";
 
 function parseBold(text) {
   if (!text) return null;
@@ -19,7 +34,7 @@ function parseBold(text) {
 }
 
 export default function TradeCard({ trade, index, analysedAt, marketContext }) {
-  const { summary, exitStrategy, predictions, greeks, watchFor,
+  const { summary, entryTiming, exitStrategy, predictions, greeks, watchFor,
           rationale, riskLevel, riskFactors, robinhoodSteps,
           strategyRationale, sources } = trade;
 
@@ -118,6 +133,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
   ];
 
   return (
+    <>
     <motion.article
       ref={cardRef}
       className="trade-card"
@@ -126,6 +142,18 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: index * 0.12 }}
     >
+      {/* ── Strategy flag ── */}
+      <div className={`trade-strategy-flag trade-strategy-flag--${trade.riskTier ?? "moderate"}`}>
+        <span className="flag-strategy-name">{trade.strategy}</span>
+        <span className="flag-risk-tier">
+          {trade.riskTier === "conservative" ? "Conservative" :
+           trade.riskTier === "moderate"     ? "Moderate"     : "Aggressive"}
+          {" · "}
+          {trade.strategyType === "bullish" ? "Bullish" :
+           trade.strategyType === "bearish" ? "Bearish" : "Neutral"}
+        </span>
+      </div>
+
       {expiryExpired && (
         <div className="expired-warning">
           <AlertTriangle size={14} />
@@ -191,21 +219,9 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
           </div>
         </div>
 
-        {/* Strategy + conviction + risk tier — inline text, no pills */}
+        {/* Conviction — strategy name and tier are already in the flag */}
         <div className="trade-meta-line">
-          <span className="trade-meta-dot" style={{ background: dotColor }} />
-          <span className="trade-meta-strategy">{trade.strategy}</span>
-          <span className="trade-meta-sep">·</span>
           <span className="trade-meta-conviction" style={{ color: convictionColor }}>{summary.conviction} conviction</span>
-          {trade.riskTier && (
-            <span className="trade-meta-risk-wrap">
-              <span className="trade-meta-sep">·</span>
-              <span className={`trade-meta-risk trade-meta-risk--${trade.riskTier}`}>
-                {trade.riskTier === "conservative" ? "Conservative" :
-                 trade.riskTier === "moderate"     ? "Moderate"     : "Aggressive"}
-              </span>
-            </span>
-          )}
         </div>
 
         {/* Headline */}
@@ -269,6 +285,40 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
             <span>{summary.whenToSellSimple}</span>
           </div>
         </div>
+
+        {/* Entry timing */}
+        {entryTiming && (
+          <div className="card">
+            <div className="card-label"><Clock size={11} /> Entry timing</div>
+            <div className="entry-timing-rows">
+              {/* Row 1: can I enter right now? */}
+              <div className={`entry-rule entry-rule--now${entryTiming.canEnterNow ? " entry-rule--yes" : " entry-rule--no"}`}>
+                <div className="entry-rule-head">
+                  <span className="exit-title">Enter now?</span>
+                  <span className={`entry-now-badge${entryTiming.canEnterNow ? " entry-now-badge--yes" : " entry-now-badge--no"}`}>
+                    {entryTiming.canEnterNow ? "Yes" : "No"}
+                  </span>
+                </div>
+                {entryTiming.nowAssessment && (
+                  <p className="exit-desc">{entryTiming.nowAssessment}</p>
+                )}
+              </div>
+              {/* Row 2: optimal entry */}
+              <div className={`entry-rule entry-rule--${entryTiming.urgency ?? "immediate"}`}>
+                <div className="entry-rule-head">
+                  <span className="exit-title">Optimal entry</span>
+                  <span className={`entry-rec entry-rec--${entryTiming.urgency ?? "immediate"}`}>
+                    {entryTiming.optimalEntry}
+                  </span>
+                </div>
+                <p className="exit-desc">{entryTiming.condition}</p>
+                {entryTiming.idealEntryPrice && (
+                  <div className="exit-meta">Ideal price: {entryTiming.idealEntryPrice} per contract</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Exit strategy — full width */}
         <div className="card">
@@ -445,6 +495,16 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
 
     {/* Off-screen compact snapshot — only used for image capture */}
     <div ref={snapshotRef} className="share-snapshot" data-strategy={trade.strategyType}>
+      <div className={`ss-flag ss-flag--${trade.riskTier ?? "moderate"}`}>
+        <span className="ss-flag-name">{trade.strategy}</span>
+        <span className="ss-flag-tier">
+          {trade.riskTier === "conservative" ? "Conservative" :
+           trade.riskTier === "moderate"     ? "Moderate"     : "Aggressive"}
+          {" · "}
+          {trade.strategyType === "bullish" ? "Bullish" :
+           trade.strategyType === "bearish" ? "Bearish" : "Neutral"}
+        </span>
+      </div>
       <div className="ss-header">
         <span className="ss-brand">◈ Options Advisor</span>
         <span className="ss-brand-sub">AI-powered options analysis</span>
@@ -498,5 +558,6 @@ export default function TradeCard({ trade, index, analysedAt, marketContext }) {
         Educational purposes only · options-advisor-sepia.vercel.app
       </div>
     </div>
+    </>
   );
 }

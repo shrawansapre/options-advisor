@@ -16,17 +16,26 @@ const LOADING_MESSAGES = [
   "Assembling your Robinhood execution steps…",
 ];
 
+const TIERS = [
+  { key: "conservative", label: "Conservative", color: "green" },
+  { key: "moderate",     label: "Moderate",     color: "amber" },
+  { key: "aggressive",   label: "Aggressive",   color: "red"   },
+];
+
 export default function LoadingMessages({ ticker, progress, startedAt }) {
   const [index, setIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [elapsed, setElapsed] = useState(0);
   const intervalRef = useRef(null);
 
-  const strings = progress?.type === "text" ? (progress.strings ?? []) : [];
+  const isStrategiesPhase = progress?.type === "strategies";
+  const tierStatus = isStrategiesPhase ? progress.tiers : null;
+  const strings = (!isStrategiesPhase && progress?.type === "text") ? (progress.strings ?? []) : [];
   const isWriting = strings.length > 0;
+  const searchCount = (!isStrategiesPhase && progress?.type === "search") ? progress.count : 0;
 
   useEffect(() => {
-    if (isWriting) {
+    if (isWriting || isStrategiesPhase) {
       clearInterval(intervalRef.current);
       return;
     }
@@ -37,15 +46,13 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
       });
     }, 2600);
     return () => clearInterval(intervalRef.current);
-  }, [isWriting]);
+  }, [isWriting, isStrategiesPhase]);
 
   useEffect(() => {
     if (!startedAt) return;
     const t = setInterval(() => setElapsed(Date.now() - startedAt), 1000);
     return () => clearInterval(t);
   }, [startedAt]);
-
-  const searchCount = progress?.type === "search" ? progress.count : 0;
 
   return (
     <div className="loading-wrap">
@@ -58,9 +65,11 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
         <div className="lp-header">
           <div className="lp-pulse-dot" />
           <span className="lp-title">
-            {ticker
-              ? <><span className="lp-dim">Analyzing </span><strong>{ticker}</strong></>
-              : "Scanning the market"}
+            {isStrategiesPhase
+              ? "Building strategies…"
+              : ticker
+                ? <><span className="lp-dim">Researching </span><strong>{ticker}</strong></>
+                : "Scanning the market"}
           </span>
           <AnimatePresence>
             {searchCount > 0 && (
@@ -80,38 +89,65 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
           )}
         </div>
 
-        <div className="lp-steps">
-          <AnimatePresence initial={false}>
-            {completedSteps.map((step, i) => (
-              <motion.div
-                key={i}
-                className="lp-step lp-step--done"
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.22 }}
-              >
-                <CheckCircle2 size={11} className="lp-check-icon" />
-                <span>{step}</span>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          {!isWriting && (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={index}
-                className="lp-step lp-step--active"
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.22 }}
-              >
-                <div className="lp-step-dot" />
-                <span>{LOADING_MESSAGES[index]}</span>
-              </motion.div>
+        {isStrategiesPhase ? (
+          <motion.div
+            className="lp-strategies"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {TIERS.map(({ key, label, color }) => {
+              const done = tierStatus?.[key] === "done";
+              return (
+                <motion.div
+                  key={key}
+                  className={`lp-tier-pill lp-tier-pill--${color}${done ? " lp-tier-pill--done" : ""}`}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  {done
+                    ? <CheckCircle2 size={12} className="lp-tier-icon" />
+                    : <div className="lp-step-dot" />}
+                  <span>{label}</span>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        ) : (
+          <div className="lp-steps">
+            <AnimatePresence initial={false}>
+              {completedSteps.map((step, i) => (
+                <motion.div
+                  key={i}
+                  className="lp-step lp-step--done"
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.22 }}
+                >
+                  <CheckCircle2 size={11} className="lp-check-icon" />
+                  <span>{step}</span>
+                </motion.div>
+              ))}
             </AnimatePresence>
-          )}
-        </div>
+
+            {!isWriting && (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={index}
+                  className="lp-step lp-step--active"
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.22 }}
+                >
+                  <div className="lp-step-dot" />
+                  <span>{LOADING_MESSAGES[index]}</span>
+                </motion.div>
+              </AnimatePresence>
+            )}
+          </div>
+        )}
 
         {isWriting && (
           <motion.div
@@ -120,7 +156,7 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="lp-stream-label">Writing analysis</div>
+            <div className="lp-stream-label">Writing research report</div>
             <div className="lp-stream-lines">
               <AnimatePresence initial={false}>
                 {strings.slice(-5).map((s, i, arr) => (

@@ -46,76 +46,126 @@
    Bloomberg Terminal energy: authoritative, zero decoration, data first.
 */
 [data-theme="dark"] {
-  --bg:          #080808;
-  --surface:     #111111;
-  --surface-2:   #1A1A1A;
-  --surface-3:   #222222;
-  --border:      rgba(255,255,255,0.07);
-  --border-2:    rgba(255,255,255,0.04);
+  --bg:          #0D1B2A;
+  --surface:     #112233;
+  --surface-2:   #172A3F;
+  --surface-3:   #1D3048;
+  --border:      rgba(243,240,233,0.08);
+  --border-2:    rgba(243,240,233,0.04);
 
-  --navy:        #FF8C00;
-  --navy-light:  rgba(255,140,0,0.1);
-  --green:       #00E676;
-  --green-light: rgba(0,230,118,0.1);
-  --red:         #FF1744;
-  --red-light:   rgba(255,23,68,0.1);
-  --amber:       #FF8C00;
-  --amber-light: rgba(255,140,0,0.1);
-  --violet:      #E040FB;
-  --violet-light: rgba(224,64,251,0.1);
+  --navy:        #F3F0E9;
+  --navy-light:  rgba(243,240,233,0.1);
+  --green:       #4ADE80;
+  --green-light: rgba(74,222,128,0.1);
+  --red:         #F87171;
+  --red-light:   rgba(248,113,113,0.1);
+  --amber:       #FCD34D;
+  --amber-light: rgba(252,211,77,0.1);
+  --violet:      #C084FC;
+  --violet-light: rgba(192,132,252,0.1);
 
-  --t1: #F5F5F5;
-  --t2: rgba(245,245,245,0.5);
-  --t3: rgba(245,245,245,0.28);
+  --t1: #F3F0E9;
+  --t2: rgba(243,240,233,0.55);
+  --t3: rgba(243,240,233,0.32);
 
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.7);
-  --shadow-md: 0 4px 20px rgba(0,0,0,0.8);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,0.9);
+  --shadow-sm: 0 1px 4px rgba(0,8,20,0.6);
+  --shadow-md: 0 4px 20px rgba(0,8,20,0.7);
+  --shadow-lg: 0 8px 40px rgba(0,8,20,0.85);
 }
 
 [data-theme="dark"] .app-header {
-  background: linear-gradient(135deg, #111111 0%, #080808 100%);
+  background: linear-gradient(135deg, #112233 0%, #0D1B2A 100%);
 }
 [data-theme="dark"] .app-header::after {
-  background: linear-gradient(90deg, transparent 0%, #FF8C00 40%, #FF8C00 60%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(243,240,233,0.4) 40%, rgba(243,240,233,0.4) 60%, transparent 100%);
 }
-[data-theme="dark"] .brand-icon  { color: #FF8C00; }
+[data-theme="dark"] .brand-icon  { color: #F3F0E9; }
 [data-theme="dark"] .brand-mark  {
-  color: #FF8C00;
-  text-shadow: 0 0 20px rgba(255,140,0,0.4), 0 0 40px rgba(255,140,0,0.15);
+  color: #F3F0E9;
+  text-shadow: 0 0 20px rgba(243,240,233,0.2), 0 0 40px rgba(243,240,233,0.08);
 }
 [data-theme="dark"] .search-btn {
-  background: #FF8C00;
-  color: #080808;
+  background: #F3F0E9;
+  color: #0D1B2A;
 }
 [data-theme="dark"] .search-bar:focus-within {
-  border-color: rgba(255,140,0,0.5);
-  box-shadow: 0 0 0 4px rgba(255,140,0,0.1), var(--shadow-md);
+  border-color: rgba(243,240,233,0.3);
+  box-shadow: 0 0 0 4px rgba(243,240,233,0.06), var(--shadow-md);
 }
 [data-theme="dark"] .loading-panel {
-  background: #0F0F0F;
-  border-left-color: #FF8C00;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 24px 64px rgba(0,0,0,0.9);
+  background: #112233;
+  border-left-color: #F3F0E9;
+  box-shadow: 0 0 0 1px rgba(243,240,233,0.05), 0 24px 64px rgba(0,8,20,0.8);
 }
 [data-theme="dark"] .lp-search-badge {
-  color: #FF8C00;
-  border-color: rgba(255,140,0,0.25);
-  background: rgba(255,140,0,0.08);
+  color: #F3F0E9;
+  border-color: rgba(243,240,233,0.2);
+  background: rgba(243,240,233,0.06);
 }
-[data-theme="dark"] .lp-step-dot    { background: #FF8C00; }
-[data-theme="dark"] .lp-stream-line { color: rgba(245,245,245,0.6); }
-[data-theme="dark"] .lp-stream-line--faded { color: rgba(245,245,245,0.2); }
+[data-theme="dark"] .lp-step-dot    { background: #F3F0E9; }
+[data-theme="dark"] .lp-stream-line { color: rgba(243,240,233,0.6); }
+[data-theme="dark"] .lp-stream-line--faded { color: rgba(243,240,233,0.2); }
+
+/* Dark mode — buttons: beige presence */
+[data-theme="dark"] .theme-toggle {
+  border-color: rgba(243,240,233,0.15);
+  color: rgba(243,240,233,0.5);
+}
+[data-theme="dark"] .theme-toggle:hover {
+  background: rgba(243,240,233,0.08);
+  border-color: rgba(243,240,233,0.3);
+  color: #F3F0E9;
+}
+[data-theme="dark"] .signin-btn {
+  border-color: rgba(243,240,233,0.2);
+  color: rgba(243,240,233,0.65);
+}
+[data-theme="dark"] .signin-btn:hover {
+  background: rgba(243,240,233,0.08);
+  border-color: rgba(243,240,233,0.35);
+  color: #F3F0E9;
+}
+[data-theme="dark"] .learn-btn {
+  border-color: rgba(243,240,233,0.15);
+  color: rgba(243,240,233,0.5);
+}
+[data-theme="dark"] .learn-btn:hover {
+  background: rgba(243,240,233,0.08);
+  border-color: rgba(243,240,233,0.3);
+  color: #F3F0E9;
+}
+[data-theme="dark"] .landing-chip {
+  border-color: rgba(243,240,233,0.1);
+  color: rgba(243,240,233,0.6);
+  background: rgba(243,240,233,0.03);
+}
+[data-theme="dark"] .landing-chip:hover {
+  border-color: rgba(243,240,233,0.35);
+  color: #F3F0E9;
+  background: rgba(243,240,233,0.07);
+}
+[data-theme="dark"] .signin-nudge {
+  background: rgba(243,240,233,0.05);
+  border-color: rgba(243,240,233,0.1);
+  color: rgba(243,240,233,0.7);
+}
+[data-theme="dark"] .signin-nudge-btn {
+  background: #F3F0E9;
+  color: #0D1B2A;
+}
+[data-theme="dark"] .signin-nudge-btn:hover { background: #e8e5de; }
+[data-theme="dark"] .signin-nudge-close { color: rgba(243,240,233,0.5); }
 
 /* ─── Dark mode — Trade Card ────────────────────────────────────────────── */
 /* Strategy-colored glow on the top border — terminal energy */
 [data-theme="dark"] .trade-card[data-strategy="bullish"] {
-  box-shadow: 0 -1px 24px rgba(0,230,118,0.12), var(--shadow-lg);
+  box-shadow: 0 -1px 24px rgba(74,222,128,0.1), var(--shadow-lg);
 }
 [data-theme="dark"] .trade-card[data-strategy="bearish"] {
-  box-shadow: 0 -1px 24px rgba(255,23,68,0.12), var(--shadow-lg);
+  box-shadow: 0 -1px 24px rgba(248,113,113,0.1), var(--shadow-lg);
 }
 [data-theme="dark"] .trade-card[data-strategy="neutral"] {
-  box-shadow: 0 -1px 24px rgba(255,140,0,0.14), var(--shadow-lg);
+  box-shadow: 0 -1px 24px rgba(252,211,77,0.08), var(--shadow-lg);
 }
 /* Greek symbol watermarks — more visible on near-black surface */
 [data-theme="dark"] .greek-watermark { opacity: 0.07; }
@@ -529,6 +579,34 @@ body {
   flex-shrink: 0;
 }
 
+/* Strategies phase — tier pills */
+.lp-strategies {
+  display: flex;
+  gap: 10px;
+  padding: 16px 18px;
+}
+.lp-tier-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: var(--mono);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.45);
+  flex: 1;
+  justify-content: center;
+  transition: color 0.25s, background 0.25s, border-color 0.25s;
+}
+.lp-tier-pill .lp-step-dot { flex-shrink: 0; }
+.lp-tier-icon { flex-shrink: 0; }
+/* Loading panel is always dark — hardcode vivid colors so they read on both themes */
+.lp-tier-pill--done.lp-tier-pill--green  { color: #4ADE80; border-color: rgba(74,222,128,0.3);  background: rgba(74,222,128,0.1); }
+.lp-tier-pill--done.lp-tier-pill--amber  { color: #FCD34D; border-color: rgba(252,211,77,0.3);  background: rgba(252,211,77,0.1); }
+.lp-tier-pill--done.lp-tier-pill--red    { color: #F87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.1); }
+
 /* Steps */
 .lp-steps {
   padding: 14px 18px;
@@ -618,7 +696,7 @@ body {
 .tab--active,
 .tab--active:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
 [data-theme="dark"] .tab--active,
-[data-theme="dark"] .tab--active:hover { color: #080808; }
+[data-theme="dark"] .tab--active:hover { color: #0D1B2A; }
 
 .tab-dot {
   width: 7px; height: 7px;
@@ -746,7 +824,7 @@ body {
   transition: background 0.15s;
 }
 .bg-ready-banner:hover { background: #bbf7d0; }
-[data-theme="dark"] .bg-ready-banner { background: var(--green-light); border-color: rgba(0,230,118,0.2); }
+[data-theme="dark"] .bg-ready-banner { background: var(--green-light); border-color: rgba(74,222,128,0.2); }
 
 /* ─── Market Banner ────────────────────────────────────────────────────── */
 .market-banner {
@@ -778,17 +856,77 @@ body {
 .trade-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-top: 4px solid var(--border);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   margin-bottom: 28px;
 }
-.trade-card[data-strategy="bullish"],
-.trade-card[data-strategy="bearish"],
-.trade-card[data-strategy="neutral"] { border-top-color: var(--navy); }
 
-/* ─── Risk Tier Badge ───────────────────────────────────────────────────── */
+/* ─── Strategy Flag ─────────────────────────────────────────────────────── */
+.trade-strategy-flag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  gap: 12px;
+}
+.trade-strategy-flag--conservative { background: var(--green); }
+.trade-strategy-flag--moderate    { background: var(--amber); }
+.trade-strategy-flag--aggressive  { background: var(--red); }
+
+.flag-strategy-name {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 21px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.flag-risk-tier {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 4px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+/* Dark mode: deep tinted panels + vivid tier text — terminal aesthetic */
+[data-theme="dark"] .trade-strategy-flag--conservative {
+  background: color-mix(in srgb, #4ADE80 16%, #0D1B2A);
+}
+[data-theme="dark"] .trade-strategy-flag--moderate {
+  background: color-mix(in srgb, #FCD34D 12%, #0D1B2A);
+}
+[data-theme="dark"] .trade-strategy-flag--aggressive {
+  background: color-mix(in srgb, #F87171 16%, #0D1B2A);
+}
+[data-theme="dark"] .trade-strategy-flag--conservative .flag-strategy-name { color: #4ADE80; }
+[data-theme="dark"] .trade-strategy-flag--moderate    .flag-strategy-name { color: #FCD34D; }
+[data-theme="dark"] .trade-strategy-flag--aggressive  .flag-strategy-name { color: #F87171; }
+[data-theme="dark"] .trade-strategy-flag--conservative .flag-risk-tier {
+  color: rgba(74,222,128,0.65);
+  background: rgba(74,222,128,0.1);
+  border-color: rgba(74,222,128,0.2);
+}
+[data-theme="dark"] .trade-strategy-flag--moderate .flag-risk-tier {
+  color: rgba(252,211,77,0.65);
+  background: rgba(252,211,77,0.08);
+  border-color: rgba(252,211,77,0.18);
+}
+[data-theme="dark"] .trade-strategy-flag--aggressive .flag-risk-tier {
+  color: rgba(248,113,113,0.65);
+  background: rgba(248,113,113,0.1);
+  border-color: rgba(248,113,113,0.2);
+}
+
 /* ─── Risk Tier Badge ───────────────────────────────────────────────────── */
 
 /* ─── Trade Header ─────────────────────────────────────────────────────── */
@@ -854,40 +992,16 @@ body {
   color: var(--t3);
 }
 
-/* Strategy meta line — inline dot · name · conviction, no borders */
+/* Conviction line — strategy name and tier are in the flag above */
 .trade-meta-line {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 8px;
   margin-bottom: 10px;
-}
-.trade-meta-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.trade-meta-strategy {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--t2);
-}
-.trade-meta-sep {
-  font-size: 12px;
-  color: var(--t3);
 }
 .trade-meta-conviction {
   font-size: 13px;
   font-weight: 600;
 }
-.trade-meta-risk {
-  font-size: 12px;
-  font-weight: 600;
-}
-.trade-meta-risk--conservative { color: var(--green); }
-.trade-meta-risk--moderate     { color: var(--amber); }
-.trade-meta-risk--aggressive   { color: var(--red); }
 
 .trade-ticker {
   font-family: var(--serif);
@@ -931,6 +1045,9 @@ body {
 .data-cell:last-child { border-right: none; }
 .data-cell--primary {
   background: color-mix(in srgb, var(--navy) 5%, transparent);
+}
+[data-theme="dark"] .data-cell--primary {
+  background: rgba(243,240,233,0.07);
 }
 .data-label {
   font-size: 9px;
@@ -1094,7 +1211,7 @@ body {
 .card-hero { background: var(--surface); }
 .card-rationale {
   background: var(--navy-light);
-  border-color: rgba(30,58,95,0.15);
+  border-color: color-mix(in srgb, var(--navy) 18%, transparent);
 }
 .card-iv { text-align: center; }
 
@@ -1144,15 +1261,62 @@ body {
   line-height: 1.6;
 }
 .sell-hint-icon { color: var(--navy); flex-shrink: 0; margin-top: 2px; }
+[data-theme="dark"] .sell-hint {
+  background: rgba(243,240,233,0.06);
+  border-left-color: rgba(243,240,233,0.3);
+}
+[data-theme="dark"] .sell-hint-icon { color: var(--t2); }
 
 /* Strategy rationale */
 .rationale-text {
-  font-size: 12px; line-height: 1.75; color: var(--navy);
+  font-size: 12px; line-height: 1.75; color: var(--t1);
   word-break: break-word; overflow-wrap: anywhere;
 }
 .rationale-text strong {
-  font-weight: 700; color: var(--navy);
+  font-weight: 700; color: var(--t1);
 }
+
+/* ─── Entry timing ─────────────────────────────────────────────────────── */
+.entry-timing-rows { display: flex; flex-direction: column; gap: 8px; }
+.entry-rule {
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-md);
+  padding: 13px;
+  border-left: 3px solid;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.entry-rule--yes         { border-left-color: var(--green); }
+.entry-rule--no          { border-left-color: var(--red); }
+.entry-rule--immediate   { border-left-color: var(--green); }
+.entry-rule--patient     { border-left-color: var(--amber); }
+.entry-rule--conditional { border-left-color: var(--violet); }
+.entry-rule-head { display: flex; align-items: baseline; gap: 6px; }
+
+.entry-now-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+.entry-now-badge--yes { background: var(--green-light); color: var(--green); }
+.entry-now-badge--no  { background: var(--red-light);   color: var(--red); }
+
+.entry-rec {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: auto;
+  text-align: right;
+}
+.entry-rec--immediate   { color: var(--green); }
+.entry-rec--patient     { color: var(--amber); }
+.entry-rec--conditional { color: var(--violet); }
 
 /* ─── Exit strategy ────────────────────────────────────────────────────── */
 .exit-grid { display: flex; flex-direction: column; gap: 10px; }
@@ -1176,7 +1340,7 @@ body {
   display: flex; align-items: flex-start; gap: 8px;
   font-size: 12px; color: var(--amber);
   background: var(--amber-light);
-  border: 1px solid rgba(146,64,14,0.15);
+  border: 1px solid color-mix(in srgb, var(--amber) 22%, transparent);
   border-radius: var(--r-sm);
   padding: 10px 13px; margin-top: 12px; line-height: 1.6;
 }
@@ -1361,6 +1525,11 @@ body {
   text-decoration: none;
 }
 .sources-bar-link:hover { text-decoration: underline; }
+[data-theme="dark"] .sources-bar-link {
+  color: var(--t2);
+  opacity: 0.85;
+}
+[data-theme="dark"] .sources-bar-link:hover { color: var(--t1); opacity: 1; }
 .sources-bar-sep { color: var(--t3); margin-left: 10px; }
 
 /* ─── Execution steps ──────────────────────────────────────────────────── */
@@ -1382,6 +1551,11 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 10px; font-weight: 700; font-family: var(--mono);
   margin-top: 1px;
+}
+[data-theme="dark"] .step-num {
+  background: rgba(243,240,233,0.12);
+  color: var(--t1);
+  border: 1px solid rgba(243,240,233,0.2);
 }
 
 /* ─── Disclaimer ───────────────────────────────────────────────────────── */
@@ -1413,14 +1587,42 @@ body {
   top: 0;
   width: 400px;
   background: var(--surface);
-  border-top: 4px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--r-xl);
   overflow: hidden;
   font-family: var(--font);
 }
-.share-snapshot[data-strategy="bullish"] { border-top-color: var(--green); }
-.share-snapshot[data-strategy="bearish"] { border-top-color: var(--red); }
-.share-snapshot[data-strategy="neutral"] { border-top-color: var(--amber); }
+
+.ss-flag {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px;
+  gap: 10px;
+}
+.ss-flag--conservative { background: var(--green); }
+.ss-flag--moderate    { background: var(--amber); }
+.ss-flag--aggressive  { background: var(--red); }
+
+.ss-flag-name {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.ss-flag-tier {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 3px;
+  padding: 2px 7px;
+}
 
 .ss-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -1528,6 +1730,8 @@ body {
   .app-main    { padding: 24px 20px 80px; }
   .header-inner { padding: 13px 20px; }
   .trade-header { padding: 20px 20px 0; }
+  .trade-strategy-flag { padding: 12px 20px; }
+  .flag-strategy-name  { font-size: 18px; }
 
   /* Stats: 3 columns — every 3rd child ends a row */
   .stats-strip { grid-template-columns: repeat(3, 1fr); margin: 0 -20px; }
@@ -1702,6 +1906,8 @@ body {
   .app-main     { padding: 16px 12px 80px; }
   .header-inner { padding: 10px 12px; }
   .trade-header { padding: 14px 12px 0; }
+  .trade-strategy-flag { padding: 10px 12px; }
+  .flag-strategy-name  { font-size: 16px; }
   .stats-strip  { margin: 0 -12px; }
   .trade-content { padding: 0 12px 12px; }
   .card         { padding: 14px 16px; }
@@ -1747,7 +1953,7 @@ body {
 .learn-btn--active,
 .learn-btn--active:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
 [data-theme="dark"] .learn-btn--active,
-[data-theme="dark"] .learn-btn--active:hover { color: #080808; }
+[data-theme="dark"] .learn-btn--active:hover { color: #0D1B2A; }
 
 /* ─── Learn Page ────────────────────────────────────────────────────────── */
 .learn-page { padding-bottom: 80px; }
@@ -1787,7 +1993,7 @@ body {
 .learn-nav-btn--active,
 .learn-nav-btn--active:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
 [data-theme="dark"] .learn-nav-btn--active,
-[data-theme="dark"] .learn-nav-btn--active:hover { color: #080808; }
+[data-theme="dark"] .learn-nav-btn--active:hover { color: #0D1B2A; }
 
 /* ─── Learn Grids ───────────────────────────────────────────────────────── */
 .learn-grid {
@@ -2059,8 +2265,8 @@ body {
   border-color: rgba(30,58,95,0.18);
 }
 [data-theme="dark"] .learn-intro-hero {
-  background: rgba(255,140,0,0.07);
-  border-color: rgba(255,140,0,0.2);
+  background: rgba(243,240,233,0.05);
+  border-color: rgba(243,240,233,0.12);
 }
 .learn-intro-hook {
   font-family: var(--serif); font-style: italic;
