@@ -5,11 +5,11 @@ import { jsonrepair } from "jsonrepair";
 
 const RESEARCH_SYSTEM_PROMPT = `You are a financial research assistant and options strategy planner. In a single pass you must: (1) gather market data, (2) scan the options chain to understand available strikes and liquidity, (3) design three distinct strategy structures. Return ONLY a structured JSON report — no markdown fences, no preamble.
 
-CRITICAL — CURRENT PRICE & AFTER-HOURS: Search "[TICKER] stock price" for the latest price. If the market is currently closed, also search "[TICKER] after-hours price" and "[TICKER] after hours news today" — report the most recent price available and note whether it is a regular, after-hours, or pre-market quote. After-hours moves and news directly affect entry timing.
+CRITICAL — PRICE & NEWS: Search "[TICKER] stock price news" to get the current price, recent catalysts, technicals, and earnings date. If the time context says markets are closed, note whether the price is regular close, after-hours, or pre-market — the search results will show this. Do not run a separate after-hours search; the market status is already provided in the user message.
 
 CRITICAL — IV RANK: Search "[TICKER] IV rank" explicitly. Reliable sources: Barchart.com, Market Chameleon, tastytrade. Never use 0 unless confirmed by multiple searches.
 
-CRITICAL — OPTIONS CHAIN SCAN: Search "[TICKER] options chain" to identify available strikes and expiries. You need enough to design 3 meaningfully different strategies — not full Greeks, just strike availability, rough prices, and open interest. All expiries must be at least 21 days from today.
+CRITICAL — OPTIONS CHAIN: Search "[TICKER] options chain" to identify available strikes and expiries. No Greeks needed — just strike availability, rough prices, and open interest. All expiries must be at least 21 days from today.
 
 CRITICAL — STRATEGY DESIGN: Design exactly 3 strategies that are structurally different in risk and max-loss potential. Conservative must have the smallest max loss, aggressive the largest — enforce this in your choice of structure, spread width, and strikes. Strategies for the same ticker may share a directional bias but must differ in structure or aggressiveness.
 - conservative (riskLevel 2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss.
@@ -296,7 +296,10 @@ function extractJSON(accumulated) {
 
 const USE_PROXY = !import.meta.env.VITE_ANTHROPIC_API_KEY;
 
-async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, onProgress }) {
+async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, onProgress, timeoutMs = 55000 }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
   const headers = { "Content-Type": "application/json" };
   if (!USE_PROXY) {
     headers["x-api-key"] = import.meta.env.VITE_ANTHROPIC_API_KEY;
@@ -316,12 +319,20 @@ async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, onP
     body.tools = [{ type: "web_search_20250305", name: "web_search" }];
   }
 
-  const response = await fetch(
-    USE_PROXY ? "/api/analyze" : "https://api.anthropic.com/v1/messages",
-    { method: "POST", headers, body: JSON.stringify(body) }
-  );
+  let response;
+  try {
+    response = await fetch(
+      USE_PROXY ? "/api/analyze" : "https://api.anthropic.com/v1/messages",
+      { method: "POST", headers, body: JSON.stringify(body), signal: controller.signal }
+    );
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === "AbortError") throw new Error("Analysis timed out — the web search took too long. Please try again.");
+    throw err;
+  }
 
   if (!response.ok) {
+    clearTimeout(timer);
     const b = await response.json().catch(() => ({}));
     throw new Error(`API ${response.status}: ${b?.error?.message ?? "unknown error"}`);
   }
@@ -358,17 +369,24 @@ async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, onP
     } catch (_) {}
   };
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      lineBuffer += decoder.decode();
-      if (lineBuffer.trim()) processLine(lineBuffer.trim());
-      break;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        lineBuffer += decoder.decode();
+        if (lineBuffer.trim()) processLine(lineBuffer.trim());
+        break;
+      }
+      lineBuffer += decoder.decode(value, { stream: true });
+      const lines = lineBuffer.split("\n");
+      lineBuffer = lines.pop();
+      for (const line of lines) processLine(line);
     }
-    lineBuffer += decoder.decode(value, { stream: true });
-    const lines = lineBuffer.split("\n");
-    lineBuffer = lines.pop();
-    for (const line of lines) processLine(line);
+  } catch (err) {
+    if (err.name === "AbortError") throw new Error("Analysis timed out — the web search took too long. Please try again.");
+    throw err;
+  } finally {
+    clearTimeout(timer);
   }
 
   return extractJSON(accumulated);

@@ -27,6 +27,7 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
   const [completedSteps, setCompletedSteps] = useState([]);
   const [elapsed, setElapsed] = useState(0);
   const intervalRef = useRef(null);
+  const indexRef = useRef(0);
 
   const isStrategiesPhase = progress?.type === "strategies";
   const tierStatus = isStrategiesPhase ? progress.tiers : null;
@@ -40,10 +41,10 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
       return;
     }
     intervalRef.current = setInterval(() => {
-      setIndex(i => {
-        setCompletedSteps(prev => [...prev, LOADING_MESSAGES[i]].slice(-5));
-        return (i + 1) % LOADING_MESSAGES.length;
-      });
+      const cur = indexRef.current;
+      setCompletedSteps(prev => [...prev, LOADING_MESSAGES[cur]].slice(-5));
+      indexRef.current = (cur + 1) % LOADING_MESSAGES.length;
+      setIndex(indexRef.current);
     }, 2600);
     return () => clearInterval(intervalRef.current);
   }, [isWriting, isStrategiesPhase]);

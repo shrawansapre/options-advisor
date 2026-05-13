@@ -1,4 +1,4 @@
-export const config = { runtime: 'nodejs', maxDuration: 300 };
+export const config = { runtime: 'nodejs', maxDuration: 60 };
 
 const ALLOWED_MODELS = new Set(['claude-sonnet-4-6', 'claude-sonnet-4-20250514']);
 const MAX_TOKENS_LIMIT = 16000;
@@ -46,6 +46,7 @@ export default async function handler(req) {
     headers: {
       'Content-Type': upstream.headers.get('Content-Type') ?? 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
+      'X-Accel-Buffering': 'no',
     },
   });
 }
