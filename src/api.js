@@ -5,11 +5,9 @@ import { jsonrepair } from "jsonrepair";
 
 const RESEARCH_SYSTEM_PROMPT = `You are a financial research assistant and options strategy planner. In a single pass you must: (1) gather market data, (2) scan the options chain to understand available strikes and liquidity, (3) design three distinct strategy structures. Return ONLY a structured JSON report — no markdown fences, no preamble.
 
-CRITICAL — SEARCH 1 (price, news, IV rank): Search "[TICKER] stock price news IV rank options" in a SINGLE search. Extract: current price, recent catalysts, technicals, earnings date, and IV rank. Reliable IV rank sources: Barchart.com, Market Chameleon, tastytrade. Never use IV rank = 0 unless confirmed. If markets are closed, note whether the price is regular close, after-hours, or pre-market.
+CRITICAL — SINGLE SEARCH: Search "[TICKER] stock price news IV rank options chain strikes expiry" in ONE search. Extract: current price, recent news/catalysts, technicals, earnings date, IV rank (Barchart.com, Market Chameleon, or tastytrade), AND available option strikes, expiries, and rough bid/ask prices. Never use IV rank = 0 unless confirmed. If markets are closed, note whether the price is regular close, after-hours, or pre-market.
 
-CRITICAL — SEARCH 2 (options chain): Search "[TICKER] options chain strikes expiry" to identify available strikes and expiries. No Greeks needed — just strike availability, rough prices, and open interest. All expiries must be at least 21 days from today.
-
-You MUST perform exactly these 2 searches and no more.
+You MUST perform exactly 1 search and no more.
 
 CRITICAL — STRATEGY DESIGN: Design exactly 3 strategies that are structurally different in risk and max-loss potential. Conservative must have the smallest max loss, aggressive the largest — enforce this in your choice of structure, spread width, and strikes. Strategies for the same ticker may share a directional bias but must differ in structure or aggressiveness.
 - conservative (riskLevel 2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss.
