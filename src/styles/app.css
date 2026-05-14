@@ -724,8 +724,8 @@
   .tab { padding: 6px 10px 6px 8px; font-size: 11px; gap: 5px; }
   .tab-close { font-size: 13px; }
 
-  .lp-strategies { flex-wrap: wrap; gap: 6px; padding: 6px 14px 14px; }
-  .lp-tier-pill { flex: 1 1 auto; min-width: min-content; padding: 6px 10px; font-size: 10.5px; }
+  .lp-strategies { flex-direction: column; gap: 6px; padding: 6px 14px 14px; }
+  .lp-tier-pill { flex: none; justify-content: flex-start; }
 
   .landing-hero { margin-bottom: 20px; }
   .landing-eyebrow { display: none; }

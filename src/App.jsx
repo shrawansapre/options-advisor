@@ -244,10 +244,10 @@ export default function App() {
                 hasLiveData={active.result.hasLiveData}
                 marketSessionLabel={active.result.marketSessionLabel}
               />
-              {active.result.disclaimer && <p className="disclaimer">{active.result.disclaimer}</p>}
               {active.elapsedMs != null && (
                 <p className="analyzed-in">Analyzed in {fmtElapsed(active.elapsedMs)}</p>
               )}
+              {active.result.disclaimer && <p className="disclaimer">{active.result.disclaimer}</p>}
             </motion.div>
           )}
         </AnimatePresence>}

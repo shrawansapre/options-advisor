@@ -142,15 +142,25 @@ function buildThetaData(trade, analysedAt) {
   const entryValue = (parseFloat(trade.entryPrice) || 0) * 100;
   if (!entryValue || dte < 2) return null;
   const today = analysedAt || new Date();
-  return Array.from({ length: dte + 1 }, (_, i) => {
+  // Sample to ≤120 points so Recharts reference lines match reliably on mobile
+  const step = dte <= 90 ? 1 : dte <= 365 ? 3 : 7;
+  const points = [];
+  for (let i = 0; i <= dte; i += step) {
     const daysLeft = dte - i;
     const date = new Date(today.getTime() + i * 864e5);
-    return {
+    points.push({
       label: date.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
       value: Math.round(entryValue * Math.sqrt(daysLeft / dte)),
       daysLeft,
-    };
-  });
+      dayIndex: i,
+    });
+  }
+  // Always include expiry as final point
+  if (points[points.length - 1]?.daysLeft !== 0) {
+    const date = new Date(today.getTime() + dte * 864e5);
+    points.push({ label: date.toLocaleDateString(undefined, { month: "short", day: "numeric" }), value: 0, daysLeft: 0, dayIndex: dte });
+  }
+  return points;
 }
 
 function parseDate(str, fallbackYear) {
@@ -183,8 +193,13 @@ export function ThetaDecayChart({ trade, analysedAt }) {
   const yr = trade.expiry ? new Date(trade.expiry).getFullYear() : today.getFullYear();
 
   const toDataLabel = parsed => {
-    const idx = Math.round((parsed - today) / 864e5);
-    return (idx >= 0 && idx < data.length) ? data[idx].label : null;
+    const dayOffset = Math.round((parsed - today) / 864e5);
+    if (dayOffset < 0) return null;
+    // Find nearest sampled point by dayIndex (data may be sparse for long-DTE trades)
+    const nearest = data.reduce((best, pt) =>
+      Math.abs(pt.dayIndex - dayOffset) < Math.abs(best.dayIndex - dayOffset) ? pt : best
+    , data[0]);
+    return nearest?.label ?? null;
   };
 
   const rawEvents = [...(trade.watchFor?.keyDates || [])];

@@ -1031,10 +1031,21 @@
   .data-row--contract .data-cell:nth-child(3) { border-top: 1px solid var(--border); }
   .data-row--contract .data-cell:nth-child(4) { border-right: none; border-top: 1px solid var(--border); }
 
-  /* Data block financials: tighten on phone */
-  .data-value--profit { font-size: 15px; }
-  .data-value--loss   { font-size: 15px; }
-  .data-row--financials .data-cell { padding: 13px 14px; }
+  /* Data block financials: single column on phone */
+  .data-row--financials              { grid-template-columns: 1fr; }
+  .data-row--financials .data-cell   { border-right: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+  .data-row--financials .data-cell:first-child { border-top: none; }
+  .data-value--profit { font-size: 16px; }
+  .data-value--loss   { font-size: 16px; }
+
+  /* Data labels: bump from 9px — too small on mobile */
+  .data-label { font-size: 10px; }
+  .data-value { font-size: 16px; }
+
+  /* Scenarios: shrink return value so long strings don't wrap across 3 lines */
+  .scenario-return { font-size: 18px; }
+  .scenario-label  { font-size: 9px; }
+  .scenario-desc   { font-size: 12px; }
 
   /* Greeks: single column */
   .greek-grid { grid-template-columns: 1fr; }
@@ -1081,12 +1092,12 @@
   .plain-english         { font-size: 13px; }
   .trade-card            { margin-bottom: 12px; }
 
-  /* Financials: single column on very small phones */
-  .data-row--financials              { grid-template-columns: 1fr; }
-  .data-row--financials .data-cell   { border-right: none; border-top: 1px solid var(--border); padding: 10px 14px; }
-  .data-row--financials .data-cell:first-child { border-top: none; }
-  .data-value--profit    { font-size: 15px; }
-  .data-value--loss      { font-size: 15px; }
+  /* Financials: already single-column from ≤600px; tighten padding further */
+  .data-row--financials .data-cell { padding: 11px 14px; }
+  .data-value--profit { font-size: 15px; }
+  .data-value--loss   { font-size: 15px; }
+  .data-value         { font-size: 15px; }
+  .data-label         { font-size: 10px; }
 
   /* Header */
   .brand-mark   { font-size: 22px; }
