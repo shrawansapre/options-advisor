@@ -729,8 +729,8 @@
   .landing-headline { font-size: clamp(28px, 9vw, 40px); }
   .landing { margin-top: 16px; }
   .landing-label { display: none; }
-  .landing-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0; margin-bottom: 0; }
-  .landing-chip { border: none; background: none; padding: 11px 12px; font-size: 13px; color: var(--t2); }
+  .landing-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 0; }
+  .landing-chip { border: none; background: none; padding: 9px 10px; font-size: 13px; color: var(--t2); }
   .landing-chip:hover { border: none; background: none; color: var(--t1); }
   .landing-actions { padding-top: 14px; gap: 12px; border-top: none; }
   .search-wrap { margin-bottom: 20px; }

@@ -10,6 +10,8 @@ export function useTheme() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     localStorage.setItem("oa-theme", dark ? "dark" : "light");
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", dark ? "#0D1B2A" : "#F3F0E9");
   }, [dark]);
 
   return [dark, () => setDark(d => !d)];
