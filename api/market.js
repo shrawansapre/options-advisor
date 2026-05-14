@@ -124,9 +124,12 @@ export default async function handler(req, res) {
 
     const allExpirations = extractExpirations(expData);
     if (!allExpirations.length) throw new Error('no expirations');
-    const expirations = allExpirations.length <= 3
-      ? allExpirations
-      : [allExpirations[0], allExpirations[1], allExpirations[allExpirations.length - 1]];
+    // Keep only near-term expirations (21–120 DTE) to avoid LEAPS driving recommendations
+    const nearTerm = allExpirations.filter(exp => {
+      const dte = daysToExpiry(exp);
+      return dte >= 21 && dte <= 120;
+    });
+    const expirations = (nearTerm.length > 0 ? nearTerm : allExpirations).slice(0, 3);
 
     const from = expirations[0];
     const to = expirations[expirations.length - 1];
