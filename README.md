@@ -1,4 +1,4 @@
-# Options Advisor
+# Options Brief
 
 AI-powered options analysis for independent traders. Enter a ticker (or leave blank to scan the market) and get comprehensive, actionable analysis with verified Greeks, exit strategies, risk assessment, and step-by-step Robinhood execution instructions — powered by Claude with live web search.
 

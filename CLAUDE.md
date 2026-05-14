@@ -1,4 +1,4 @@
-# CLAUDE.md — Options Advisor
+# CLAUDE.md — Options Brief
 
 ## Session hygiene
 

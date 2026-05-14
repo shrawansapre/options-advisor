@@ -1,4 +1,4 @@
-# Plans — Options Advisor
+# Plans — Options Brief
 
 Future features by priority. Move items to STATUS.md when shipped.
 
