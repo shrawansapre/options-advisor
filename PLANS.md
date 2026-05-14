@@ -30,6 +30,15 @@ Replace Claude's web search for market data with a live Tradier API call before 
 
 ---
 
+## Ticker Autocomplete
+
+As-you-type suggestions (symbol + company name) below the search bar. Full plan saved at `~/.claude/plans/partitioned-drifting-snail.md`.
+
+**Data source:** Yahoo Finance unofficial search API (free, no key) proxied via `api/autocomplete.js`.
+**Key pieces:** new Vercel function, `.search-bar-wrap` wrapper div, 3 state vars + debounced fetch in App.jsx, `AbortController` for stale cancellation, ArrowUp/Down/Escape keyboard nav.
+
+---
+
 ## Phase 5 — Trade Feedback (ready to build)
 
 Thumbs up/down + report button on each trade card. Supabase DB columns already exist (`feedback`, `reported` on `analyses` table). Just needs UI + write path.

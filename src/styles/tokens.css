@@ -1,0 +1,213 @@
+/* ─── Fonts ────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,300;1,9..144,500;1,9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+/* ─── Tokens ───────────────────────────────────────────────────────────── */
+:root {
+  --bg:          #F3F0E9;
+  --surface:     #FFFFFF;
+  --surface-2:   #F8F6F1;
+  --surface-3:   #EFECE5;
+  --border:      #E2DDD3;
+  --border-2:    #EAE6DF;
+
+  --navy:        #1E3A5F;
+  --navy-light:  #EDF2F9;
+  --green:       #166534;
+  --green-light: #DCFCE7;
+  --red:         #991B1B;
+  --red-light:   #FEE2E2;
+  --amber:       #92400E;
+  --amber-light: #FEF3C7;
+  --amber-ui:    #f59e0b;
+  --violet:      #5B21B6;
+  --violet-light:#EDE9FE;
+
+  --t1: #1C1916;
+  --t2: #6E6860;
+  --t3: #A8A099;
+
+  --font:  'Plus Jakarta Sans', system-ui, sans-serif;
+  --serif: 'Fraunces', Georgia, serif;
+  --mono:  'IBM Plex Mono', 'Menlo', monospace;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.05);
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+}
+
+/* ─── Dark mode — Terminal Noir ─────────────────────────────────────────── */
+/*
+   Near-black base, vivid orange-amber as the single dominant accent.
+   Bloomberg Terminal energy: authoritative, zero decoration, data first.
+*/
+[data-theme="dark"] {
+  --bg:          #0D1B2A;
+  --surface:     #112233;
+  --surface-2:   #172A3F;
+  --surface-3:   #1D3048;
+  --border:      rgba(243,240,233,0.08);
+  --border-2:    rgba(243,240,233,0.04);
+
+  --navy:        #F3F0E9;
+  --navy-light:  rgba(243,240,233,0.1);
+  --green:       #4ADE80;
+  --green-light: rgba(74,222,128,0.1);
+  --red:         #F87171;
+  --red-light:   rgba(248,113,113,0.1);
+  --amber:       #FCD34D;
+  --amber-light: rgba(252,211,77,0.1);
+  --violet:      #C084FC;
+  --violet-light: rgba(192,132,252,0.1);
+
+  --t1: #F3F0E9;
+  --t2: rgba(243,240,233,0.55);
+  --t3: rgba(243,240,233,0.32);
+
+  --shadow-sm: 0 1px 4px rgba(0,8,20,0.6);
+  --shadow-md: 0 4px 20px rgba(0,8,20,0.7);
+  --shadow-lg: 0 8px 40px rgba(0,8,20,0.85);
+}
+
+[data-theme="dark"] .app-header {
+  background: linear-gradient(135deg, #112233 0%, #0D1B2A 100%);
+}
+[data-theme="dark"] .app-header::after {
+  background: linear-gradient(90deg, transparent 0%, rgba(243,240,233,0.4) 40%, rgba(243,240,233,0.4) 60%, transparent 100%);
+}
+[data-theme="dark"] .brand-icon  { color: #F3F0E9; }
+[data-theme="dark"] .brand-mark  {
+  color: #F3F0E9;
+  text-shadow: 0 0 20px rgba(243,240,233,0.2), 0 0 40px rgba(243,240,233,0.08);
+}
+[data-theme="dark"] .search-btn {
+  background: #F3F0E9;
+  color: #0D1B2A;
+}
+[data-theme="dark"] .search-btn:not(:disabled):hover {
+  background: #e2dfd8;
+}
+[data-theme="dark"] .search-bar:focus-within {
+  border-color: rgba(243,240,233,0.3);
+  box-shadow: 0 0 0 4px rgba(243,240,233,0.06), var(--shadow-md);
+}
+[data-theme="dark"] .loading-panel {
+  background: #112233;
+  border-left-color: #F3F0E9;
+  box-shadow: 0 0 0 1px rgba(243,240,233,0.05), 0 24px 64px rgba(0,8,20,0.8);
+}
+[data-theme="dark"] .lp-search-badge {
+  color: #F3F0E9;
+  border-color: rgba(243,240,233,0.2);
+  background: rgba(243,240,233,0.06);
+}
+[data-theme="dark"] .lp-step-dot    { background: #F3F0E9; }
+[data-theme="dark"] .lp-stream-line { color: rgba(243,240,233,0.6); }
+[data-theme="dark"] .lp-stream-line--faded { color: rgba(243,240,233,0.2); }
+
+/* Dark mode — buttons: beige presence */
+[data-theme="dark"] .theme-toggle {
+  border-color: rgba(243,240,233,0.15);
+  color: rgba(243,240,233,0.5);
+}
+[data-theme="dark"] .theme-toggle:hover {
+  background: rgba(243,240,233,0.08);
+  border-color: rgba(243,240,233,0.3);
+  color: #F3F0E9;
+}
+[data-theme="dark"] .signin-btn {
+  border-color: rgba(243,240,233,0.2);
+  color: rgba(243,240,233,0.65);
+}
+[data-theme="dark"] .signin-btn:hover {
+  background: rgba(243,240,233,0.08);
+  border-color: rgba(243,240,233,0.35);
+  color: #F3F0E9;
+}
+[data-theme="dark"] .learn-btn {
+  border-color: rgba(243,240,233,0.15);
+  color: rgba(243,240,233,0.5);
+}
+[data-theme="dark"] .learn-btn:hover {
+  background: rgba(243,240,233,0.08);
+  border-color: rgba(243,240,233,0.3);
+  color: #F3F0E9;
+}
+[data-theme="dark"] .landing-chip {
+  border-color: rgba(243,240,233,0.1);
+  color: rgba(243,240,233,0.55);
+  background: rgba(243,240,233,0.03);
+}
+[data-theme="dark"] .landing-chip:hover {
+  border-color: rgba(243,240,233,0.3);
+  color: #F3F0E9;
+  background: rgba(243,240,233,0.07);
+}
+[data-theme="dark"] .landing-scan {
+  border-color: rgba(243,240,233,0.1);
+  color: rgba(243,240,233,0.45);
+}
+[data-theme="dark"] .landing-scan:hover {
+  border-color: rgba(243,240,233,0.3);
+  color: #F3F0E9;
+  background: rgba(243,240,233,0.06);
+}
+[data-theme="dark"] .signin-nudge {
+  background: rgba(243,240,233,0.05);
+  border-color: rgba(243,240,233,0.1);
+  color: rgba(243,240,233,0.7);
+}
+[data-theme="dark"] .signin-nudge-btn {
+  background: #F3F0E9;
+  color: #0D1B2A;
+}
+[data-theme="dark"] .signin-nudge-btn:hover { background: #e8e5de; }
+[data-theme="dark"] .signin-nudge-close { color: rgba(243,240,233,0.5); }
+
+/* ─── Dark mode — Dropdowns ────────────────────────────────────────────── */
+[data-theme="dark"] .history-list,
+[data-theme="dark"] .autocomplete-list {
+  background: #1D3048;
+  border-color: rgba(243,240,233,0.14);
+  box-shadow: 0 8px 40px rgba(0,8,20,0.9), 0 0 0 1px rgba(243,240,233,0.06);
+}
+[data-theme="dark"] .history-row:hover,
+[data-theme="dark"] .history-clear-btn:hover { background: rgba(243,240,233,0.06); }
+
+/* ─── Dark mode — Trade Card ────────────────────────────────────────────── */
+/* Strategy-colored glow on the top border — terminal energy */
+[data-theme="dark"] .trade-card[data-strategy="bullish"] {
+  box-shadow: 0 -1px 24px rgba(74,222,128,0.1), var(--shadow-lg);
+}
+[data-theme="dark"] .trade-card[data-strategy="bearish"] {
+  box-shadow: 0 -1px 24px rgba(248,113,113,0.1), var(--shadow-lg);
+}
+[data-theme="dark"] .trade-card[data-strategy="neutral"] {
+  box-shadow: 0 -1px 24px rgba(252,211,77,0.08), var(--shadow-lg);
+}
+/* Greek symbol watermarks — more visible on near-black surface */
+[data-theme="dark"] .greek-watermark { opacity: 0.07; }
+/* Entry hint — green 10% is vivid against #111; pull back */
+[data-theme="dark"] .entry-hint {
+  background: color-mix(in srgb, var(--green) 6%, transparent);
+}
+/* Card inner split divider — subtle on dark */
+[data-theme="dark"] .card-inner-col + .card-inner-col {
+  border-left-color: rgba(255,255,255,0.06);
+}
+
+/* ─── Reset ────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scrollbar-gutter: stable; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--t1);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  min-height: 100dvh;
+}

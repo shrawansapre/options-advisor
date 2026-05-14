@@ -47,18 +47,42 @@ options-advisor/
 └── src/
     ├── main.jsx             # React root, BrowserRouter, AuthProvider
     ├── App.jsx              # Layout, routing, tab state, analyze flow
-    ├── api.js               # SYSTEM_PROMPT + fetchRecommendation()
-    ├── styles.css           # All styles, design tokens at top
-    ├── utils.js             # Shared helpers (share markdown, etc.)
+    ├── api.js               # fetchRecommendation(), JSON repair, risk ordering
+    ├── utils.js             # Shared helpers (parseBold, formatTradeAsMarkdown, etc.)
+    ├── hooks/
+    │   ├── useTheme.js      # dark/light toggle + localStorage persistence
+    │   └── useAnalysisState.js  # tab open/close/update + makeAnalysis factory
+    ├── prompts/
+    │   ├── research.js      # RESEARCH_SYSTEM_PROMPT (Phase 1 — web search)
+    │   └── strategy.js      # STRATEGY_SYSTEM_PROMPT (Phase 2 — trade schema)
+    ├── styles/
+    │   ├── tokens.css       # CSS variables, dark mode tokens, reset
+    │   ├── app.css          # Header, search, loading, tabs, landing
+    │   ├── trade-card.css   # Trade card, exit/greeks/scenarios, responsive
+    │   └── learn.css        # Learn page, diagrams, interactive components
     ├── lib/
     │   └── supabase.js      # Supabase client (exports null if env vars missing)
     └── components/
-        ├── TradeCard.jsx    # Main trade card with tab orchestration (Summary/Greeks/Analysis)
+        ├── TradeCard/
+        │   ├── index.jsx    # Card shell, header, data block, snapshot div
+        │   ├── ShareMenu.jsx
+        │   ├── EntrySection.jsx
+        │   ├── ExitSection.jsx
+        │   ├── GreeksGrid.jsx
+        │   ├── ThesisRisk.jsx
+        │   ├── ScenariosSection.jsx
+        │   └── SignalsSection.jsx
+        ├── Learn/
+        │   ├── index.jsx    # Nav shell, AnimatePresence switcher
+        │   ├── IntroSection.jsx
+        │   ├── BasicsSection.jsx
+        │   ├── GreeksSection.jsx
+        │   ├── IVSection.jsx
+        │   └── StrategiesSection.jsx
         ├── AnalysisTabs.jsx # Top tab bar for switching between open analyses
         ├── SearchHistory.jsx # Recent searches row + localStorage/Supabase sync
         ├── LoadingMessages.jsx # Streaming progress display during analysis
-        ├── LearnPage.jsx    # /learn route — options education with interactive diagrams
-        ├── IVGauge.jsx      # IV rank gauge component
+        ├── IVGauge.jsx      # IV rank gauge component (shared)
         ├── TradeCharts.jsx  # Payoff diagram charts
         ├── AuthContext.jsx  # useAuth() hook + AuthProvider
         ├── AuthModal.jsx    # Sign-in modal (Google OAuth + magic link)
@@ -78,7 +102,7 @@ npm run preview      # Preview production build
 
 ### API layer (`src/api.js` + `api/analyze.js`)
 
-- `SYSTEM_PROMPT` in `src/api.js` instructs the model to return a specific JSON schema. If you change the JSON shape, update the prompt AND the components that consume it.
+- System prompts live in `src/prompts/research.js` (Phase 1 research) and `src/prompts/strategy.js` (Phase 2 trade schema). If you change the JSON shape, update the prompt AND the components that consume it.
 - `fetchRecommendation(ticker, onProgress)` streams the response, extracts readable strings for live progress updates, then parses the final JSON with up to 4 repair attempts (`jsonrepair` + `fixUnescapedQuotes`).
 - `api/analyze.js` is the Vercel Edge Function proxy — it validates `model` against an allowlist and enforces `max_tokens ≤ 8000` before forwarding to Anthropic. The API key never touches the client.
 - `max_tokens` is 8000 — the JSON response is large. Don't reduce without testing.
@@ -114,7 +138,7 @@ App
 - History is localStorage for guests; on first sign-in, localStorage is bulk-migrated to Supabase `analyses` table then cleared
 - **Supabase dashboard config** — Site URL in Authentication → URL Configuration must match the Vercel deployment URL. Add both localhost and prod URL to the Redirect allow-list.
 
-### Styling (`src/styles.css`)
+### Styling (`src/styles/`)
 
 - Design tokens at `:root`: `--navy #1E3A5F`, `--bg #F3F0E9` (warm off-white), `--surface #FFFFFF`, `--t1/t2/t3` for text hierarchy
 - Fonts: `Plus Jakarta Sans` (body), `Fraunces` (serif/italic display), `IBM Plex Mono` (mono/data)
@@ -124,48 +148,7 @@ App
 
 ### JSON schema
 
-The API returns this shape (defined in the system prompt in `api.js`):
-
-```
-{
-  trades: [{
-    ticker, strategy, strategyType ("bullish"|"bearish"|"neutral"),
-    summary: { headline, plainEnglish, expectedOutcome, conviction, confidenceScore,
-               whenToBuySimple, whenToSellSimple },
-    expiry, expiryLabel, daysToExpiry, strike, strike2, entryPrice, totalCost,
-    maxProfit, maxLoss, breakeven, currentPrice, ivRank, impliedVolatility,
-    greeks: {
-      delta: { value, direction, insight },
-      theta: { value, dailyCost, weeklyDrain, insight },
-      gamma: { value, insight },
-      vega: { value, insight },
-      ivRankReading, ivRankInsight
-    },
-    exitStrategy: {
-      profitTarget: { optionPrice, returnPct, stockPrice, rule },
-      stopLoss: { optionPrice, lossPct, stockPrice, rule },
-      timeStop: { date, daysBeforeExpiry, rule },
-      earningsWarning
-    },
-    predictions: {
-      bullCase: { stockTarget, optionReturn, probability, scenario },
-      baseCase: { ... },
-      bearCase: { ... }
-    },
-    watchFor: {
-      bullishSignals: [],
-      warningSignals: [],
-      keyDates: [{ date, event, impact }]
-    },
-    rationale, strategyRationale, riskLevel (1-5), riskFactors: [],
-    sources: [{ title, url }],
-    robinhoodSteps: []
-  }],
-  marketContext, disclaimer
-}
-```
-
-If a field is missing or malformed, handle it gracefully with optional chaining and fallbacks. Don't let one bad field crash the card.
+See `src/prompts/strategy.js` for the full response schema (trades array shape, all fields and types). If a field is missing or malformed, handle it gracefully with optional chaining and fallbacks. Don't let one bad field crash the card.
 
 ## Code style
 

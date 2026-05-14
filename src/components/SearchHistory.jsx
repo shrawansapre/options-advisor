@@ -125,18 +125,17 @@ export function SearchHistory({ history, onSelect, onSelectCached, onClear }) {
     <div className="search-history" ref={ref}>
       <button className="history-toggle" onClick={() => setOpen(o => !o)}>
         <History size={11} />
-        <span>Recent searches ({history.length})</span>
+        <span>Recent analyses ({history.length})</span>
         <ChevronRight size={11} className={`history-chevron ${open ? "history-chevron--open" : ""}`} />
       </button>
       <AnimatePresence>
         {open && (
           <motion.div
             className="history-list"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            style={{ overflow: "hidden" }}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
           >
             {history.map(h => (
               <button key={h.id} className="history-row" onClick={() => { setOpen(false); h.result ? onSelectCached(h.result, new Date(h.ts)) : onSelect(h.ticker); }}>

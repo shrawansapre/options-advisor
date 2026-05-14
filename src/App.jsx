@@ -11,31 +11,19 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import AnalysisTabs from "./components/AnalysisTabs";
 import AuthModal from "./components/AuthModal";
 import { useAuth } from "./components/AuthContext";
-import "./styles.css";
+import { useTheme } from "./hooks/useTheme";
+import { useAnalysisState, makeAnalysis } from "./hooks/useAnalysisState";
+import "./styles/tokens.css";
+import "./styles/app.css";
+import "./styles/trade-card.css";
+import "./styles/learn.css";
 
-const LearnPage = lazy(() => import("./components/LearnPage"));
-
-const MAX_TABS = 6;
-
-function makeAnalysis(ticker) {
-  return {
-    id: Date.now().toString(),
-    ticker: ticker || "",
-    status: "loading",
-    result: null,
-    progress: null,
-    error: null,
-    analysedAt: null,
-    startedAt: Date.now(),
-    elapsedMs: null,
-    strategyType: "neutral",
-  };
-}
+const LearnPage = lazy(() => import("./components/Learn"));
 
 export default function App() {
   const [ticker, setTicker] = useState("");
-  const [analyses, setAnalyses] = useState([]);
-  const [activeId, setActiveId] = useState(null);
+  const [dark, toggleDark] = useTheme();
+  const { analyses, activeId, active, setActiveId, openTab, closeTab, update, handleSelectCached } = useAnalysisState();
   const { history, addEntry, clearHistory } = useSearchHistory();
   const { user, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
@@ -59,62 +47,6 @@ export default function App() {
       setMenuPos({ top: r.bottom + 8, right: window.innerWidth - r.right });
     }
     setShowUserMenu(m => !m);
-  }
-
-  const update = (id, patch) =>
-    setAnalyses(prev => prev.map(a => a.id === id ? { ...a, ...patch } : a));
-
-  const [dark, setDark] = useState(() => {
-    const stored = localStorage.getItem("oa-theme");
-    if (stored) return stored === "dark";
-    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-    localStorage.setItem("oa-theme", dark ? "dark" : "light");
-  }, [dark]);
-
-  function openTab(analysis) {
-    setAnalyses(prev => {
-      let next = [analysis, ...prev];
-      if (next.length > MAX_TABS) {
-        // drop oldest non-active tab
-        const dropIdx = [...next].reverse().findIndex(a => a.id !== activeId && a.id !== analysis.id);
-        if (dropIdx !== -1) next.splice(next.length - 1 - dropIdx, 1);
-      }
-      return next;
-    });
-    setActiveId(analysis.id);
-  }
-
-  function closeTab(id) {
-    setAnalyses(prev => {
-      const next = prev.filter(a => a.id !== id);
-      if (activeId === id && next.length) {
-        const idx = Math.max(0, prev.findIndex(a => a.id === id) - 1);
-        setActiveId(next[Math.min(idx, next.length - 1)].id);
-      } else if (!next.length) {
-        setActiveId(null);
-      }
-      return next;
-    });
-  }
-
-  function handleSelectCached(cachedResult, cachedAt) {
-    const existing = analyses.find(a =>
-      a.analysedAt?.toISOString() === cachedAt?.toISOString()
-    );
-    if (existing) { setActiveId(existing.id); return; }
-
-    const a = {
-      ...makeAnalysis(cachedResult.trades?.[0]?.ticker ?? ""),
-      status: "done",
-      result: cachedResult,
-      analysedAt: cachedAt,
-      strategyType: cachedResult.trades?.[0]?.strategyType ?? "neutral",
-    };
-    openTab(a);
   }
 
   async function handleAnalyze(explicitTicker) {
@@ -146,11 +78,9 @@ export default function App() {
       if (data.trades?.[0]) addEntry(t, data.trades[0], data);
     } catch (e) {
       update(a.id, { status: "error", error: e.message || "Could not generate an analysis. Please try again." });
-      console.error(e);
     }
   }
 
-  const active = analyses.find(a => a.id === activeId) ?? null;
   const [nudgeDismissed, setNudgeDismissed] = useState(
     () => localStorage.getItem("oa-nudge-dismissed") === "1"
   );
@@ -165,13 +95,13 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-inner">
-          <div className="header-brand">
+          <button className="header-brand" onClick={() => { navigate("/"); setActiveId(null); }}>
             <span className="brand-mark">◈</span>
             <div className="header-text">
               <div className="header-title">Options Advisor</div>
-              <div className="header-sub">AI-powered analysis · For Robinhood</div>
+              <div className="header-sub">AI-powered options analysis</div>
             </div>
-          </div>
+          </button>
           <div className="header-actions">
             <button
               className={`learn-btn${showLearn ? " learn-btn--active" : ""}`}
@@ -179,7 +109,7 @@ export default function App() {
             >
               Learn
             </button>
-            <button className="theme-toggle" onClick={() => setDark(d => !d)} aria-label="Toggle theme">
+            <button className="theme-toggle" onClick={toggleDark} aria-label="Toggle theme">
               {dark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
             {user ? (
@@ -203,14 +133,30 @@ export default function App() {
         </Routes>
 
 
-        <div className="search-wrap" style={{ display: showLearn ? "none" : undefined }}>
+        {!showLearn && !active && (
+          <motion.div
+            className="landing-hero"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="landing-eyebrow">Research · Strategy · Execution</p>
+            <h1 className="landing-headline">
+              The analysis desk<br />
+              <em>you never had.</em>
+            </h1>
+          </motion.div>
+        )}
+
+        <div className={`search-wrap${!active && !showLearn ? " search-wrap--landing" : ""}`}
+          style={{ display: showLearn ? "none" : undefined }}>
           <div className="search-bar">
             <input
               id="ticker-input"
               name="ticker"
               className="search-input"
               type="text"
-              placeholder="Enter a ticker — NVDA, SPY, TSLA"
+              placeholder="Enter a ticker"
               value={ticker}
               onChange={e => setTicker(e.target.value.toUpperCase().replace(/[^A-Z0-9.\-]/g, "").slice(0, 10))}
               onKeyDown={e => e.key === "Enter" && handleAnalyze()}
@@ -221,15 +167,7 @@ export default function App() {
               Analyze
             </button>
           </div>
-          <p className="search-hint">
-            <span className="hint-full">Live web search · Verified Greeks · Price, IV rank, news, technicals · </span>Educational purposes only
-          </p>
-          <SearchHistory
-            history={history}
-            onSelect={t => handleAnalyze(t)}
-            onSelectCached={handleSelectCached}
-            onClear={clearHistory}
-          />
+          <p className="search-hint">Educational purposes only</p>
         </div>
 
         {!showLearn && showNudge && (
@@ -251,20 +189,21 @@ export default function App() {
 
         {!showLearn && <AnimatePresence mode="wait">
           {!active && (
-            <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ delay: 0.1 }}>
               <div className="landing">
+                <p className="landing-label">Popular</p>
                 <div className="landing-chips">
                   {["NVDA", "AAPL", "TSLA", "SPY", "AMZN", "META"].map(t => (
                     <button key={t} className="landing-chip" onClick={() => handleAnalyze(t)}>{t}</button>
                   ))}
                 </div>
-                <button className="landing-scan" onClick={() => handleAnalyze("")}>
-                  <span>Scan market for best opportunity</span>
-                  <span className="landing-scan-arrow">→</span>
-                </button>
-                <button className="landing-learn-link" onClick={() => navigate("/learn")}>
-                  New to options? Learn the basics →
-                </button>
+                <SearchHistory
+                  history={history}
+                  onSelect={t => handleAnalyze(t)}
+                  onSelectCached={handleSelectCached}
+                  onClear={clearHistory}
+                />
               </div>
             </motion.div>
           )}
@@ -302,6 +241,8 @@ export default function App() {
                 trades={active.result.trades}
                 analysedAt={active.analysedAt}
                 marketContext={active.result.marketContext}
+                hasLiveData={active.result.hasLiveData}
+                marketSessionLabel={active.result.marketSessionLabel}
               />
               {active.result.disclaimer && <p className="disclaimer">{active.result.disclaimer}</p>}
               {active.elapsedMs != null && (

@@ -223,8 +223,8 @@ export function ThetaDecayChart({ trade, analysedAt }) {
             width={isMobile ? 34 : 44} tickCount={4} />
           <Tooltip formatter={v => [`$${v}`, "Est. value"]} contentStyle={ttStyle} />
           {todayLabel && (
-            <ReferenceLine x={todayLabel} stroke="var(--blue)" strokeDasharray="4 2"
-              label={refLabel("Today", "var(--blue)")} />
+            <ReferenceLine x={todayLabel} stroke="#3b82f6" strokeDasharray="4 2"
+              label={refLabel("Today", "#3b82f6")} />
           )}
           {danger7 && (
             <ReferenceLine x={danger7.label} stroke="var(--red)" strokeDasharray="3 3"

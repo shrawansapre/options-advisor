@@ -24,6 +24,9 @@
 
 - **Mobile landing redesign** — tagline ("Understand the trade. Before you make it.") in Fraunces serif italic above search bar; top-anchored layout (no more vertical centering void); scan CTA is filled navy primary button; learn link de-emphasized to plain text; tagline visible on desktop too (26px) and mobile (30px)
 
+- **Codebase refactor (Phase 1)** — extracted system prompts into `src/prompts/research.js` + `src/prompts/strategy.js`; extracted `useTheme` and `useAnalysisState` hooks from App.jsx; converted `TradeCard.jsx` → `TradeCard/` folder with `ShareMenu.jsx`; split `LearnPage.jsx` → `Learn/` folder with one file per section (IntroSection, BasicsSection, GreeksSection, IVSection, StrategiesSection)
+- **Codebase refactor (Phase 2)** — split `styles.css` (2545 lines) into 4 focused files (`tokens.css`, `app.css`, `trade-card.css`, `learn.css`); extracted 6 TradeCard section components (`EntrySection`, `ExitSection`, `GreeksGrid`, `ThesisRisk`, `ScenariosSection`, `SignalsSection`); trimmed CLAUDE.md JSON schema block (~35 lines saved); added `src/CODEBASE.md` navigation index; renamed `utils.js` → `utils.jsx` (contains JSX)
+
 ## Known Issues / Next Up
 
 - Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)
