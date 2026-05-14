@@ -27,6 +27,19 @@
 - **Codebase refactor (Phase 1)** — extracted system prompts into `src/prompts/research.js` + `src/prompts/strategy.js`; extracted `useTheme` and `useAnalysisState` hooks from App.jsx; converted `TradeCard.jsx` → `TradeCard/` folder with `ShareMenu.jsx`; split `LearnPage.jsx` → `Learn/` folder with one file per section (IntroSection, BasicsSection, GreeksSection, IVSection, StrategiesSection)
 - **Codebase refactor (Phase 2)** — split `styles.css` (2545 lines) into 4 focused files (`tokens.css`, `app.css`, `trade-card.css`, `learn.css`); extracted 6 TradeCard section components (`EntrySection`, `ExitSection`, `GreeksGrid`, `ThesisRisk`, `ScenariosSection`, `SignalsSection`); trimmed CLAUDE.md JSON schema block (~35 lines saved); added `src/CODEBASE.md` navigation index; renamed `utils.js` → `utils.jsx` (contains JSX)
 
+- **App renamed to Options Brief** — removed "Advisor" from header, page title, OG/Twitter meta, screenshot brand, share text, and markdown export
+
+- **IV rank fix** — `STRATEGY_SYSTEM_PROMPT_LIVE` now explicitly copies `ivRank` from Phase 1 research; code-side override in `api.js` enforces it post-Phase 2; "never use 0" guard added to research prompt
+- **Loading screen redesign** — stage-based progress (Market Data → Research → Strategies); live AI findings feed from streamed text blocks; removed internal "report" stage
+- **Homepage redesign** — Fraunces italic headline ("The analysis desk / you never had."), constrained centered layout, dark mode radial ambient glow; eyebrow text "Research · Strategy · Execution"
+- **Mobile landing overhaul** — vertical centering; plain-text chips (no borders); eyebrow/label/hint/learn-link hidden; 3-column chip grid; "Scan market" CTA removed; Recent analyses moved below chips
+- **Search history → floating dropdown** — converted from inline expand to `position: absolute` panel with `max-height: 300px` scroll; renamed "Recent searches" → "Recent analyses"; dark mode contrast fix for dropdown panel
+- **Logo clickable** — clicking brand mark/name returns to landing state (`navigate("/") + setActiveId(null)`)
+- **Removed Robinhood mentions** — "How to execute on Robinhood" → "How to execute"; header subtitle simplified
+- **Dark mode fixes** — Analyze button hover no longer turns dark navy; "Today" label in theta decay chart fixed (was black due to missing `--blue` token); dropdown panels use `--surface-3` for contrast
+- **Placeholder simplified** — search input placeholder changed to "Enter a ticker"
+- **Console.log removed** — removed `console.error` from analyze error handler
+
 ## Known Issues / Next Up
 
 - Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)
