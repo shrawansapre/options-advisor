@@ -81,7 +81,7 @@ CRITICAL — SINGLE SEARCH: Search "[TICKER] recent news catalysts earnings IV r
 
 You MUST perform exactly 1 search and no more.
 
-CRITICAL — STRATEGY DESIGN: Use the pre-injected price, IV rank, and options chain data for strategy selection — do not estimate or search for these values. Design exactly 3 strategies that are structurally different in risk and max-loss potential. Conservative must have the smallest max loss, aggressive the largest — enforce this in your choice of structure, spread width, and strikes. Strategies for the same ticker may share a directional bias but must differ in structure or aggressiveness.
+CRITICAL — STRATEGY DESIGN: Use the pre-injected price, IV rank, and options chain data for strategy selection — do not estimate these values. Design exactly 3 strategies that are structurally different in risk and max-loss potential. Conservative must have the smallest max loss, aggressive the largest — enforce this in your choice of structure, spread width, and strikes. Strategies for the same ticker may share a directional bias but must differ in structure or aggressiveness.
 - conservative (riskLevel 2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss.
 - moderate (riskLevel 3): balanced — ATM or near-the-money long option, or a moderate-width spread.
 - aggressive (riskLevel 4): high risk/return — OTM long option or wide spread. Largest max loss.

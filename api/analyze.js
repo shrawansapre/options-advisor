@@ -1,4 +1,4 @@
-export const config = { runtime: 'nodejs', maxDuration: 60 };
+export const config = { runtime: 'edge' };
 
 const ALLOWED_MODELS = new Set(['claude-sonnet-4-6', 'claude-sonnet-4-20250514']);
 const MAX_TOKENS_LIMIT = 16000;
