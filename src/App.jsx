@@ -98,7 +98,7 @@ export default function App() {
           <button className="header-brand" onClick={() => { navigate("/"); setActiveId(null); }}>
             <span className="brand-mark">◈</span>
             <div className="header-text">
-              <div className="header-title">Options Advisor</div>
+              <div className="header-title">Options Brief</div>
               <div className="header-sub">AI-powered options analysis</div>
             </div>
           </button>

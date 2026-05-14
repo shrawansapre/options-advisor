@@ -42,7 +42,7 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
 
   function handleShareX() {
     setShareOpen(false);
-    const text = `$${trade.ticker} ${trade.strategy} — ${trade.summary?.headline ?? ""}\n\nConviction: ${trade.summary?.conviction ?? "—"} · Risk: ${trade.riskLevel ?? "—"}/5\n\nvia Options Advisor`;
+    const text = `$${trade.ticker} ${trade.strategy} — ${trade.summary?.headline ?? ""}\n\nConviction: ${trade.summary?.conviction ?? "—"} · Risk: ${trade.riskLevel ?? "—"}/5\n\nvia Options Brief`;
     window.open(`https://x.com/intent/post?text=${encodeURIComponent(text + "\n\nhttps://options-advisor-sepia.vercel.app")}`, "_blank", "noopener");
   }
 

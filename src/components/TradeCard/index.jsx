@@ -170,7 +170,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext, has
         </span>
       </div>
       <div className="ss-header">
-        <span className="ss-brand">◈ Options Advisor</span>
+        <span className="ss-brand">◈ Options Brief</span>
         <span className="ss-brand-sub">AI-powered options analysis</span>
       </div>
       <div className="ss-hero">
