@@ -5,6 +5,7 @@ import { formatTradeAsMarkdown } from "../../utils";
 
 export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRef }) {
   const [shareOpen, setShareOpen] = useState(false);
+  const [imgLoading, setImgLoading] = useState(false);
   const shareRef = useRef(null);
 
   useEffect(() => {
@@ -33,11 +34,23 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
   async function handleDownloadImage() {
     setShareOpen(false);
     if (!snapshotRef.current) return;
-    const dataUrl = await toPng(snapshotRef.current, { pixelRatio: 2, skipFonts: false });
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `${trade.ticker}-options-analysis.png`;
-    a.click();
+    setImgLoading(true);
+    try {
+      const dataUrl = await toPng(snapshotRef.current, { pixelRatio: 2, skipFonts: true });
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      if (isIOS) {
+        window.open(dataUrl, "_blank");
+      } else {
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = `${trade.ticker}-options-analysis.png`;
+        a.click();
+      }
+    } catch {
+      alert("Couldn't generate image — try the Share… option instead.");
+    } finally {
+      setImgLoading(false);
+    }
   }
 
   function handleShareX() {
@@ -81,9 +94,9 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
             <ExternalLink size={14} />
             Open in Claude
           </button>
-          <button className="share-menu-item" onClick={handleDownloadImage}>
+          <button className="share-menu-item" onClick={handleDownloadImage} disabled={imgLoading}>
             <Download size={14} />
-            Download image
+            {imgLoading ? "Generating…" : "Download image"}
           </button>
           <button className="share-menu-item" onClick={handleShareX}>
             <span className="x-logo-icon">𝕏</span>
