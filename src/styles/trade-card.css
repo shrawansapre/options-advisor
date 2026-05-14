@@ -843,6 +843,7 @@
   font-size: 17px; font-weight: 500; color: var(--t1);
   line-height: 1.35; letter-spacing: -0.01em;
   margin: 0; padding: 0 20px 16px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 
 .ss-grid {
@@ -856,8 +857,7 @@
   padding: 12px 14px;
   border-right: 1px solid var(--border);
 }
-.ss-cell:nth-child(3n) { border-right: none; }
-.ss-cell:nth-child(n+4) { border-top: 1px solid var(--border); }
+.ss-cell:last-child { border-right: none; }
 .ss-cell--primary { background: color-mix(in srgb, var(--navy) 5%, transparent); }
 .ss-label {
   font-size: 8px; font-weight: 700; text-transform: uppercase;
@@ -869,6 +869,26 @@
 }
 .ss-value--profit { color: var(--green); font-weight: 700; }
 .ss-value--loss   { color: var(--red);   font-weight: 700; }
+
+.ss-warnings {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+}
+.ss-warnings-label {
+  font-family: var(--mono); font-size: 8px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--red);
+  display: block; margin-bottom: 6px;
+}
+.ss-warnings-list {
+  list-style: none; display: flex; flex-direction: column; gap: 4px;
+}
+.ss-warnings-list li {
+  font-size: 11px; color: var(--t2); line-height: 1.4;
+  padding-left: 10px; position: relative;
+}
+.ss-warnings-list li::before {
+  content: "·"; position: absolute; left: 0; color: var(--red);
+}
 
 .ss-footer {
   font-family: var(--mono); font-size: 9px; color: var(--t3);

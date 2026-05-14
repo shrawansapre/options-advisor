@@ -169,10 +169,6 @@ export default function TradeCard({ trade, index, analysedAt, marketContext, has
            trade.strategyType === "bearish" ? "Bearish" : "Neutral"}
         </span>
       </div>
-      <div className="ss-header">
-        <span className="ss-brand">◈ Options Brief</span>
-        <span className="ss-brand-sub">AI-powered options analysis</span>
-      </div>
       <div className="ss-hero">
         <span className="ss-ticker">{trade.ticker}</span>
         <div className="ss-price-col">
@@ -180,28 +176,9 @@ export default function TradeCard({ trade, index, analysedAt, marketContext, has
           <span className="ss-price-label">current price</span>
         </div>
       </div>
-      <div className="ss-meta">
-        <span className="ss-dot" style={{ background: dotColor }} />
-        <span className="ss-strategy">{trade.strategy}</span>
-        <span className="ss-sep">·</span>
-        <span className="ss-conviction" style={{ color: convictionColor }}>{summary.conviction} conviction</span>
-      </div>
-      {analysedAt && (
-        <div className="ss-analysed">
-          Analysed {analysedAt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} at {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
-        </div>
-      )}
       <p className="ss-headline">{summary.headline}</p>
       <div className="ss-grid">
         <div className="ss-cell ss-cell--primary">
-          <span className="ss-label">Strike{isSpread ? "s" : ""}</span>
-          <span className="ss-value">{strikeDisplay}</span>
-        </div>
-        <div className="ss-cell">
-          <span className="ss-label">Expiry</span>
-          <span className="ss-value">{trade.expiryLabel}</span>
-        </div>
-        <div className="ss-cell">
           <span className="ss-label">Entry</span>
           <span className="ss-value">{trade.totalCost}</span>
         </div>
@@ -213,13 +190,19 @@ export default function TradeCard({ trade, index, analysedAt, marketContext, has
           <span className="ss-label">Max loss</span>
           <span className="ss-value ss-value--loss">{trade.maxLoss}</span>
         </div>
-        <div className="ss-cell">
-          <span className="ss-label">Break-even</span>
-          <span className="ss-value">${trade.breakeven}</span>
-        </div>
       </div>
+      {trade.watchFor?.warningSignals?.length > 0 && (
+        <div className="ss-warnings">
+          <span className="ss-warnings-label">Watch out for</span>
+          <ul className="ss-warnings-list">
+            {trade.watchFor.warningSignals.slice(0, 3).map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="ss-footer">
-        Educational purposes only · options-advisor-sepia.vercel.app
+        ◈ Options Brief{analysedAt ? ` · ${analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""} · Educational purposes only
       </div>
     </div>
     </>
