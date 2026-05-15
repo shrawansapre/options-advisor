@@ -2,6 +2,7 @@
 
 ## Recently Completed
 
+- **Market data timeout fix** — increased frontend abort from 5s→9s; cold Worker requests to marketdata.app were taking 6-8s and getting cut off
 - **Backend migrated to Cloudflare Workers** — `api/` deleted; `worker/worker.js` deployed at `https://api.optionsbrief.workers.dev` (free, no cold starts); local dev: run `npx wrangler dev --config worker/wrangler.toml` + `npm run dev` in parallel; secrets in `worker/.dev.vars`
 - **Vercel deployment** — app live at https://options-advisor-sepia.vercel.app
 - **Backend proxy** — Vercel Edge→Node.js function (`api/analyze.js`) keeps API key server-side; 60s timeout via `vercel.json`
