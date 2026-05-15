@@ -209,7 +209,7 @@ function enforceRiskOrdering(trades) {
 async function fetchMarketData(ticker) {
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 9000);
     const res = await fetch(`${import.meta.env.VITE_API_BASE ?? ''}/market?ticker=${ticker}`, { signal: controller.signal });
     clearTimeout(timer);
     if (!res.ok) return null;
