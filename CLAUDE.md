@@ -16,7 +16,7 @@ AI-powered options analysis app. Enter a ticker (or leave blank to scan the mark
 ## Tech stack
 
 - React 18 + Vite (no TypeScript)
-- Anthropic API (`claude-sonnet-4-6`) with `web_search_20250305` tool — proxied through `api/analyze.js` (Vercel Edge Function)
+- Anthropic API (`claude-sonnet-4-6`) with `web_search_20250305` tool — proxied through Cloudflare Worker (`worker/worker.js`) at `https://api.optionsbrief.workers.dev`
 - Supabase — auth (Google OAuth + magic link) + `analyses` table for history sync
 - Vanilla CSS with custom design tokens (no Tailwind, no CSS-in-JS)
 - No state management library — useState is sufficient
@@ -35,8 +35,10 @@ options-advisor/
 ├── STATUS.md                # What shipped recently + known issues
 ├── PLANS.md                 # Future feature roadmap
 ├── README.md
-├── api/
-│   └── analyze.js           # Vercel Edge Function — proxies Anthropic API, validates model + max_tokens
+├── worker/
+│   ├── wrangler.toml        # Cloudflare Worker config (name: api, subdomain: optionsbrief.workers.dev)
+│   ├── worker.js            # Single Worker entry — /analyze (Anthropic proxy) + /market (marketdata.app)
+│   └── .dev.vars            # Local secrets for wrangler dev (gitignored)
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── DEPLOYMENT.md
@@ -98,13 +100,23 @@ npm run build        # Production build to dist/
 npm run preview      # Preview production build
 ```
 
+**Local dev requires two terminals** — the Vite frontend and the Cloudflare Worker backend must both run:
+
+```bash
+# Terminal 1 — Worker backend (reads secrets from worker/.dev.vars)
+npx wrangler dev --config worker/wrangler.toml
+
+# Terminal 2 — Vite frontend (VITE_API_BASE=http://localhost:8787 in .env.local)
+npm run dev
+```
+
 ## Architecture decisions
 
-### API layer (`src/api.js` + `api/analyze.js`)
+### API layer (`src/api.js` + `worker/worker.js`)
 
 - System prompts live in `src/prompts/research.js` (Phase 1 research) and `src/prompts/strategy.js` (Phase 2 trade schema). If you change the JSON shape, update the prompt AND the components that consume it.
 - `fetchRecommendation(ticker, onProgress)` streams the response, extracts readable strings for live progress updates, then parses the final JSON with up to 4 repair attempts (`jsonrepair` + `fixUnescapedQuotes`).
-- `api/analyze.js` is the Vercel Edge Function proxy — it validates `model` against an allowlist and enforces `max_tokens ≤ 8000` before forwarding to Anthropic. The API key never touches the client.
+- `worker/worker.js` is the Cloudflare Worker proxy — it validates `model` against an allowlist and enforces `max_tokens ≤ 16000` before forwarding to Anthropic. The API key never touches the client. Deployed at `https://api.optionsbrief.workers.dev`.
 - `max_tokens` is 8000 — the JSON response is large. Don't reduce without testing.
 
 ### Component structure

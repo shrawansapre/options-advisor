@@ -2,6 +2,7 @@
 
 ## Recently Completed
 
+- **Backend migrated to Cloudflare Workers** — `api/` deleted; `worker/worker.js` deployed at `https://api.optionsbrief.workers.dev` (free, no cold starts); local dev: run `npx wrangler dev --config worker/wrangler.toml` + `npm run dev` in parallel; secrets in `worker/.dev.vars`
 - **Vercel deployment** — app live at https://options-advisor-sepia.vercel.app
 - **Backend proxy** — Vercel Edge→Node.js function (`api/analyze.js`) keeps API key server-side; 60s timeout via `vercel.json`
 - **JSON resilience** — `jsonrepair` fallback + system prompt JSON safety rules fix parse errors from malformed model output
