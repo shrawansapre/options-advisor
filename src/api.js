@@ -116,7 +116,7 @@ async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, onP
   let response;
   try {
     response = await fetch(
-      USE_PROXY ? "/api/analyze" : "https://api.anthropic.com/v1/messages",
+      USE_PROXY ? `${import.meta.env.VITE_API_BASE ?? ''}/analyze` : "https://api.anthropic.com/v1/messages",
       { method: "POST", headers, body: JSON.stringify(body), signal: controller.signal }
     );
   } catch (err) {
@@ -210,7 +210,7 @@ async function fetchMarketData(ticker) {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(`/api/market?ticker=${ticker}`, { signal: controller.signal });
+    const res = await fetch(`${import.meta.env.VITE_API_BASE ?? ''}/market?ticker=${ticker}`, { signal: controller.signal });
     clearTimeout(timer);
     if (!res.ok) return null;
     const data = await res.json();
