@@ -160,7 +160,7 @@
   transition: background 0.15s, border-color 0.15s;
 }
 .modal-btn--google {
-  background: var(--navy); color: #fff; border: none; margin-bottom: 0;
+  background: #1E3A5F; color: #fff; border: none; margin-bottom: 0;
 }
 .modal-btn--google:hover { background: #162d4a; }
 .modal-btn--email {

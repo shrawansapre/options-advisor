@@ -2,11 +2,11 @@
   <rect width="1200" height="630" fill="#0D1B2A"/>
   <text
     x="600"
-    y="410"
+    y="315"
     font-size="380"
     fill="#F3F0E9"
     font-family="Georgia, serif"
     text-anchor="middle"
-    dominant-baseline="auto"
+    dominant-baseline="central"
   >◈</text>
 </svg>
