@@ -2,6 +2,8 @@
 
 ## Recently Completed
 
+- **Risk tier ordering fix** — Strategist prompt now enforces conservative < moderate < aggressive max loss; Critic check #6 flags moderate > aggressive as HIGH severity to trigger retry
+
 - **Tier ordering fix** — removed `enforceRiskOrdering()` sort-and-relabel; tiers now stay locked to the Strategist that built them; Critic check #6 strengthened to validate structural risk (strategy type + probability) not just dollar max loss, with high severity to trigger retries on mismatches
 - **Docs overhaul** — README, CLAUDE.md, PLANS.md updated with current multi-agent architecture, ASCII pipeline diagrams, and Phase C–F roadmap; PLANS.md replaces stale Tradier plan with concrete next agent phases
 - **Worker redeployed** — `claude-haiku-4-5-20251001` added to ALLOWED_MODELS; wrangler added as dev dependency (`npm run` → `npx wrangler deploy --config worker/wrangler.toml`)

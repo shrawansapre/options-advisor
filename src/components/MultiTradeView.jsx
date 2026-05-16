@@ -10,7 +10,7 @@ const TIER = {
   aggressive:   { label: "Aggressive",   sub: "High return potential",     color: "red",    Icon: Zap      },
 };
 
-export default function MultiTradeView({ trades, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
+export default function MultiTradeView({ trades, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
   const [active, setActive] = useState(0);
   const controls = useAnimationControls();
 
@@ -26,7 +26,7 @@ export default function MultiTradeView({ trades, analysedAt, marketContext, hasL
   if (trades.length === 1) {
     return (
       <ErrorBoundary>
-        <TradeCard trade={trades[0]} index={0} analysedAt={analysedAt} marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel} />
+        <TradeCard trade={trades[0]} index={0} chainData={chainData} analysedAt={analysedAt} marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel} />
       </ErrorBoundary>
     );
   }
@@ -76,7 +76,7 @@ export default function MultiTradeView({ trades, analysedAt, marketContext, hasL
 
       <motion.div animate={controls} initial={{ opacity: 1, y: 0 }}>
         <ErrorBoundary>
-          <TradeCard trade={activeTrade} index={0} analysedAt={analysedAt} marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel} />
+          <TradeCard key={activeTrade.riskTier} trade={activeTrade} index={0} chainData={chainData} analysedAt={analysedAt} marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel} />
         </ErrorBoundary>
       </motion.div>
     </div>

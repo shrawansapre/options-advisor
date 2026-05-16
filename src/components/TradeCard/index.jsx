@@ -10,8 +10,9 @@ import GreeksGrid from "./GreeksGrid";
 import ThesisRisk from "./ThesisRisk";
 import ScenariosSection from "./ScenariosSection";
 import SignalsSection from "./SignalsSection";
+import ChecklistSection from "./ChecklistSection";
 
-export default function TradeCard({ trade, index, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
+export default function TradeCard({ trade, index, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
   const { summary, entryTiming, exitStrategy, predictions, greeks, watchFor,
           rationale, riskLevel, riskFactors, robinhoodSteps,
           strategyRationale, sources } = trade;
@@ -154,6 +155,7 @@ export default function TradeCard({ trade, index, analysedAt, marketContext, has
         <PayoffChart trade={trade} />
         <ThetaDecayChart trade={trade} analysedAt={analysedAt} />
         <SignalsSection watchFor={watchFor} sources={validSources} robinhoodSteps={robinhoodSteps} />
+        <ChecklistSection trade={trade} chainData={chainData} />
       </div>
     </motion.article>
 
