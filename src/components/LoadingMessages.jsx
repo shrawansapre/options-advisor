@@ -9,29 +9,36 @@ const TIERS = [
   { key: "aggressive",   label: "Aggressive",   color: "red"   },
 ];
 
-const STAGES = ["marketData", "research", "strategies"];
+const STAGES = ["marketData", "research", "strategies", "critic"];
 
 function stageIdx(s) { return STAGES.indexOf(s); }
 
-function completedLabel(key, { liveDataOk, searchCount }) {
+function completedLabel(key, { liveDataOk, searchCount, criticDone }) {
   if (key === "marketData") return liveDataOk ? "Live options chain & Greeks loaded" : "Using web search for market data";
   if (key === "research")   return `Searched news & catalysts${searchCount > 1 ? ` (${searchCount} searches)` : ""}`;
+  if (key === "strategies") return "3 trade strategies built";
+  if (key === "critic")     return criticDone
+    ? `${criticDone.passed} of 3 trades validated${criticDone.failed ? ` · ${criticDone.failed} refined` : ""}`
+    : "Trades validated";
   return null;
 }
 
-function activeLabel(stage, searchCount) {
+function activeLabel(stage, criticMessage) {
   if (stage === "marketData") return "Fetching live options chain…";
   if (stage === "research")   return "Searching news & catalysts…";
   if (stage === "strategies") return "Building 3 strategies…";
+  if (stage === "critic")     return criticMessage;
 }
 
 export default function LoadingMessages({ ticker, progress, startedAt }) {
   const [elapsed, setElapsed] = useState(0);
-  const [stage, setStage]           = useState("marketData");
-  const [liveDataOk, setLiveDataOk] = useState(false);
+  const [stage, setStage]             = useState("marketData");
+  const [liveDataOk, setLiveDataOk]   = useState(false);
   const [searchCount, setSearchCount] = useState(0);
-  const [tierStatus, setTierStatus] = useState(null);
-  const [finding, setFinding] = useState(null);
+  const [tierStatus, setTierStatus]   = useState(null);
+  const [finding, setFinding]         = useState(null);
+  const [criticMessage, setCriticMessage] = useState("Validating trades against live data…");
+  const [criticDone, setCriticDone]   = useState(null);
 
   useEffect(() => {
     if (!progress) return;
@@ -50,6 +57,13 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
       setTierStatus(progress.tiers);
       setFinding(null);
       setStage(s => stageIdx("strategies") > stageIdx(s) ? "strategies" : s);
+    } else if (type === "critic") {
+      setStage(s => stageIdx("critic") > stageIdx(s) ? "critic" : s);
+      if (progress.status === "retrying") {
+        setCriticMessage(`Refining ${progress.tier} trade…`);
+      } else if (progress.status === "done") {
+        setCriticDone({ passed: progress.passed, failed: progress.failed });
+      }
     }
   }, [progress]);
 
@@ -62,7 +76,7 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
   const curIdx = stageIdx(stage);
   const completedStages = STAGES.slice(0, curIdx);
   const isStrategies = stage === "strategies";
-  const meta = { liveDataOk, searchCount };
+  const meta = { liveDataOk, searchCount, criticDone };
 
   return (
     <div className="loading-wrap">
@@ -113,7 +127,7 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
               transition={{ duration: 0.22 }}
             >
               <div className="lp-step-dot" />
-              <span>{activeLabel(stage, searchCount)}</span>
+              <span>{activeLabel(stage, criticMessage)}</span>
             </motion.div>
           </AnimatePresence>
 

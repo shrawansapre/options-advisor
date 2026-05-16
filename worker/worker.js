@@ -1,4 +1,4 @@
-const ALLOWED_MODELS = new Set(['claude-sonnet-4-6', 'claude-sonnet-4-20250514']);
+const ALLOWED_MODELS = new Set(['claude-sonnet-4-6', 'claude-sonnet-4-20250514', 'claude-haiku-4-5-20251001']);
 const MAX_TOKENS_LIMIT = 16000;
 
 const CORS = {

@@ -2,6 +2,8 @@
 
 ## Recently Completed
 
+- **Agent pipeline Phase A+B** — orchestrator pattern + Critic agent shipped. Phase A: `callAPI` → `src/lib/claude.js`, Researcher (Haiku) + Strategist in `src/agents/`, pipeline DAG in `src/orchestrator.js`, `api.js` is now a one-line wrapper. Phase B: Critic (Haiku) validates all 3 trades against live chain data after Strategists; failing tiers retry Strategist with critique feedback (max 2 attempts); loading screen shows "Validating trades…" stage
+- **docs/CONTEXT.md** — created project context doc for Claude chat sessions (replaces deleted arch/deployment/dev docs)
 - **Market data timeout fix** — increased frontend abort from 5s→9s; cold Worker requests to marketdata.app were taking 6-8s and getting cut off
 - **Backend migrated to Cloudflare Workers** — `api/` deleted; `worker/worker.js` deployed at `https://api.optionsbrief.workers.dev` (free, no cold starts); local dev: run `npx wrangler dev --config worker/wrangler.toml` + `npm run dev` in parallel; secrets in `worker/.dev.vars`
 - **Vercel deployment** — app live at https://options-advisor-sepia.vercel.app
