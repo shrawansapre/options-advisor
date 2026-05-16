@@ -2,6 +2,10 @@
 
 ## Recently Completed
 
+- **Tier ordering fix** — removed `enforceRiskOrdering()` sort-and-relabel; tiers now stay locked to the Strategist that built them; Critic check #6 strengthened to validate structural risk (strategy type + probability) not just dollar max loss, with high severity to trigger retries on mismatches
+- **Docs overhaul** — README, CLAUDE.md, PLANS.md updated with current multi-agent architecture, ASCII pipeline diagrams, and Phase C–F roadmap; PLANS.md replaces stale Tradier plan with concrete next agent phases
+- **Worker redeployed** — `claude-haiku-4-5-20251001` added to ALLOWED_MODELS; wrangler added as dev dependency (`npm run` → `npx wrangler deploy --config worker/wrangler.toml`)
+
 - **Agent pipeline Phase A+B** — orchestrator pattern + Critic agent shipped. Phase A: `callAPI` → `src/lib/claude.js`, Researcher (Haiku) + Strategist in `src/agents/`, pipeline DAG in `src/orchestrator.js`, `api.js` is now a one-line wrapper. Phase B: Critic (Haiku) validates all 3 trades against live chain data after Strategists; failing tiers retry Strategist with critique feedback (max 2 attempts); loading screen shows "Validating trades…" stage
 - **docs/CONTEXT.md** — created project context doc for Claude chat sessions (replaces deleted arch/deployment/dev docs)
 - **Market data timeout fix** — increased frontend abort from 5s→9s; cold Worker requests to marketdata.app were taking 6-8s and getting cut off
