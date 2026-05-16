@@ -10,14 +10,15 @@
 
 ## Project overview
 
-AI-powered options analysis app. Enter a ticker (or leave blank to scan the market) and the app calls the Anthropic API with live web search to generate comprehensive, actionable trade analysis with exit strategies, Greek explanations, risk analysis, and step-by-step Robinhood execution instructions.
+AI-powered options analysis app. A multi-agent pipeline runs on each request: live market data is fetched first, then a Researcher agent (Haiku + web search) gathers context, three Strategist agents (Sonnet) build conservative/moderate/aggressive trades in parallel, and a Critic agent (Haiku) validates each trade against the live option chain — retrying any failing tier up to twice with structured critique feedback.
 
-**This is NOT financial advice and NOT an automated trading bot.** It generates educational analysis. The user manually executes on Robinhood. The disclaimer is non-negotiable — never remove it.
+**This is NOT financial advice and NOT an automated trading bot.** It generates educational analysis. The user manually executes. The disclaimer is non-negotiable — never remove it.
 
 ## Tech stack
 
 - React 18 + Vite (no TypeScript)
-- Anthropic API (`claude-sonnet-4-6`) with `web_search_20250305` tool — proxied through Cloudflare Worker (`worker/worker.js`) at `https://api.optionsbrief.workers.dev`
+- Anthropic API — `claude-sonnet-4-6` (Strategist) + `claude-haiku-4-5-20251001` (Researcher + Critic) — proxied through Cloudflare Worker (`worker/worker.js`) at `https://api.optionsbrief.workers.dev`
+- marketdata.app — live stock quotes + option chains (fetched by Worker `/market` endpoint before each analysis)
 - Supabase — auth (Google OAuth + magic link) + `analyses` table for history sync
 - Vanilla CSS with custom design tokens (no Tailwind, no CSS-in-JS)
 - No state management library — useState is sufficient
@@ -41,29 +42,34 @@ options-advisor/
 │   ├── worker.js            # Single Worker entry — /analyze (Anthropic proxy) + /market (marketdata.app)
 │   └── .dev.vars            # Local secrets for wrangler dev (gitignored)
 ├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── DEPLOYMENT.md
-│   └── DEVELOPMENT.md
+│   └── DECISIONS.md         # Major architectural decisions (gitignored — local only)
 ├── public/
 │   ├── og.png               # Open Graph image
 │   └── og.svg
 └── src/
     ├── main.jsx             # React root, BrowserRouter, AuthProvider
     ├── App.jsx              # Layout, routing, tab state, analyze flow
-    ├── api.js               # fetchRecommendation(), JSON repair, risk ordering
+    ├── api.js               # Thin wrapper — calls orchestrate() and re-exports result
+    ├── orchestrator.js      # Pipeline DAG: fetches market data, runs agents, returns trades
     ├── utils.js             # Shared helpers (parseBold, formatTradeAsMarkdown, etc.)
+    ├── agents/
+    │   ├── researcher.js    # Haiku + web search — gathers market context + strategy direction
+    │   ├── strategist.js    # Sonnet — builds one trade (conservative/moderate/aggressive)
+    │   └── critic.js        # Haiku — validates trades against live chain; returns pass/fail + concerns
     ├── hooks/
     │   ├── useTheme.js      # dark/light toggle + localStorage persistence
     │   └── useAnalysisState.js  # tab open/close/update + makeAnalysis factory
     ├── prompts/
-    │   ├── research.js      # RESEARCH_SYSTEM_PROMPT (Phase 1 — web search)
-    │   └── strategy.js      # STRATEGY_SYSTEM_PROMPT (Phase 2 — trade schema)
+    │   ├── research.js      # RESEARCH_SYSTEM_PROMPT (+ _LIVE variant when chain data available)
+    │   ├── strategy.js      # STRATEGY_SYSTEM_PROMPT (+ _LIVE variant) — full trade schema
+    │   └── critic.js        # CRITIC_SYSTEM_PROMPT — 8 validation checks, returns JSON verdict
     ├── styles/
     │   ├── tokens.css       # CSS variables, dark mode tokens, reset
     │   ├── app.css          # Header, search, loading, tabs, landing
     │   ├── trade-card.css   # Trade card, exit/greeks/scenarios, responsive
     │   └── learn.css        # Learn page, diagrams, interactive components
     ├── lib/
+    │   ├── claude.js        # callAPI() — HTTP primitive used by all agents (avoids circular imports)
     │   └── supabase.js      # Supabase client (exports null if env vars missing)
     └── components/
         ├── TradeCard/
@@ -113,12 +119,31 @@ npm run dev
 
 ## Architecture decisions
 
-### API layer (`src/api.js` + `worker/worker.js`)
+### Agent pipeline (`src/orchestrator.js` + `src/agents/` + `src/lib/claude.js`)
 
-- System prompts live in `src/prompts/research.js` (Phase 1 research) and `src/prompts/strategy.js` (Phase 2 trade schema). If you change the JSON shape, update the prompt AND the components that consume it.
-- `fetchRecommendation(ticker, onProgress)` streams the response, extracts readable strings for live progress updates, then parses the final JSON with up to 4 repair attempts (`jsonrepair` + `fixUnescapedQuotes`).
-- `worker/worker.js` is the Cloudflare Worker proxy — it validates `model` against an allowlist and enforces `max_tokens ≤ 16000` before forwarding to Anthropic. The API key never touches the client. Deployed at `https://api.optionsbrief.workers.dev`.
-- `max_tokens` is 8000 — the JSON response is large. Don't reduce without testing.
+The pipeline runs every time a user submits a ticker:
+
+```
+fetchMarketData()          ← Worker /market → marketdata.app (9s timeout, fails gracefully)
+    ↓ hasLiveData
+runResearcher()            ← Haiku + web_search; returns research JSON with ticker, thesis, strategy direction
+    ↓ researchJSON
+runStrategist() ×3         ← Sonnet in parallel (conservative / moderate / aggressive); each returns one trade
+    ↓ trades[3]
+enforceRiskOrdering()      ← sorts by maxLoss, assigns tiers/levels
+    ↓ if hasLiveData
+runCritic()                ← Haiku; validates all 3 trades against live chain (8 checks); 30s timeout
+    ↓ for each failing tier
+runStrategist() retry      ← Sonnet re-runs with critic.concerns injected; max 2 retries per tier
+```
+
+Key design points:
+- `src/lib/claude.js` holds `callAPI()` — the only file that talks to the Worker. Agents import from `lib/`, never from `api.js`, to avoid circular imports.
+- `callAPI` timeout is 120s (Cloudflare Workers has no request ceiling). Critic uses 30s.
+- Critic failure (timeout or malformed response) is caught and swallowed — trades ship uncritiqued rather than erroring.
+- `worker/worker.js` validates `model` against an allowlist (`claude-sonnet-4-6`, `claude-haiku-4-5-20251001`) and enforces `max_tokens ≤ 16000`. API key never touches the client.
+- System prompts have `_LIVE` variants (`RESEARCH_SYSTEM_PROMPT_LIVE`, `STRATEGY_SYSTEM_PROMPT_LIVE`) used when live chain data is available — they instruct the model to use pre-loaded Greeks rather than searching.
+- If you change the trade JSON shape, update the strategy prompt AND grep every component that reads those fields.
 
 ### Component structure
 
@@ -174,7 +199,7 @@ See `src/prompts/strategy.js` for the full response schema (trades array shape, 
 
 ## Important gotchas
 
-1. **Streaming response has multiple content blocks.** The model runs web_search before writing JSON, so the SSE stream contains tool_use blocks followed by the final text block. `fetchRecommendation` resets `accumulated` on each new text block start — don't break this.
+1. **Streaming response has multiple content blocks.** When web_search is enabled the SSE stream contains `tool_use` blocks followed by the final text block. `callAPI` in `src/lib/claude.js` resets `accumulated` on each new text content block start — don't break this. Strategist calls that have live data skip web search entirely (`useWebSearch: false`).
 
 2. **JSON parsing has 4 repair attempts.** `jsonrepair` + `fixUnescapedQuotes` + scrubbing control chars. If you see parse errors in prod, the model likely output something new — add a repair step rather than loosening the prompt.
 
@@ -184,7 +209,7 @@ See `src/prompts/strategy.js` for the full response schema (trades array shape, 
 
 5. **`impactClass()` maps impact strings to CSS classes.** Lives in `TradeCard.jsx`. If you add new `impact` values to the prompt, update this function and add the corresponding CSS class.
 
-6. **API key stays server-side.** `api/analyze.js` holds the key. The Vercel Edge Function validates the request before forwarding. Never add the key to client-side code.
+6. **API key stays server-side.** `worker/worker.js` holds the key in Cloudflare Worker secrets (`env.ANTHROPIC_API_KEY`). Never add it to client-side code. Deploy worker changes with `npx wrangler deploy --config worker/wrangler.toml` — pushing to git does NOT auto-deploy the worker.
 
 7. **Supabase env vars are optional.** `src/lib/supabase.js` exports `null` when `VITE_SUPABASE_URL` is missing — auth features silently degrade. Safe for local dev without Supabase credentials.
 
