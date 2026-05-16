@@ -76,7 +76,7 @@ export default function MultiTradeView({ trades, chainData, analysedAt, marketCo
 
       <motion.div animate={controls} initial={{ opacity: 1, y: 0 }}>
         <ErrorBoundary>
-          <TradeCard trade={activeTrade} index={0} chainData={chainData} analysedAt={analysedAt} marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel} />
+          <TradeCard key={activeTrade.riskTier} trade={activeTrade} index={0} chainData={chainData} analysedAt={analysedAt} marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel} />
         </ErrorBoundary>
       </motion.div>
     </div>
