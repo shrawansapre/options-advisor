@@ -6,6 +6,7 @@
 - After every commit, add a one-line bullet to the "Recently Completed" section of `STATUS.md`
 - Keep STATUS.md high-level — what shipped, not how
 - Future feature planning lives in `PLANS.md`
+- After a major decision is **pushed** (not just decided), add it to `docs/DECISIONS.md` — what, why, constraints, files. Do not add speculative or in-progress decisions.
 
 ## Project overview
 
