@@ -239,6 +239,7 @@ export default function App() {
               )}
               <MultiTradeView
                 trades={active.result.trades}
+                chainData={active.result.chainData ?? null}
                 analysedAt={active.analysedAt}
                 marketContext={active.result.marketContext}
                 hasLiveData={active.result.hasLiveData}

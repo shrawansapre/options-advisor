@@ -11,7 +11,7 @@ import ThesisRisk from "./ThesisRisk";
 import ScenariosSection from "./ScenariosSection";
 import SignalsSection from "./SignalsSection";
 
-export default function TradeCard({ trade, index, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
+export default function TradeCard({ trade, index, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
   const { summary, entryTiming, exitStrategy, predictions, greeks, watchFor,
           rationale, riskLevel, riskFactors, robinhoodSteps,
           strategyRationale, sources } = trade;
