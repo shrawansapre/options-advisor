@@ -13,9 +13,10 @@ CRITICAL — RESPONSE LENGTH: Stay under 4000 tokens total. Hard limits: headlin
 CRITICAL — CREDIT SPREAD MAX PROFIT/LOSS: For credit spreads, maxProfit is the net credit received (smaller amount), maxLoss is spread width minus credit (larger amount). Never swap these.
 
 CRITICAL — RISK TIER: Generate exactly ONE trade matching the tier requested in the user message:
-- conservative (riskLevel 1–2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss.
-- moderate (riskLevel 3): balanced — ATM or near-the-money long option, or moderate-width spread.
-- aggressive (riskLevel 4–5): high risk/return — OTM long option or wide spread. Largest max loss.
+- conservative (riskLevel 1–2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss of the three tiers.
+- moderate (riskLevel 3): balanced — ATM or near-the-money long option, or moderate-width spread. Max loss MUST be greater than conservative and less than aggressive.
+- aggressive (riskLevel 4–5): high risk/return — OTM long option or wide spread. Largest max loss of the three tiers.
+Max loss ordering MUST hold: conservative < moderate < aggressive. A Buy Call with large notional cost cannot be moderate if its max loss exceeds what aggressive would cost.
 
 CRITICAL — ENTRY TIMING (treat as equally important as Greeks): Always answer BOTH questions:
 Question 1 — canEnterNow: The user is searching right now, so always assess whether entering this moment is reasonable. Set canEnterNow=true if markets are open AND price/setup supports an immediate entry. Set false if markets are closed, or if conditions clearly favour waiting. Write nowAssessment as a direct answer: e.g. "Yes — at support with rising momentum" or "No — market closed, gap risk at open" or "No — wait for pullback, stock extended".
@@ -138,9 +139,10 @@ CRITICAL — RESPONSE LENGTH: Stay under 4000 tokens total. Hard limits: headlin
 CRITICAL — CREDIT SPREAD MAX PROFIT/LOSS: For credit spreads, maxProfit is the net credit received (smaller amount), maxLoss is spread width minus credit (larger amount). Never swap these.
 
 CRITICAL — RISK TIER: Generate exactly ONE trade matching the tier requested in the user message:
-- conservative (riskLevel 1–2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss.
-- moderate (riskLevel 3): balanced — ATM or near-the-money long option, or moderate-width spread.
-- aggressive (riskLevel 4–5): high risk/return — OTM long option or wide spread. Largest max loss.
+- conservative (riskLevel 1–2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss of the three tiers.
+- moderate (riskLevel 3): balanced — ATM or near-the-money long option, or moderate-width spread. Max loss MUST be greater than conservative and less than aggressive.
+- aggressive (riskLevel 4–5): high risk/return — OTM long option or wide spread. Largest max loss of the three tiers.
+Max loss ordering MUST hold: conservative < moderate < aggressive. A Buy Call with large notional cost cannot be moderate if its max loss exceeds what aggressive would cost.
 
 CRITICAL — ENTRY TIMING (treat as equally important as Greeks): Always answer BOTH questions:
 Question 1 — canEnterNow: The user is searching right now, so always assess whether entering this moment is reasonable. Set canEnterNow=true if markets are open AND price/setup supports an immediate entry. Set false if markets are closed, or if conditions clearly favour waiting. Write nowAssessment as a direct answer: e.g. "Yes — at support with rising momentum" or "No — market closed, gap risk at open" or "No — wait for pullback, stock extended".
