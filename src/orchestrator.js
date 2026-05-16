@@ -159,6 +159,7 @@ export async function orchestrate({ ticker, onProgress }) {
 
   return {
     trades: currentTrades,
+    chainData: marketData,
     marketContext: research.marketContext,
     disclaimer: DISCLAIMER,
     hasLiveData,
