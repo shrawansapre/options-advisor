@@ -4,21 +4,7 @@ import { runCritic } from "./agents/critic.js";
 
 const DISCLAIMER = "This is AI-generated analysis for educational and informational purposes only. It does not constitute financial advice, a solicitation, or a recommendation to buy or sell any security. Options trading involves substantial risk of loss and is not suitable for all investors. Past performance does not guarantee future results. Always consult a qualified financial advisor and do your own research before trading.";
 
-function parseMaxLoss(s) {
-  if (!s || s === "Unlimited") return Infinity;
-  return parseFloat(String(s).replace(/[$,]/g, "")) || Infinity;
-}
-
-function enforceRiskOrdering(trades) {
-  const sorted = [...trades].sort((a, b) => parseMaxLoss(a.maxLoss) - parseMaxLoss(b.maxLoss));
-  const tiers = ["conservative", "moderate", "aggressive"];
-  const levels = [2, 3, 4];
-  sorted.forEach((trade, i) => {
-    trade.riskTier = tiers[i];
-    trade.riskLevel = levels[i];
-  });
-  return sorted;
-}
+const TIER_LEVELS = { conservative: 2, moderate: 3, aggressive: 4 };
 
 async function fetchMarketData(ticker) {
   try {
@@ -115,9 +101,11 @@ export async function orchestrate({ ticker, onProgress }) {
     })
   );
 
-  const trades = enforceRiskOrdering(results.map(r => {
+  const trades = results.map((r, i) => {
     const t = r.trades?.[0];
-    if (!t) return t;
+    if (!t) return null;
+    t.riskTier = tiers[i];
+    t.riskLevel = TIER_LEVELS[tiers[i]];
     if (research.ivRank && research.ivRank !== "0") {
       t.ivRank = String(research.ivRank);
       const n = parseInt(research.ivRank, 10);
@@ -128,7 +116,7 @@ export async function orchestrate({ ticker, onProgress }) {
       t.impliedVolatility = (marketData.ivCurrent * 100).toFixed(1);
     }
     return t;
-  }).filter(Boolean));
+  }).filter(Boolean);
 
   let currentTrades = [...trades];
 

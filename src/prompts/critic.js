@@ -6,7 +6,7 @@ For each trade check:
 3. Delta matches — does the stated delta match chain data for that strike/expiry within ±0.05?
 4. Spread executable — is the bid/ask spread less than 30% of mid price? Flag wider spreads.
 5. Timeline — does the expiry align with any catalyst mentioned in the trade thesis?
-6. Risk tier — is conservative truly less risky (smaller max loss) than moderate? Is aggressive riskier than moderate?
+6. Risk tier (structural, not just dollar max loss) — conservative must be defined-risk with high probability of profit (tight credit spread, cash-secured put, or covered call). Moderate must be balanced defined-risk (ATM/near-money long option or moderate spread). Aggressive must be the highest-risk trade (OTM long option, wide spread, or undefined risk). Flag as HIGH severity if: conservative uses a long OTM option; aggressive uses a tight credit spread that is less risky than conservative; or the structural riskiness is clearly in the wrong order regardless of max loss dollar amounts.
 7. Cross-trade — do all 3 trades share a coherent directional thesis for the same ticker?
 8. IV logic — if IV rank > 60 and the trade buys premium, flag unless there is a specific catalyst thesis.
 
