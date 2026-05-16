@@ -12,10 +12,43 @@ Live at **[options-advisor-sepia.vercel.app](https://options-advisor-sepia.verce
 - **Live market data** — real option chains (strikes, bid/ask, Greeks, IV) fetched before each analysis via marketdata.app
 - **Verified Greeks** — delta, theta, gamma, vega from the live chain, not estimated
 - **Exit strategy** — explicit profit target, stop loss, and time stop rules for every trade
-- **Multi-agent pipeline** — Researcher (Haiku) gathers data → three Strategists (Sonnet) build conservative/moderate/aggressive trades in parallel → Critic (Haiku) validates against live chain and triggers retries if needed
+- **Multi-agent pipeline** — see below
 - **Market scan** — leave the ticker blank to find the best opportunity across the market today
 - **Learn page** — interactive options education with live payoff diagrams, IV gauge, and strategy explainers
 - **History sync** — analyses saved locally for guests; synced across devices when signed in
+
+---
+
+## How it works
+
+```
+  ticker
+    │
+    ▼
+ marketdata.app ──► live quote + option chain (3 expiries)
+    │
+    ▼
+ Researcher · Haiku + web search
+ news, earnings, technicals, strategy direction
+    │
+    ├──────────────────────────────────┐
+    ▼                ▼                ▼   (parallel)
+ conservative    moderate         aggressive
+ Strategist      Strategist       Strategist    ← Sonnet × 3
+    │                │                │
+    └────────────────┴────────────────┘
+                     │
+                     ▼
+                  Critic · Haiku
+          validates strikes, prices, Greeks,
+          spreads, timeline against live chain
+                     │
+              fail? retry Strategist
+              with critique injected
+                     │
+                     ▼
+             3 trade cards  ✓
+```
 
 ---
 

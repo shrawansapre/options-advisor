@@ -124,17 +124,56 @@ npm run dev
 The pipeline runs every time a user submits a ticker:
 
 ```
-fetchMarketData()          ← Worker /market → marketdata.app (9s timeout, fails gracefully)
-    ↓ hasLiveData
-runResearcher()            ← Haiku + web_search; returns research JSON with ticker, thesis, strategy direction
-    ↓ researchJSON
-runStrategist() ×3         ← Sonnet in parallel (conservative / moderate / aggressive); each returns one trade
-    ↓ trades[3]
-enforceRiskOrdering()      ← sorts by maxLoss, assigns tiers/levels
-    ↓ if hasLiveData
-runCritic()                ← Haiku; validates all 3 trades against live chain (8 checks); 30s timeout
-    ↓ for each failing tier
-runStrategist() retry      ← Sonnet re-runs with critic.concerns injected; max 2 retries per tier
+  User submits ticker
+         │
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  fetchMarketData()                                      │
+│  Worker /market → marketdata.app  (9s timeout)         │
+│  quote + option chain (3 expiries, ±5 strikes)         │
+└──────────────┬──────────────────────────────────────────┘
+               │ hasLiveData (falls back gracefully if unavailable)
+               ▼
+┌─────────────────────────────────────────────────────────┐
+│  Researcher  (claude-haiku-4-5-20251001)                │
+│  web_search · 4000 tokens · 120s                        │
+│  → ticker, thesis, marketContext, strategy direction    │
+└──────────────┬──────────────────────────────────────────┘
+               │ researchJSON
+               ▼
+    ┌──────────┬──────────┬──────────┐
+    │          │          │          │   parallel
+    ▼          ▼          ▼          │
+conservative  moderate  aggressive   │  Strategist × 3
+    │          │          │          │  (claude-sonnet-4-6)
+    │          │          │          │  5000 tokens · 120s
+    └──────────┴──────────┘          │  each returns one trade
+               │ trades[3] ──────────┘
+               │
+               ▼
+       enforceRiskOrdering()
+       sort by maxLoss → assign tiers + riskLevel
+               │
+               │ (skip if no live data)
+               ▼
+┌─────────────────────────────────────────────────────────┐
+│  Critic  (claude-haiku-4-5-20251001)                    │
+│  no web_search · 1500 tokens · 30s                     │
+│  8 checks: strike exists, price in bid/ask, delta,     │
+│  spread, timeline, risk ordering, cross-thesis, IV     │
+│  → { trades: [{ riskTier, pass, concerns[] }] }        │
+└──────────────┬──────────────────────────────────────────┘
+               │ for each failing tier (max 2 retries)
+               ▼
+┌─────────────────────────────────────────────────────────┐
+│  Strategist retry  (claude-sonnet-4-6)                 │
+│  same as above + critic.concerns injected into prompt  │
+│  replaces failing trade in currentTrades[]             │
+└──────────────┬──────────────────────────────────────────┘
+               │ Critic fail → ship uncritiqued (swallowed)
+               ▼
+         { trades, marketContext, disclaimer,
+           hasLiveData, marketSessionLabel }
 ```
 
 Key design points:
