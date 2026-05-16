@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toPng } from "html-to-image";
-import { ChevronDown, Download, ExternalLink, Share2 } from "lucide-react";
+import { ChevronDown, Copy, Download, ExternalLink, Share2 } from "lucide-react";
 import { formatTradeAsMarkdown } from "../../utils";
 
 export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRef }) {
@@ -17,6 +17,12 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     return () => document.removeEventListener("mousedown", onOutsideClick);
   }, [shareOpen]);
 
+  function handleCopyMarkdown() {
+    setShareOpen(false);
+    const md = formatTradeAsMarkdown(trade, marketContext, analysedAt);
+    navigator.clipboard.writeText(md).catch(() => {});
+  }
+
   function handleOpenInClaude() {
     setShareOpen(false);
     const md = formatTradeAsMarkdown(trade, marketContext, analysedAt);
@@ -31,12 +37,17 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     else window.open(url, "_blank", "noopener");
   }
 
+  function snapshotOptions() {
+    const bg = window.getComputedStyle(snapshotRef.current).backgroundColor;
+    return { pixelRatio: 2, skipFonts: true, backgroundColor: bg, cacheBust: true };
+  }
+
   async function handleDownloadImage() {
     setShareOpen(false);
     if (!snapshotRef.current) return;
     setImgLoading(true);
     try {
-      const dataUrl = await toPng(snapshotRef.current, { pixelRatio: 2, skipFonts: true });
+      const dataUrl = await toPng(snapshotRef.current, snapshotOptions());
       const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
       if (isIOS) {
         window.open(dataUrl, "_blank");
@@ -53,17 +64,11 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     }
   }
 
-  function handleShareX() {
-    setShareOpen(false);
-    const text = `$${trade.ticker} ${trade.strategy} — ${trade.summary?.headline ?? ""}\n\nConviction: ${trade.summary?.conviction ?? "—"} · Risk: ${trade.riskLevel ?? "—"}/5\n\nvia Options Brief`;
-    window.open(`https://x.com/intent/post?text=${encodeURIComponent(text + "\n\nhttps://options-advisor-sepia.vercel.app")}`, "_blank", "noopener");
-  }
-
   async function handleNativeShare() {
     setShareOpen(false);
     try {
       const dataUrl = snapshotRef.current
-        ? await toPng(snapshotRef.current, { pixelRatio: 2, skipFonts: false })
+        ? await toPng(snapshotRef.current, snapshotOptions())
         : null;
       const title = `${trade.ticker} Options Analysis`;
       const text = trade.summary?.headline ?? "";
@@ -94,13 +99,13 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
             <ExternalLink size={14} />
             Open in Claude
           </button>
+          <button className="share-menu-item" onClick={handleCopyMarkdown}>
+            <Copy size={14} />
+            Copy markdown
+          </button>
           <button className="share-menu-item" onClick={handleDownloadImage} disabled={imgLoading}>
             <Download size={14} />
             {imgLoading ? "Generating…" : "Download image"}
-          </button>
-          <button className="share-menu-item" onClick={handleShareX}>
-            <span className="x-logo-icon">𝕏</span>
-            Share on X
           </button>
           {typeof navigator.share === "function" && (
             <button className="share-menu-item" onClick={handleNativeShare}>
