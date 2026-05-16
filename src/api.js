@@ -90,7 +90,7 @@ function extractJSON(accumulated) {
 
 const USE_PROXY = !import.meta.env.VITE_ANTHROPIC_API_KEY;
 
-async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, onProgress, timeoutMs = 55000 }) {
+async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, onProgress, timeoutMs = 120000 }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
