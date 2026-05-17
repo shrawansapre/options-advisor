@@ -85,7 +85,7 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
           </div>
           <div className="tc-cell">
             <span className="tc-cell-label">ENTRY</span>
-            <span className="tc-cell-value">{trade.totalCost}</span>
+            <span className="tc-cell-value">{trade.totalCost?.split(/\s/)[0] ?? "—"}</span>
           </div>
           <div className="tc-cell">
             <span className="tc-cell-label">MAX WIN</span>
@@ -108,7 +108,11 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
           </div>
           <div className="tc-cell">
             <span className="tc-cell-label">DELTA</span>
-            <span className="tc-cell-value">{greeks?.delta?.value ?? "—"}</span>
+            <span className="tc-cell-value">
+              {greeks?.delta?.value != null
+                ? (isNaN(+greeks.delta.value) ? greeks.delta.value : (+greeks.delta.value).toFixed(2))
+                : "—"}
+            </span>
           </div>
           <div className="tc-cell">
             <span className="tc-cell-label">PROB</span>
