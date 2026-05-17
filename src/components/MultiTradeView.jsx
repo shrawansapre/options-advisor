@@ -87,8 +87,6 @@ export default function MultiTradeView({ trades, chainData, analysedAt, marketCo
   }
 
   const selectedTrade = trades[selectedTier] ?? trades[0];
-  const selectedColor = TIER_COLOR[selectedTrade.riskTier] ?? "amber";
-  const selectedAbbr  = TIER_ABBR[selectedTrade.riskTier]  ?? selectedTrade.riskTier?.toUpperCase();
 
   return (
     <>
@@ -114,10 +112,8 @@ export default function MultiTradeView({ trades, chainData, analysedAt, marketCo
 
       {/* Mobile: comparison matrix + selected full card */}
       <div className="mtv-mobile">
-        <MobileMatrix trades={trades} selected={selectedTier} onSelect={setSelectedTier} />
-        <div className="mtv-mobile-card-label">
-          <span className={`mtv-matrix-abbr mtv-matrix-abbr--${selectedColor}`}>{selectedAbbr}</span>
-          <span>{selectedTrade.strategy}</span>
+        <div className="mtv-matrix-wrap">
+          <MobileMatrix trades={trades} selected={selectedTier} onSelect={setSelectedTier} />
         </div>
         <ErrorBoundary>
           <TradeCard

@@ -27,15 +27,24 @@
 .mtv-mobile { display: none; }
 @media (max-width: 900px) { .mtv-mobile { display: block; } }
 
+/* Card container wrapping the matrix table — matches .trade-card surface */
+.mtv-matrix-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+
 .mtv-matrix {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1.4rem;
 }
 
 .mtv-matrix th,
 .mtv-matrix td {
-  padding: 0.5rem 0.3rem;
+  padding: 0.55rem 0.5rem;
   text-align: center;
   border-bottom: 1px solid var(--border);
   font-family: var(--mono);
@@ -50,15 +59,18 @@
   font-size: 0.62rem;
   letter-spacing: 0.08em;
   color: var(--t3);
-  padding-left: 0;
-  width: 3.2rem;
+  padding-left: 1rem;
+  width: 3.6rem;
 }
 
-/* Active column tint */
+/* Active column — matches tc-tab--active surface */
 .mtv-matrix-th--active,
 .mtv-matrix-td--active {
-  background: color-mix(in srgb, var(--navy) 5%, transparent);
+  background: var(--surface-2);
 }
+
+/* Active header: full-contrast strategy name */
+.mtv-matrix-th--active .mtv-matrix-strat { color: var(--t1); }
 
 /* Tier header button */
 .mtv-matrix-th-btn {
@@ -69,7 +81,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.2rem 0;
+  padding: 0.25rem 0;
   width: 100%;
 }
 
@@ -85,7 +97,7 @@
 .mtv-matrix-abbr--red   { color: var(--red);   }
 
 .mtv-matrix-strat {
-  font-family: var(--sans);
+  font-family: var(--font);
   font-size: 0.68rem;
   color: var(--t2);
   line-height: 1.3;
@@ -99,20 +111,6 @@
 
 .mtv-matrix-td--profit { color: var(--green); }
 .mtv-matrix-td--loss   { color: var(--red);   }
-
-/* Label row above the expanded card */
-.mtv-mobile-card-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--t3);
-}
 
 /* ─── Trade Card ───────────────────────────────────────────────────────── */
 .trade-card {
