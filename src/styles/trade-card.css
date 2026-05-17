@@ -592,6 +592,7 @@
 .tc-tab:hover { color: var(--t2); }
 .tc-tab:focus { outline: none; color: var(--t1); border-bottom-color: var(--t1); }
 .tc-tab--active { color: var(--t1); border-bottom-color: var(--t1); }
+.tc-tab--active:hover { color: var(--t1); border-bottom-color: var(--t1); }
 
 /* Tab content */
 .tc-tab-content { padding: 0 1.4rem 1.2rem; }
@@ -760,6 +761,7 @@
 .checklist-wrap {
   border-top: 1px solid var(--border);
   margin-top: 1.5rem;
+  padding: 0 1.4rem;
 }
 
 .checklist-toggle {

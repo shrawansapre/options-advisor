@@ -189,16 +189,6 @@
 [data-theme="dark"] .trade-card[data-strategy="neutral"] {
   box-shadow: 0 -1px 24px rgba(252,211,77,0.08), var(--shadow-lg);
 }
-/* Greek symbol watermarks — more visible on near-black surface */
-[data-theme="dark"] .greek-watermark { opacity: 0.07; }
-/* Entry hint — green 10% is vivid against #111; pull back */
-[data-theme="dark"] .entry-hint {
-  background: color-mix(in srgb, var(--green) 6%, transparent);
-}
-/* Card inner split divider — subtle on dark */
-[data-theme="dark"] .card-inner-col + .card-inner-col {
-  border-left-color: rgba(255,255,255,0.06);
-}
 
 /* ─── Reset ────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -1,6 +1,8 @@
 import { parseBold } from "../../utils";
 
 export default function GreeksGrid({ greeks, strategyRationale, strategy, ivRank }) {
+  if (!greeks) return null;
+
   const ivNum = parseInt(ivRank, 10) || 0;
   const filled = Math.round((ivNum / 100) * 28);
   const ivBar = "█".repeat(filled) + "░".repeat(28 - filled);
@@ -8,27 +10,27 @@ export default function GreeksGrid({ greeks, strategyRationale, strategy, ivRank
   const rows = [
     {
       name: "DELTA",
-      value: greeks.delta.value,
-      desc: `$1 move = ${Math.abs((parseFloat(greeks.delta.value) * 100)).toFixed(0)}¢ on your contract`,
-      insight: greeks.delta.insight,
+      value: greeks.delta?.value ?? "—",
+      desc: `$1 move = ${Math.abs((parseFloat(greeks.delta?.value ?? 0) * 100)).toFixed(0)}¢ on your contract`,
+      insight: greeks.delta?.insight,
     },
     {
       name: "THETA",
-      value: greeks.theta.value,
-      desc: `${greeks.theta.dailyCost}/day · ${greeks.theta.weeklyDrain}/week`,
-      insight: greeks.theta.insight,
+      value: greeks.theta?.value ?? "—",
+      desc: greeks.theta?.dailyCost ? `${greeks.theta.dailyCost}/day · ${greeks.theta.weeklyDrain}/week` : "",
+      insight: greeks.theta?.insight,
     },
     {
       name: "VEGA",
-      value: greeks.vega.value,
-      desc: `+$${(parseFloat(greeks.vega.value) * 100).toFixed(0)} per 1% IV rise`,
-      insight: greeks.vega.insight,
+      value: greeks.vega?.value ?? "—",
+      desc: `+$${(parseFloat(greeks.vega?.value ?? 0) * 100).toFixed(0)} per 1% IV rise`,
+      insight: greeks.vega?.insight,
     },
     {
       name: "GAMMA",
-      value: greeks.gamma.value,
+      value: greeks.gamma?.value ?? "—",
       desc: "Delta sensitivity",
-      insight: greeks.gamma.insight,
+      insight: greeks.gamma?.insight,
     },
   ];
 
@@ -54,7 +56,7 @@ export default function GreeksGrid({ greeks, strategyRationale, strategy, ivRank
             <span className="tc-greek-name">{name}</span>
             <span className="tc-greek-value">{value}</span>
             <span className="tc-greek-desc">{desc}</span>
-            <p className="tc-greek-insight">{insight}</p>
+            {insight && <p className="tc-greek-insight">{insight}</p>}
           </div>
         ))}
       </div>

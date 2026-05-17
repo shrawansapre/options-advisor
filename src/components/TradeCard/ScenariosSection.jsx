@@ -1,15 +1,17 @@
 export default function ScenariosSection({ predictions }) {
+  if (!predictions) return null;
+
   const cases = [
-    { key: "bull", label: "BULL", data: predictions.bullCase, cls: "bull" },
-    { key: "base", label: "BASE", data: predictions.baseCase, cls: "base" },
-    { key: "bear", label: "BEAR", data: predictions.bearCase, cls: "bear" },
+    { key: "bull", label: "BULL", data: predictions.bullCase ?? {}, cls: "bull" },
+    { key: "base", label: "BASE", data: predictions.baseCase ?? {}, cls: "base" },
+    { key: "bear", label: "BEAR", data: predictions.bearCase ?? {}, cls: "bear" },
   ];
 
   return (
     <div className="tc-section">
       <div className="tc-section-label">SCENARIOS</div>
       {cases.map(({ key, label, data, cls }) => {
-        const pctNum = parseInt(data.probability, 10) || 0;
+        const pctNum = parseInt(data.probability ?? "0", 10) || 0;
         const filled = Math.round((pctNum / 100) * 32);
         const bar = "█".repeat(filled) + "░".repeat(32 - filled);
         return (
