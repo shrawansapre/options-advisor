@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, CheckCircle2, Clock, Target } from "lucide-react";
-import { useRef } from "react";
-import { STRATEGY_COLORS, ordinalSuffix } from "../../utils";
+import { AlertTriangle } from "lucide-react";
+import { useRef, useState } from "react";
 import { PayoffChart, ThetaDecayChart } from "../TradeCharts";
 import ShareMenu from "./ShareMenu";
 import EntrySection from "./EntrySection";
@@ -13,21 +12,26 @@ import SignalsSection from "./SignalsSection";
 import ChecklistSection from "./ChecklistSection";
 
 export default function TradeCard({ trade, index, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
-  const { summary, entryTiming, exitStrategy, predictions, greeks, watchFor,
-          rationale, riskLevel, riskFactors, robinhoodSteps,
+  const { summary, entryTiming, exitStrategy, predictions, greeks,
+          watchFor, rationale, riskLevel, riskFactors, robinhoodSteps,
           strategyRationale, sources } = trade;
 
   const cardRef = useRef(null);
   const snapshotRef = useRef(null);
+  const [activeTab, setActiveTab] = useState("summary");
 
   const expiryExpired = trade.expiry && analysedAt && new Date(trade.expiry) < analysedAt;
   const validSources = sources?.filter(s => s.url?.startsWith("http")) ?? [];
-  const dotColor = STRATEGY_COLORS[trade.strategyType] || STRATEGY_COLORS.neutral;
   const isSpread = !!trade.strike2;
-  const strikeDisplay = isSpread ? `$${trade.strike} / $${trade.strike2}` : `$${trade.strike}`;
-  const convictionColor = summary.conviction === "High" ? "var(--green)"
-    : summary.conviction === "Medium" ? "var(--amber)" : "var(--t3)";
-  const ivNum = parseInt(trade.ivRank, 10) || 0;
+  const strikeDisplay = isSpread ? `$${trade.strike}/$${trade.strike2}` : `$${trade.strike}`;
+
+  const maxProfitNum = parseFloat((trade.maxProfit ?? "").replace(/[^0-9.]/g, ""));
+  const maxLossNum   = parseFloat((trade.maxLoss   ?? "").replace(/[^0-9.]/g, ""));
+  const rrRatio = (!isNaN(maxProfitNum) && !isNaN(maxLossNum) && maxLossNum > 0)
+    ? (maxProfitNum / maxLossNum).toFixed(1) + ":1"
+    : "—";
+
+  const probDisplay = predictions?.baseCase?.probability ?? "—";
 
   return (
     <>
@@ -39,17 +43,6 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: index * 0.12 }}
     >
-      <div className={`trade-strategy-flag trade-strategy-flag--${trade.riskTier ?? "moderate"}`}>
-        <span className="flag-strategy-name">{trade.strategy}</span>
-        <span className="flag-risk-tier">
-          {trade.riskTier === "conservative" ? "Conservative" :
-           trade.riskTier === "moderate"     ? "Moderate"     : "Aggressive"}
-          {" · "}
-          {trade.strategyType === "bullish" ? "Bullish" :
-           trade.strategyType === "bearish" ? "Bearish" : "Neutral"}
-        </span>
-      </div>
-
       {expiryExpired && (
         <div className="expired-warning">
           <AlertTriangle size={14} />
@@ -57,106 +50,111 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
         </div>
       )}
 
-      <div className="trade-header">
-        <div className="trade-top-bar">
-          <div className="trade-top-bar-left">
-            {analysedAt && (
-              <span className="trade-analysis-time">
-                <Clock size={11} />
-                {analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
-              </span>
-            )}
-            {hasLiveData !== undefined && (
-              <span className={`source-chip source-chip--${hasLiveData ? "live" : "web"}`}>
-                <span className="source-chip-dot" />
-                {hasLiveData ? "Live data" : "Web search"}
-              </span>
-            )}
+      <div className="tc-header-line">
+        <span className="tc-ticker">{trade.ticker}</span>
+        <span className="tc-price">${trade.currentPrice}</span>
+        <span className="tc-sep">·</span>
+        <span className="tc-strategy">{trade.strategy}</span>
+        <span className="tc-sep">·</span>
+        <span className={`tc-data-badge tc-data-badge--${hasLiveData ? "live" : "web"}`}>
+          {hasLiveData ? "Live" : "Web"}
+        </span>
+        {analysedAt && (
+          <span className="tc-time">
+            {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+          </span>
+        )}
+        <div className="tc-share-wrap">
+          <ShareMenu trade={trade} analysedAt={analysedAt} marketContext={marketContext} snapshotRef={snapshotRef} />
+        </div>
+      </div>
+
+      <div className="tc-grid">
+        <div className="tc-grid-row">
+          <div className="tc-cell">
+            <span className="tc-cell-label">STRIKES</span>
+            <span className="tc-cell-value">{strikeDisplay}</span>
           </div>
-          <div className="trade-top-bar-right">
-            <ShareMenu trade={trade} analysedAt={analysedAt} marketContext={marketContext} snapshotRef={snapshotRef} />
+          <div className="tc-cell">
+            <span className="tc-cell-label">EXPIRY</span>
+            <span className="tc-cell-value">{trade.expiryLabel}</span>
+          </div>
+          <div className="tc-cell">
+            <span className="tc-cell-label">DTE</span>
+            <span className="tc-cell-value">{trade.daysToExpiry}</span>
+          </div>
+          <div className="tc-cell">
+            <span className="tc-cell-label">ENTRY</span>
+            <span className="tc-cell-value">{trade.totalCost}</span>
+          </div>
+          <div className="tc-cell">
+            <span className="tc-cell-label">MAX WIN</span>
+            <span className="tc-cell-value tc-cell-value--profit">{trade.maxProfit}</span>
+          </div>
+          <div className="tc-cell">
+            <span className="tc-cell-label">MAX LOSS</span>
+            <span className="tc-cell-value tc-cell-value--loss">{trade.maxLoss}</span>
+          </div>
+          <div className="tc-cell">
+            <span className="tc-cell-label">B/E</span>
+            <span className="tc-cell-value">${trade.breakeven}</span>
           </div>
         </div>
-
-        <div className="trade-hero-row">
-          <h2 className="trade-ticker">{trade.ticker}</h2>
-          <div className="trade-stock-price">
-            <span className="stock-price-value">${trade.currentPrice}</span>
-            <span className="stock-price-label">
-              {hasLiveData && marketSessionLabel ? marketSessionLabel : "current price"}
-            </span>
+        <div className="tc-grid-divider" />
+        <div className="tc-grid-row">
+          <div className="tc-cell">
+            <span className="tc-cell-label">IV RANK</span>
+            <span className="tc-cell-value">{trade.ivRank}</span>
           </div>
-        </div>
-
-        <div className="trade-meta-line">
-          <span className="trade-meta-conviction" style={{ color: convictionColor }}>{summary.conviction} conviction</span>
-        </div>
-
-        <h3 className="trade-header-headline">{summary.headline}</h3>
-
-        <div className="trade-data-block">
-          <div className="data-row data-row--contract">
-            <div className="data-cell data-cell--primary">
-              <span className="data-label">Strike{isSpread ? "s" : ""}</span>
-              <span className="data-value">{strikeDisplay}</span>
-            </div>
-            <div className="data-cell">
-              <span className="data-label">Break-even</span>
-              <span className="data-value">${trade.breakeven}</span>
-            </div>
-            <div className="data-cell">
-              <span className="data-label">Expiry</span>
-              <span className="data-value">{trade.expiryLabel}</span>
-              <span className="data-sub">{trade.daysToExpiry} days</span>
-            </div>
-            <div className="data-cell">
-              <span className="data-label">IV rank</span>
-              <span className="data-value">{trade.ivRank}<sup className="data-ord">{ordinalSuffix(ivNum)}</sup></span>
-            </div>
+          <div className="tc-cell">
+            <span className="tc-cell-label">DELTA</span>
+            <span className="tc-cell-value">{greeks?.delta?.value ?? "—"}</span>
           </div>
-          <div className="data-row-divider" />
-          <div className="data-row data-row--financials">
-            <div className="data-cell">
-              <span className="data-label">Entry cost</span>
-              <span className="data-value">{trade.totalCost}</span>
-            </div>
-            <div className="data-cell">
-              <span className="data-label">Max profit</span>
-              <span className="data-value data-value--profit">{trade.maxProfit}</span>
-            </div>
-            <div className="data-cell">
-              <span className="data-label">Max loss</span>
-              <span className="data-value data-value--loss">{trade.maxLoss}</span>
-            </div>
+          <div className="tc-cell">
+            <span className="tc-cell-label">PROB</span>
+            <span className="tc-cell-value">{probDisplay}</span>
+          </div>
+          <div className="tc-cell">
+            <span className="tc-cell-label">R/R</span>
+            <span className="tc-cell-value">{rrRatio}</span>
           </div>
         </div>
       </div>
 
-      <div className="trade-content">
-        <div className="card card-hero">
-          <p className="plain-english">{summary.plainEnglish}</p>
-          {summary.whenToBuySimple && (
-            <div className="entry-hint">
-              <Target size={13} className="entry-hint-icon" />
-              <span>{summary.whenToBuySimple}</span>
-            </div>
-          )}
-          <div className="sell-hint">
-            <CheckCircle2 size={13} className="sell-hint-icon" />
-            <span>{summary.whenToSellSimple}</span>
-          </div>
-        </div>
-
-        <EntrySection entryTiming={entryTiming} />
-        <ExitSection exitStrategy={exitStrategy} />
-        <GreeksGrid greeks={greeks} strategyRationale={strategyRationale} strategy={trade.strategy} ivRank={trade.ivRank} />
-        <ThesisRisk rationale={rationale} riskLevel={riskLevel} riskFactors={riskFactors} />
-        <ScenariosSection predictions={predictions} />
-        <PayoffChart trade={trade} />
-        <ThetaDecayChart trade={trade} analysedAt={analysedAt} />
-        <SignalsSection watchFor={watchFor} sources={validSources} robinhoodSteps={robinhoodSteps} />
-        <ChecklistSection trade={trade} chainData={chainData} />
+      <div className="tc-tab-bar">
+        {["summary", "greeks", "analysis"].map(tab => (
+          <button
+            key={tab}
+            className={`tc-tab${activeTab === tab ? " tc-tab--active" : ""}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab.toUpperCase()}
+          </button>
+        ))}
       </div>
+
+      <div className="tc-tab-content">
+        {activeTab === "summary" && (
+          <>
+            <ThesisRisk rationale={rationale} riskLevel={riskLevel} riskFactors={riskFactors} />
+            <EntrySection entryTiming={entryTiming} />
+            <ExitSection exitStrategy={exitStrategy} />
+            <SignalsSection watchFor={watchFor} sources={validSources} robinhoodSteps={robinhoodSteps} />
+          </>
+        )}
+        {activeTab === "greeks" && (
+          <GreeksGrid greeks={greeks} strategyRationale={strategyRationale} strategy={trade.strategy} ivRank={trade.ivRank} />
+        )}
+        {activeTab === "analysis" && (
+          <>
+            <ScenariosSection predictions={predictions} />
+            <PayoffChart trade={trade} />
+            <ThetaDecayChart trade={trade} analysedAt={analysedAt} />
+          </>
+        )}
+      </div>
+
+      <ChecklistSection trade={trade} chainData={chainData} />
     </motion.article>
 
     {/* Off-screen compact snapshot — only used for image capture */}
