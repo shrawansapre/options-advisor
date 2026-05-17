@@ -16,7 +16,6 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
           watchFor, rationale, riskLevel, riskFactors, robinhoodSteps,
           strategyRationale, sources } = trade;
 
-  const cardRef = useRef(null);
   const snapshotRef = useRef(null);
   const [activeTab, setActiveTab] = useState("summary");
 
@@ -36,7 +35,6 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
   return (
     <>
     <motion.article
-      ref={cardRef}
       className="trade-card"
       data-strategy={trade.strategyType}
       initial={{ opacity: 0, y: 28 }}
