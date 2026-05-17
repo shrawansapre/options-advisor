@@ -1,55 +1,60 @@
-import { Activity, Crosshair, Layers, Timer, Zap } from "lucide-react";
-import IVGauge from "../IVGauge";
 import { parseBold } from "../../utils";
 
 export default function GreeksGrid({ greeks, strategyRationale, strategy, ivRank }) {
-  const greekDefs = [
-    { Icon: Crosshair, color: "navy",   name: "Delta", symbol: "Δ",
+  const ivNum = parseInt(ivRank, 10) || 0;
+  const filled = Math.round((ivNum / 100) * 28);
+  const ivBar = "█".repeat(filled) + "░".repeat(28 - filled);
+
+  const rows = [
+    {
+      name: "DELTA",
       value: greeks.delta.value,
-      tagline: `$1 move = ${(parseFloat(greeks.delta.value) * 100).toFixed(0)}¢ on your contract`,
-      insight: greeks.delta.insight },
-    { Icon: Timer,     color: "red",    name: "Theta", symbol: "Θ",
+      desc: `$1 move = ${Math.abs((parseFloat(greeks.delta.value) * 100)).toFixed(0)}¢ on your contract`,
+      insight: greeks.delta.insight,
+    },
+    {
+      name: "THETA",
       value: greeks.theta.value,
-      tagline: `${greeks.theta.dailyCost}/day · ${greeks.theta.weeklyDrain}/week decay`,
-      insight: greeks.theta.insight },
-    { Icon: Zap,       color: "green",  name: "Gamma", symbol: "Γ",
-      value: greeks.gamma.value,
-      tagline: "Acceleration on large moves",
-      insight: greeks.gamma.insight },
-    { Icon: Activity,  color: "violet", name: "Vega",  symbol: "ν",
+      desc: `${greeks.theta.dailyCost}/day · ${greeks.theta.weeklyDrain}/week`,
+      insight: greeks.theta.insight,
+    },
+    {
+      name: "VEGA",
       value: greeks.vega.value,
-      tagline: `+$${(parseFloat(greeks.vega.value) * 100).toFixed(0)} per 1% IV rise`,
-      insight: greeks.vega.insight },
+      desc: `+$${(parseFloat(greeks.vega.value) * 100).toFixed(0)} per 1% IV rise`,
+      insight: greeks.vega.insight,
+    },
+    {
+      name: "GAMMA",
+      value: greeks.gamma.value,
+      desc: "Delta sensitivity",
+      insight: greeks.gamma.insight,
+    },
   ];
 
   return (
     <>
-      <div className="card card-inner-split">
-        <div className="card-inner-col">
-          <div className="card-label"><Activity size={11} /> Implied volatility rank</div>
-          <IVGauge value={ivRank} reading={greeks.ivRankReading} />
-          <p className="iv-insight">{greeks.ivRankInsight}</p>
+      <div className="tc-section">
+        <div className="tc-section-label">IV ENVIRONMENT</div>
+        <div className="tc-iv-row">
+          <span className="tc-kv-key">IV RANK</span>
+          <span className="tc-kv-val">{ivRank}</span>
+          <span className="tc-kv-desc">{greeks.ivRankReading}</span>
         </div>
+        <div className="tc-iv-bar">[{ivBar}] {ivNum}</div>
+        <p className="tc-body tc-body--muted">{greeks.ivRankInsight}</p>
         {strategyRationale && (
-          <div className="card-inner-col">
-            <div className="card-label"><Layers size={11} /> Why {strategy}</div>
-            <p className="rationale-text">{parseBold(strategyRationale)}</p>
-          </div>
+          <p className="tc-body">Why {strategy}: {parseBold(strategyRationale)}</p>
         )}
       </div>
-      <div className="greek-grid">
-        {greekDefs.map(({ Icon, color, name, symbol, value, tagline, insight }) => (
-          <div key={name} className="card greek-card">
-            <div className="greek-watermark">{symbol}</div>
-            <div className="greek-top">
-              <div className={`greek-icon-wrap color-${color}`}><Icon size={14} /></div>
-              <div className="greek-meta">
-                <div className="greek-name">{name}</div>
-                <div className="greek-tagline">{tagline}</div>
-              </div>
-              <div className="greek-value">{value}</div>
-            </div>
-            <p className="greek-insight">{insight}</p>
+      <div className="tc-section">
+        <div className="tc-section-label">GREEKS</div>
+        {rows.map(({ name, value, desc, insight }) => (
+          <div key={name} className="tc-greek-row">
+            <span className="tc-greek-name">{name}</span>
+            <span className="tc-greek-value">{value}</span>
+            <span className="tc-greek-desc">{desc}</span>
+            <p className="tc-greek-insight">{insight}</p>
           </div>
         ))}
       </div>
