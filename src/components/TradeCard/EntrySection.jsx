@@ -1,35 +1,25 @@
-import { Clock } from "lucide-react";
-
 export default function EntrySection({ entryTiming }) {
   if (!entryTiming) return null;
   return (
-    <div className="card">
-      <div className="card-label"><Clock size={11} /> Entry timing</div>
-      <div className="entry-timing-rows">
-        <div className={`entry-rule entry-rule--now${entryTiming.canEnterNow ? " entry-rule--yes" : " entry-rule--no"}`}>
-          <div className="entry-rule-head">
-            <span className="exit-title">Enter now?</span>
-            <span className={`entry-now-badge${entryTiming.canEnterNow ? " entry-now-badge--yes" : " entry-now-badge--no"}`}>
-              {entryTiming.canEnterNow ? "Yes" : "No"}
-            </span>
-          </div>
-          {entryTiming.nowAssessment && (
-            <p className="exit-desc">{entryTiming.nowAssessment}</p>
-          )}
-        </div>
-        <div className={`entry-rule entry-rule--${entryTiming.urgency ?? "immediate"}`}>
-          <div className="entry-rule-head">
-            <span className="exit-title">Optimal entry</span>
-            <span className={`entry-rec entry-rec--${entryTiming.urgency ?? "immediate"}`}>
-              {entryTiming.optimalEntry}
-            </span>
-          </div>
-          <p className="exit-desc">{entryTiming.condition}</p>
-          {entryTiming.idealEntryPrice && (
-            <div className="exit-meta">Ideal price: {entryTiming.idealEntryPrice} per contract</div>
-          )}
-        </div>
+    <div className="tc-section">
+      <div className="tc-section-label">ENTRY</div>
+      <div className="tc-kv-row">
+        <span className="tc-kv-key">Enter now?</span>
+        <span className={`tc-badge tc-badge--${entryTiming.canEnterNow ? "yes" : "no"}`}>
+          {entryTiming.canEnterNow ? "Yes" : "No"}
+        </span>
       </div>
+      {entryTiming.nowAssessment && (
+        <p className="tc-kv-desc">{entryTiming.nowAssessment}</p>
+      )}
+      <div className="tc-kv-row tc-kv-row--spaced">
+        <span className="tc-kv-key">Optimal</span>
+        <span className="tc-kv-val">{entryTiming.optimalEntry}</span>
+      </div>
+      <p className="tc-kv-desc">{entryTiming.condition}</p>
+      {entryTiming.idealEntryPrice && (
+        <p className="tc-kv-meta">Ideal price: {entryTiming.idealEntryPrice} per contract</p>
+      )}
     </div>
   );
 }
