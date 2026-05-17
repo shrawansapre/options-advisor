@@ -1140,8 +1140,8 @@
 
 .checklist-toggle {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  flex-direction: column;
+  gap: 0.15rem;
   width: 100%;
   padding: 0.9rem 0;
   background: none;
@@ -1149,6 +1149,16 @@
   cursor: pointer;
   text-align: left;
   color: var(--t1);
+}
+
+.checklist-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.checklist-toggle-score {
+  padding-left: 1.1rem;
 }
 
 .checklist-chevron {
@@ -1163,13 +1173,12 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--t2);
-  flex-shrink: 0;
+  flex: 1;
 }
 
 .checklist-score-inline {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.78rem;
-  flex: 1;
   white-space: nowrap;
 }
 

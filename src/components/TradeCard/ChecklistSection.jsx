@@ -23,11 +23,8 @@ function AuditSection({ section }) {
   const warnCount = section.items.filter(i => i.status === "warning").length;
   const passCount = section.items.filter(i => i.status === "pass").length;
 
-  const summary = failCount > 0
-    ? `${failCount} failed`
-    : warnCount > 0
-    ? `${warnCount} warning${warnCount > 1 ? "s" : ""}`
-    : `${passCount} passed`;
+  const total = section.items.length;
+  const summary = `${passCount}/${total} passed${failCount > 0 ? ` · ${failCount} failed` : warnCount > 0 ? ` · ${warnCount} ⚠` : ""}`;
 
   return (
     <div className="audit-section">
@@ -91,10 +88,14 @@ export default function ChecklistSection({ trade, chainData }) {
   return (
     <div className="checklist-wrap">
       <button className="checklist-toggle" onClick={handleToggle}>
-        <span className="checklist-chevron">{expanded ? "▼" : "▶"}</span>
-        <span className="checklist-title">Trade Discipline Checklist</span>
-        {headerSummary()}
-        {dotColor && <span className={`checklist-dot checklist-dot--${dotColor}`} />}
+        <div className="checklist-toggle-row">
+          <span className="checklist-chevron">{expanded ? "▼" : "▶"}</span>
+          <span className="checklist-title">Trade Discipline Checklist</span>
+          {dotColor && <span className={`checklist-dot checklist-dot--${dotColor}`} />}
+        </div>
+        {loadState !== "idle" && (
+          <div className="checklist-toggle-score">{headerSummary()}</div>
+        )}
       </button>
 
       {expanded && loadState === "loaded" && result && (
