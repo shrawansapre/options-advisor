@@ -1,3 +1,44 @@
+/* ─── Multi-trade comparison grid ──────────────────────────────────────── */
+.mtv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.mtv-col {
+  min-width: 0;
+}
+
+.mtv-col-header {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0 0.2rem 0.5rem;
+}
+
+.mtv-col-header--green { color: var(--green); }
+.mtv-col-header--amber { color: var(--amber); }
+.mtv-col-header--red   { color: var(--red);   }
+
+@media (max-width: 900px) {
+  .mtv-grid {
+    display: flex;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 1rem;
+    padding-bottom: 1rem;
+  }
+  .mtv-col {
+    min-width: 85vw;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+}
+
 /* ─── Trade Card ───────────────────────────────────────────────────────── */
 .trade-card {
   background: var(--surface);

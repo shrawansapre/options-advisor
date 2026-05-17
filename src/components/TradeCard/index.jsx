@@ -11,13 +11,15 @@ import ScenariosSection from "./ScenariosSection";
 import SignalsSection from "./SignalsSection";
 import ChecklistSection from "./ChecklistSection";
 
-export default function TradeCard({ trade, index, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
+export default function TradeCard({ trade, index, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel, activeTab, onTabChange }) {
   const { summary, entryTiming, exitStrategy, predictions, greeks,
           watchFor, rationale, riskLevel, riskFactors, robinhoodSteps,
           strategyRationale, sources } = trade;
 
   const snapshotRef = useRef(null);
-  const [activeTab, setActiveTab] = useState("summary");
+  const [localTab, setLocalTab] = useState("summary");
+  const tab = activeTab ?? localTab;
+  const setTab = onTabChange ?? setLocalTab;
 
   const expiryExpired = trade.expiry && analysedAt && new Date(trade.expiry) < analysedAt;
   const validSources = sources?.filter(s => s.url?.startsWith("http")) ?? [];
@@ -120,19 +122,19 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
       </div>
 
       <div className="tc-tab-bar">
-        {["summary", "greeks", "analysis"].map(tab => (
+        {["summary", "greeks", "analysis"].map(t => (
           <button
-            key={tab}
-            className={`tc-tab${activeTab === tab ? " tc-tab--active" : ""}`}
-            onClick={() => setActiveTab(tab)}
+            key={t}
+            className={`tc-tab${tab === t ? " tc-tab--active" : ""}`}
+            onClick={() => setTab(t)}
           >
-            {tab.toUpperCase()}
+            {t.toUpperCase()}
           </button>
         ))}
       </div>
 
       <div className="tc-tab-content">
-        {activeTab === "summary" && (
+        {tab === "summary" && (
           <>
             <ThesisRisk rationale={rationale} riskLevel={riskLevel} riskFactors={riskFactors} />
             <EntrySection entryTiming={entryTiming} />
@@ -140,10 +142,10 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
             <SignalsSection watchFor={watchFor} sources={validSources} robinhoodSteps={robinhoodSteps} />
           </>
         )}
-        {activeTab === "greeks" && (
+        {tab === "greeks" && (
           <GreeksGrid greeks={greeks} strategyRationale={strategyRationale} strategy={trade.strategy} ivRank={trade.ivRank} />
         )}
-        {activeTab === "analysis" && (
+        {tab === "analysis" && (
           <>
             <ScenariosSection predictions={predictions} />
             <PayoffChart trade={trade} />

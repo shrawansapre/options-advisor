@@ -1,84 +1,48 @@
 import { useState } from "react";
-import { motion, useAnimationControls } from "framer-motion";
-import { Shield, Activity, Zap } from "lucide-react";
 import TradeCard from "./TradeCard";
 import ErrorBoundary from "./ErrorBoundary";
 
-const TIER = {
-  conservative: { label: "Conservative", sub: "Low risk · income focus",   color: "green",  Icon: Shield   },
-  moderate:     { label: "Moderate",     sub: "Balanced risk / reward",    color: "amber",  Icon: Activity },
-  aggressive:   { label: "Aggressive",   sub: "High return potential",     color: "red",    Icon: Zap      },
+const TIER_COLOR = {
+  conservative: "green",
+  moderate: "amber",
+  aggressive: "red",
 };
 
 export default function MultiTradeView({ trades, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
-  const [active, setActive] = useState(0);
-  const controls = useAnimationControls();
-
-  async function switchTo(i) {
-    if (i === active) return;
-    await controls.start({ opacity: 0, y: -6, transition: { duration: 0.14, ease: "easeIn" } });
-    setActive(i);
-    controls.start({ opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } });
-  }
+  const [activeTab, setActiveTab] = useState("summary");
 
   if (!trades?.length) return null;
 
   if (trades.length === 1) {
     return (
       <ErrorBoundary>
-        <TradeCard trade={trades[0]} index={0} chainData={chainData} analysedAt={analysedAt} marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel} />
+        <TradeCard
+          trade={trades[0]} index={0} chainData={chainData} analysedAt={analysedAt}
+          marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel}
+          activeTab={activeTab} onTabChange={setActiveTab}
+        />
       </ErrorBoundary>
     );
   }
 
-  const activeTrade = trades[active];
-
   return (
-    <div className="multi-trade">
-      <div className="tier-selector">
-        {trades.map((trade, i) => {
-          const cfg = TIER[trade.riskTier] ?? { label: trade.riskTier ?? "Option", sub: "", color: "amber", Icon: Minus };
-          const { label, sub, color, Icon } = cfg;
-          const isActive = i === active;
-          return (
-            <button
-              key={i}
-              className={`tier-tab tier-tab--${color}${isActive ? " tier-tab--active" : ""}`}
-              onClick={() => switchTo(i)}
-            >
-              <div className="tier-tab-head">
-                <span className={`tier-tab-icon tier-tab-icon--${color}`}><Icon size={13} /></span>
-                <div>
-                  <div className="tier-tab-label">{label}</div>
-                  <div className="tier-tab-sub">{sub}</div>
-                </div>
-              </div>
-              <div className="tier-tab-strategy">{trade.strategy}</div>
-              <div className="tier-tab-row">
-                <div className="tier-metric">
-                  <span className="tier-metric-label">Max profit</span>
-                  <span className="tier-metric-value tier-metric-value--profit">{trade.maxProfit}</span>
-                </div>
-                <div className="tier-metric">
-                  <span className="tier-metric-label">Max loss</span>
-                  <span className="tier-metric-value tier-metric-value--loss">{trade.maxLoss}</span>
-                </div>
-                <div className="tier-metric">
-                  <span className="tier-metric-label">Entry</span>
-                  <span className="tier-metric-value">{trade.entryPrice ? `$${trade.entryPrice}` : trade.totalCost}</span>
-                </div>
-              </div>
-              {isActive && <div className="tier-tab-active-bar" />}
-            </button>
-          );
-        })}
-      </div>
-
-      <motion.div animate={controls} initial={{ opacity: 1, y: 0 }}>
-        <ErrorBoundary>
-          <TradeCard key={activeTrade.riskTier} trade={activeTrade} index={0} chainData={chainData} analysedAt={analysedAt} marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel} />
-        </ErrorBoundary>
-      </motion.div>
+    <div className="mtv-grid">
+      {trades.map((trade, i) => {
+        const color = TIER_COLOR[trade.riskTier] ?? "amber";
+        const label = trade.riskTier ? trade.riskTier.toUpperCase() : `OPTION ${i + 1}`;
+        return (
+          <div key={trade.riskTier ?? i} className="mtv-col">
+            <div className={`mtv-col-header mtv-col-header--${color}`}>{label}</div>
+            <ErrorBoundary>
+              <TradeCard
+                trade={trade} index={i} chainData={chainData} analysedAt={analysedAt}
+                marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel}
+                activeTab={activeTab} onTabChange={setActiveTab}
+              />
+            </ErrorBoundary>
+          </div>
+        );
+      })}
     </div>
   );
 }
