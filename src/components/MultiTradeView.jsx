@@ -1,6 +1,7 @@
 import { useState } from "react";
 import TradeCard from "./TradeCard";
 import ErrorBoundary from "./ErrorBoundary";
+import DesktopComparisonTable from "./DesktopComparisonTable";
 
 const TIER_COLOR = {
   conservative: "green",
@@ -90,25 +91,13 @@ export default function MultiTradeView({ trades, chainData, analysedAt, marketCo
 
   return (
     <>
-      {/* Desktop: three columns side by side */}
-      <div className="mtv-grid">
-        {trades.map((trade, i) => {
-          const color = TIER_COLOR[trade.riskTier] ?? "amber";
-          const label = trade.riskTier ? trade.riskTier.toUpperCase() : `OPTION ${i + 1}`;
-          return (
-            <div key={trade.riskTier ?? i} className="mtv-col">
-              <div className={`mtv-col-header mtv-col-header--${color}`}>{label}</div>
-              <ErrorBoundary>
-                <TradeCard
-                  trade={trade} index={i} chainData={chainData} analysedAt={analysedAt}
-                  marketContext={marketContext} hasLiveData={hasLiveData} marketSessionLabel={marketSessionLabel}
-                  activeTab={activeTab} onTabChange={setActiveTab}
-                />
-              </ErrorBoundary>
-            </div>
-          );
-        })}
-      </div>
+      {/* Desktop: comparison table (hidden on mobile via CSS) */}
+      <ErrorBoundary>
+        <DesktopComparisonTable
+          trades={trades} chainData={chainData} analysedAt={analysedAt}
+          hasLiveData={hasLiveData} marketContext={marketContext}
+        />
+      </ErrorBoundary>
 
       {/* Mobile: comparison matrix + selected full card */}
       <div className="mtv-mobile">

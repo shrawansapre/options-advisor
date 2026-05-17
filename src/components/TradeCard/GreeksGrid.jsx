@@ -1,11 +1,10 @@
 import { parseBold } from "../../utils";
+import IVGauge from "../IVGauge";
 
-export default function GreeksGrid({ greeks, strategyRationale, strategy, ivRank }) {
+const GREEK_SYMBOL = { DELTA: "Δ", THETA: "Θ", VEGA: "ν", GAMMA: "Γ" };
+
+export default function GreeksGrid({ greeks, strategyRationale, strategy, ivRank, hideIV = false }) {
   if (!greeks) return null;
-
-  const ivNum = parseInt(ivRank, 10) || 0;
-  const filled = Math.round((ivNum / 100) * 28);
-  const ivBar = "█".repeat(filled) + "░".repeat(28 - filled);
 
   const rows = [
     {
@@ -36,24 +35,24 @@ export default function GreeksGrid({ greeks, strategyRationale, strategy, ivRank
 
   return (
     <>
-      <div className="tc-section">
-        <div className="tc-section-label">IV ENVIRONMENT</div>
-        <div className="tc-iv-row">
-          <span className="tc-kv-key">IV RANK</span>
-          <span className="tc-kv-val">{ivRank}</span>
-          <span className="tc-kv-desc">{greeks.ivRankReading}</span>
+      {!hideIV && (
+        <div className="tc-section">
+          <div className="tc-section-label">IV ENVIRONMENT</div>
+          <IVGauge value={ivRank} reading={greeks.ivRankReading} />
+          <p className="tc-body tc-body--muted">{greeks.ivRankInsight}</p>
+          {strategyRationale && (
+            <p className="tc-body">Why {strategy}: {parseBold(strategyRationale)}</p>
+          )}
         </div>
-        <div className="tc-iv-bar">[{ivBar}] {ivNum}</div>
-        <p className="tc-body tc-body--muted">{greeks.ivRankInsight}</p>
-        {strategyRationale && (
-          <p className="tc-body">Why {strategy}: {parseBold(strategyRationale)}</p>
-        )}
-      </div>
+      )}
       <div className="tc-section">
         <div className="tc-section-label">GREEKS</div>
         {rows.map(({ name, value, desc, insight }) => (
           <div key={name} className="tc-greek-row">
-            <span className="tc-greek-name">{name}</span>
+            <span className="tc-greek-name">
+              <span className="tc-greek-symbol">{GREEK_SYMBOL[name]}</span>
+              {name}
+            </span>
             <span className="tc-greek-value">{value}</span>
             <span className="tc-greek-desc">{desc}</span>
             {insight && <p className="tc-greek-insight">{insight}</p>}

@@ -1,3 +1,212 @@
+/* ─── Desktop comparison table ─────────────────────────────────────────── */
+.dct {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr 1fr 1fr;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 2rem;
+}
+
+/* Shared one-line header spans all columns */
+.dct-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+/* Column headers: mirrors parent grid columns */
+.dct-col-headers {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 6.5rem 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+
+.dct-label-spacer {
+  border-right: 1px solid var(--border);
+}
+
+.dct-col-header {
+  padding: 0.75rem 1rem;
+  border-right: 1px solid var(--border);
+  border-top: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.dct-col-header:last-child { border-right: none; }
+.dct-col-header--green { border-top-color: var(--green); }
+.dct-col-header--amber { border-top-color: var(--amber); }
+.dct-col-header--red   { border-top-color: var(--red);   }
+
+.dct-col-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dct-tier-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.dct-tier-label--green { color: var(--green); }
+.dct-tier-label--amber { color: var(--amber); }
+.dct-tier-label--red   { color: var(--red);   }
+
+.dct-strategy-name {
+  font-family: var(--font);
+  font-size: 0.8rem;
+  color: var(--t2);
+}
+
+.dct-expired-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--amber);
+  margin-top: 0.2rem;
+}
+
+/* Section rows — display:contents places children directly in parent grid */
+.dct-row { display: contents; }
+
+.dct-row-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t2);
+  padding: 1rem 0.6rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.dct-cell {
+  padding: 1.1rem 1.2rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.dct-cell:last-child { border-right: none; }
+.dct-cell--span { grid-column: 2 / -1; }
+
+/* Last row has no bottom border */
+.dct-row--last .dct-row-label,
+.dct-row--last .dct-cell { border-bottom: none; }
+
+/* Strip section labels inside cells — row label provides that context */
+.dct-cell .tc-section > .tc-section-label:not(.tc-section-label--spaced):first-child {
+  display: none;
+}
+/* Remove bottom margin on last section in a cell */
+.dct-cell .tc-section:last-child { margin-bottom: 0; }
+
+/* Shared IV row — gauge + insight stacked, centered */
+.dct-shared-iv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+}
+.dct-shared-iv .iv-gauge-wrap {
+  width: 200px;
+  margin: 0;
+}
+.dct-shared-iv .tc-body {
+  font-size: 0.82rem;
+  margin: 0;
+  max-width: 420px;
+}
+
+/* Checklist inside dct-cell already has cell border — remove its own top line */
+.dct-cell .checklist-wrap {
+  border-top: none;
+  margin-top: 0;
+  padding: 0;
+}
+
+/* ─── DCT cell inner overrides — consistent type hierarchy in narrow columns */
+
+/* .tc-grid already sits inside a padded .dct-cell — strip its own padding & borders */
+.dct-cell .tc-grid {
+  padding: 0;
+  border-top: none;
+  border-bottom: none;
+}
+/* Narrower column gap so 7 metrics fit without overflow */
+.dct-cell .tc-grid-row { gap: 0.15rem 0.75rem; }
+
+/* Data values — mono at 0.85rem reads visually larger, pull down */
+.dct-cell .tc-cell-value { font-size: 0.82rem; }
+
+/* Tighten section spacing */
+.dct-cell .tc-section { margin-bottom: 0.9rem; }
+
+/* OPTIMAL row: stack label above value so long text doesn't wrap beside label */
+.dct-cell .tc-kv-row--spaced {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+.dct-cell .tc-kv-row--spaced .tc-kv-val {
+  font-size: 0.80rem;
+  line-height: 1.45;
+}
+
+/* Key labels (Enter now?, Optimal, Target…) — reduce from 0.72rem */
+.dct-cell .tc-kv-key  { min-width: 3.8rem; font-size: 0.66rem; }
+
+/* PRIMARY OFFENDER: optimal entry value — mono 0.85rem reads like 1rem */
+.dct-cell .tc-kv-val  { font-size: 0.82rem; }
+
+/* Body text — reduce from 0.88rem */
+.dct-cell .tc-body      { font-size: 0.83rem; }
+/* Supporting text */
+.dct-cell .tc-list-item { font-size: 0.81rem; }
+.dct-cell .tc-kv-desc   { font-size: 0.80rem; }
+.dct-cell .tc-kv-meta   { font-size: 0.74rem; }
+
+/* Exit section */
+.dct-cell .tc-exit-row  { font-size: 0.80rem; }
+.dct-cell .tc-exit-type { min-width: 2.6rem; font-size: 0.64rem; }
+.dct-cell .tc-exit-pct  { min-width: 2.2rem; font-size: 0.80rem; }
+.dct-cell .tc-exit-rule { font-size: 0.78rem; }
+.dct-cell .tc-exit-warning { font-size: 0.79rem; }
+
+/* Signals / steps */
+.dct-cell .tc-signal    { font-size: 0.81rem; }
+.dct-cell .tc-step      { font-size: 0.81rem; }
+
+/* Greeks — pull the big 0.9rem value down */
+.dct-cell .tc-greek-value { font-size: 0.84rem; }
+.dct-cell .tc-greek-name  { font-size: 0.65rem; }
+.dct-cell .tc-iv-bar      { font-size: 0.72rem; }
+
+/* Data grid inside cells — no extra padding */
+.dct-data-grid { width: 100%; }
+
+@media (max-width: 900px) { .dct { display: none; } }
+
 /* ─── Multi-trade comparison grid (desktop) ────────────────────────────── */
 .mtv-grid {
   display: grid;
@@ -495,9 +704,58 @@
   color: var(--t3); text-align: center; margin-top: 6px; padding-bottom: 20px;
 }
 
+/* ─── IV Gauge ──────────────────────────────────────────────────────────── */
+
+.iv-gauge-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto 0.2rem;
+}
+.iv-gauge-overlay {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.iv-gauge-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--t1);
+  line-height: 1;
+}
+.iv-gauge-num sup {
+  font-size: 0.6rem;
+  vertical-align: super;
+  font-weight: 400;
+}
+.iv-gauge-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.15rem;
+}
+
 /* ─── Trade Charts ──────────────────────────────────────────────────────── */
 
 .chart-card { padding-bottom: 8px; }
+
+.card-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+}
 
 
 /* ─── Responsive ───────────────────────────────────────────────────────── */
@@ -683,7 +941,7 @@
 .tc-cell { display: flex; flex-direction: column; gap: 0.1rem; min-width: 3.5rem; }
 .tc-cell-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   color: var(--t3);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -823,8 +1081,16 @@
   color: var(--t3);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  display: inline-block;
-  min-width: 3.5rem;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  min-width: 4.2rem;
+}
+.tc-greek-symbol {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--t2);
+  letter-spacing: 0;
 }
 .tc-greek-value { font-family: 'IBM Plex Mono', monospace; font-size: 0.9rem; color: var(--t1); margin: 0 0.6rem; }
 .tc-greek-desc  { font-size: 0.78rem; color: var(--t3); }
@@ -854,6 +1120,11 @@
 .tc-scenario--bull .tc-scenario-label { color: var(--green); }
 .tc-scenario--base .tc-scenario-label { color: var(--t2); }
 .tc-scenario--bear .tc-scenario-label { color: var(--red); }
+.tc-scenario-icon {
+  font-size: 0.85rem;
+  margin-right: 0.2rem;
+  line-height: 1;
+}
 .tc-scenario-prob   { color: var(--t1); }
 .tc-scenario-return { color: var(--t1); }
 .tc-scenario-target { color: var(--t3); margin-left: auto; }

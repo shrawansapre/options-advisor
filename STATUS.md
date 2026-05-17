@@ -2,6 +2,8 @@
 
 ## Recently Completed
 
+- **TradeCard terminal redesign** — full Bloomberg/thinkorswim aesthetic: monospace header line, two-row data grid (STRIKES/EXPIRY/DTE/ENTRY/MAX WIN/MAX LOSS/B/E + IV RANK/DELTA/PROB/R/R), tab bar (SUMMARY | GREEKS | ANALYSIS), ASCII IV bar and probability bars, dot risk meter; ~924 lines of old card CSS removed
+
 - **Risk tier ordering fix** — Strategist prompt now enforces conservative < moderate < aggressive max loss; Critic check #6 flags moderate > aggressive as HIGH severity to trigger retry
 
 - **Tier ordering fix** — removed `enforceRiskOrdering()` sort-and-relabel; tiers now stay locked to the Strategist that built them; Critic check #6 strengthened to validate structural risk (strategy type + probability) not just dollar max loss, with high severity to trigger retries on mismatches
