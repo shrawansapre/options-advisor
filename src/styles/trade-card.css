@@ -1,4 +1,4 @@
-/* ─── Multi-trade comparison grid ──────────────────────────────────────── */
+/* ─── Multi-trade comparison grid (desktop) ────────────────────────────── */
 .mtv-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -6,9 +6,7 @@
   align-items: start;
 }
 
-.mtv-col {
-  min-width: 0;
-}
+.mtv-col { min-width: 0; }
 
 .mtv-col-header {
   font-family: var(--mono);
@@ -23,26 +21,97 @@
 .mtv-col-header--amber { color: var(--amber); }
 .mtv-col-header--red   { color: var(--red);   }
 
-@media (max-width: 900px) {
-  .mtv-grid {
-    display: flex;
-    overflow-x: scroll;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    /* Break out of app-main padding so cards reach full viewport width */
-    margin-left: -20px;
-    margin-right: -20px;
-    padding-left: 20px;
-    scroll-padding-left: 20px;
-  }
-  .mtv-col {
-    /* viewport minus (left-pad + right-peek) so next card is always visible */
-    min-width: calc(100vw - 60px);
-    scroll-snap-align: start;
-    flex-shrink: 0;
-  }
+@media (max-width: 900px) { .mtv-grid { display: none; } }
+
+/* ─── Mobile comparison matrix ──────────────────────────────────────────── */
+.mtv-mobile { display: none; }
+@media (max-width: 900px) { .mtv-mobile { display: block; } }
+
+.mtv-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.4rem;
+}
+
+.mtv-matrix th,
+.mtv-matrix td {
+  padding: 0.5rem 0.3rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--t1);
+}
+
+/* Label column (first) */
+.mtv-matrix th:first-child,
+.mtv-matrix td:first-child {
+  text-align: left;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--t3);
+  padding-left: 0;
+  width: 3.2rem;
+}
+
+/* Active column tint */
+.mtv-matrix-th--active,
+.mtv-matrix-td--active {
+  background: color-mix(in srgb, var(--navy) 5%, transparent);
+}
+
+/* Tier header button */
+.mtv-matrix-th-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0;
+  width: 100%;
+}
+
+.mtv-matrix-abbr {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.mtv-matrix-abbr--green { color: var(--green); }
+.mtv-matrix-abbr--amber { color: var(--amber); }
+.mtv-matrix-abbr--red   { color: var(--red);   }
+
+.mtv-matrix-strat {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  color: var(--t2);
+  line-height: 1.3;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 7rem;
+}
+
+.mtv-matrix-td--profit { color: var(--green); }
+.mtv-matrix-td--loss   { color: var(--red);   }
+
+/* Label row above the expanded card */
+.mtv-mobile-card-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t3);
 }
 
 /* ─── Trade Card ───────────────────────────────────────────────────────── */
@@ -457,9 +526,6 @@
 
   .trade-card          { margin-bottom: 16px; }
 
-  .mtv-grid { margin-left: -16px; margin-right: -16px; padding-left: 16px; scroll-padding-left: 16px; }
-  .mtv-col  { min-width: calc(100vw - 52px); }
-
   /* Key details: hide separators, flow 2-per-row via flex */
   .trade-key-details { gap: 14px 0; }
   .key-detail-sep    { display: none; }
@@ -558,9 +624,6 @@
   .key-detail-value      { font-size: 13px; }
   .stat-value            { font-size: 12px; }
   .trade-card            { margin-bottom: 12px; }
-
-  .mtv-grid { margin-left: -12px; margin-right: -12px; padding-left: 12px; scroll-padding-left: 12px; }
-  .mtv-col  { min-width: calc(100vw - 44px); }
 
   /* Header */
   .brand-mark   { font-size: 22px; }
