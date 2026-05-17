@@ -31,9 +31,15 @@
     -webkit-overflow-scrolling: touch;
     gap: 1rem;
     padding-bottom: 1rem;
+    /* Break out of app-main padding so cards reach full viewport width */
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    scroll-padding-left: 20px;
   }
   .mtv-col {
-    min-width: 85vw;
+    /* viewport minus (left-pad + right-peek) so next card is always visible */
+    min-width: calc(100vw - 60px);
     scroll-snap-align: start;
     flex-shrink: 0;
   }
@@ -451,6 +457,9 @@
 
   .trade-card          { margin-bottom: 16px; }
 
+  .mtv-grid { margin-left: -16px; margin-right: -16px; padding-left: 16px; scroll-padding-left: 16px; }
+  .mtv-col  { min-width: calc(100vw - 52px); }
+
   /* Key details: hide separators, flow 2-per-row via flex */
   .trade-key-details { gap: 14px 0; }
   .key-detail-sep    { display: none; }
@@ -549,6 +558,9 @@
   .key-detail-value      { font-size: 13px; }
   .stat-value            { font-size: 12px; }
   .trade-card            { margin-bottom: 12px; }
+
+  .mtv-grid { margin-left: -12px; margin-right: -12px; padding-left: 12px; scroll-padding-left: 12px; }
+  .mtv-col  { min-width: calc(100vw - 44px); }
 
   /* Header */
   .brand-mark   { font-size: 22px; }
