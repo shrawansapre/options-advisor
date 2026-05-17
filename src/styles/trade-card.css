@@ -1170,6 +1170,7 @@
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.78rem;
   flex: 1;
+  white-space: nowrap;
 }
 
 .checklist-score-pass { color: #22c55e; }
