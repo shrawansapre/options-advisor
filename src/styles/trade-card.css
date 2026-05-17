@@ -1200,6 +1200,7 @@
   margin-bottom: -1px;
 }
 .tc-tab:hover { color: var(--t2); }
+.tc-tab:focus { outline: none; color: var(--t1); border-bottom-color: var(--t1); }
 .tc-tab--active { color: var(--t1); border-bottom-color: var(--t1); }
 
 /* Tab content */
@@ -1286,6 +1287,7 @@
 .tc-sources { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
 .tc-source-link { font-size: 0.75rem; color: var(--t3); text-decoration: none; }
 .tc-source-link:hover { color: var(--t2); }
+.tc-source-link:focus { outline: 1px solid var(--t2); outline-offset: 1px; }
 .tc-step { display: flex; gap: 0.6rem; font-size: 0.85rem; color: var(--t2); margin-bottom: 0.3rem; }
 .tc-step-num { font-family: 'IBM Plex Mono', monospace; color: var(--t3); min-width: 1.2rem; }
 
