@@ -2,6 +2,8 @@
 
 ## Recently Completed
 
+- **Mantine v8 migration** — replaced ~3,600 lines of vanilla CSS with Mantine components (Tabs, Modal, Accordion, Alert); `tokens.css` deleted, tokens consolidated into `src/theme.js` + `app.css`; dark mode migrated to `useMantineColorScheme()`; UI audit fixes: dark mode button/card contrast, modal layout shift, checklist arrow, a11y props, focus rings, touch targets, share/download wired up in all three views (TradeCard, MobileComparisonView, DesktopComparisonTable); sign-out resets app state
+
 - **Mobile strategy switcher** — replaced cramped comparison matrix with a 3-column card bar; full tier names (Conservative / Moderate / Aggressive), strategy name, max profit/max loss per column; tier-tinted active state (green/amber/red-light) with 3px bottom border indicator; tap feedback on `:active`; old `.mtv-matrix-*` CSS removed
 
 - **Option chain expansion** — tiered expiry selection: 2 near (7–45d) + 2 mid (45–120d) + 2 far (120–365d); `strikeLimit` 5→10; `delta=.05-.95` filter; fetch uses `from`/`to` range (comma-separated expiration param was broken); `buildLiveDataBlock()` updated with compact per-contract format and expiry summary header; cost analysis documented at `docs/COST_ANALYSIS.md` (~$0.20/analysis typical)
