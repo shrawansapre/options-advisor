@@ -1139,13 +1139,63 @@
 
 /* Mobile */
 @media (max-width: 600px) {
-  .tc-header-line { padding: 0.8rem 1rem 0.5rem; gap: 0.4rem; }
+  /* Data grid */
   .tc-grid { padding: 0.5rem 1rem 0.7rem; }
   .tc-grid-row { gap: 0.4rem 1rem; }
   .tc-cell { min-width: calc(33% - 0.7rem); }
   .tc-tab-bar { padding: 0.5rem 1rem 0; gap: 1rem; }
   .tc-tab-content { padding: 0 1rem 1rem; }
-  .tc-greek-insight { margin-left: 0; }
+
+  /* ── Card header: 2-row layout ─────────────────────── */
+  .tc-header-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0.75rem 1rem 0.5rem;
+    gap: 0.2rem 0.45rem;
+  }
+  /* Hide decorative mid-dots on mobile */
+  .tc-sep { display: none; }
+  /* Row 1: ticker | price | badge · time · share */
+  .tc-ticker     { order: 1; font-size: 0.95rem; }
+  .tc-price      { order: 2; font-size: 0.82rem; }
+  .tc-data-badge { order: 3; }
+  .tc-time       { order: 4; margin-left: auto; }
+  .tc-share-wrap { order: 5; margin-left: 0; }
+  /* Row 2: strategy name — full width, prominent */
+  .tc-strategy {
+    order: 10;
+    flex-basis: 100%;
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--t1);
+    margin-top: 0.15rem;
+  }
+
+  /* ── Greeks: grid layout per row ───────────────────── */
+  .tc-greek-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    row-gap: 0.15rem;
+    column-gap: 0.6rem;
+    padding: 0.65rem 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border-2);
+  }
+  .tc-greek-row:last-child { border-bottom: none; }
+  .tc-greek-name  { grid-column: 1; grid-row: 1; align-self: center; }
+  .tc-greek-value { grid-column: 2; grid-row: 1; font-size: 1rem; margin: 0; align-self: center; }
+  .tc-greek-desc  { grid-column: 1 / -1; grid-row: 2; font-size: 0.74rem; }
+  .tc-greek-insight { grid-column: 1 / -1; grid-row: 3; margin: 0.1rem 0 0; }
+
+  /* ── Charts: breathing room ─────────────────────────── */
+  .chart-card {
+    background: var(--surface-2);
+    border-radius: var(--r-md);
+    padding: 0.75rem 0.5rem 0.5rem;
+    margin-bottom: 1rem;
+  }
 }
 
 /* ── Checklist Section ─────────────────────────────── */
