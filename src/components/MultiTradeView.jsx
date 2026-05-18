@@ -9,63 +9,37 @@ const TIER_COLOR = {
   aggressive: "red",
 };
 
-const TIER_ABBR = {
-  conservative: "CONS",
-  moderate: "MOD",
-  aggressive: "AGG",
+const TIER_LABEL = {
+  conservative: "Conservative",
+  moderate: "Moderate",
+  aggressive: "Aggressive",
 };
 
-function rrRatio(trade) {
-  const win  = parseFloat((trade.maxProfit ?? "").replace(/[^0-9.]/g, ""));
-  const loss = parseFloat((trade.maxLoss   ?? "").replace(/[^0-9.]/g, ""));
-  return (!isNaN(win) && !isNaN(loss) && loss > 0) ? (win / loss).toFixed(1) + ":1" : "—";
-}
-
-function probDisplay(trade) {
-  return trade.predictions?.baseCase?.probability ?? "—";
-}
-
-function MobileMatrix({ trades, selected, onSelect }) {
-  const rows = [
-    { key: "entry",  label: "ENTRY", get: t => t.totalCost,    cls: "" },
-    { key: "win",    label: "WIN",   get: t => t.maxProfit,     cls: "mtv-matrix-td--profit" },
-    { key: "loss",   label: "LOSS",  get: t => t.maxLoss,       cls: "mtv-matrix-td--loss" },
-    { key: "prob",   label: "PROB",  get: t => probDisplay(t),  cls: "" },
-    { key: "rr",     label: "R/R",   get: t => rrRatio(t),      cls: "" },
-  ];
-
+function MobileSwitcher({ trades, selected, onSelect }) {
   return (
-    <table className="mtv-matrix">
-      <thead>
-        <tr>
-          <th />
-          {trades.map((trade, i) => {
-            const color = TIER_COLOR[trade.riskTier] ?? "amber";
-            const abbr  = TIER_ABBR[trade.riskTier]  ?? trade.riskTier?.toUpperCase() ?? `T${i+1}`;
-            return (
-              <th key={i} className={selected === i ? "mtv-matrix-th--active" : ""}>
-                <button className="mtv-matrix-th-btn" onClick={() => onSelect(i)}>
-                  <span className={`mtv-matrix-abbr mtv-matrix-abbr--${color}`}>{abbr}</span>
-                  <span className="mtv-matrix-strat">{trade.strategy}</span>
-                </button>
-              </th>
-            );
-          })}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map(row => (
-          <tr key={row.key}>
-            <td>{row.label}</td>
-            {trades.map((trade, i) => (
-              <td key={i} className={[selected === i ? "mtv-matrix-td--active" : "", row.cls].filter(Boolean).join(" ")}>
-                {row.get(trade) ?? "—"}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="msw-wrap">
+      <div className="msw-bar">
+        {trades.map((trade, i) => {
+          const color = TIER_COLOR[trade.riskTier] ?? "amber";
+          const label = TIER_LABEL[trade.riskTier] ?? trade.riskTier;
+          const isActive = selected === i;
+          return (
+            <button
+              key={i}
+              className={`msw-btn msw-btn--${color}${isActive ? " msw-btn--active" : ""}`}
+              onClick={() => onSelect(i)}
+            >
+              <span className="msw-tier">{label}</span>
+              <span className="msw-strat">{trade.strategy ?? "—"}</span>
+              <div className="msw-stats">
+                <span className="msw-stat msw-stat--profit">{trade.maxProfit ?? "—"}</span>
+                <span className="msw-stat msw-stat--loss">{trade.maxLoss ?? "—"}</span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -99,11 +73,9 @@ export default function MultiTradeView({ trades, chainData, analysedAt, marketCo
         />
       </ErrorBoundary>
 
-      {/* Mobile: comparison matrix + selected full card */}
+      {/* Mobile: strategy switcher + selected full card */}
       <div className="mtv-mobile">
-        <div className="mtv-matrix-wrap">
-          <MobileMatrix trades={trades} selected={selectedTier} onSelect={setSelectedTier} />
-        </div>
+        <MobileSwitcher trades={trades} selected={selectedTier} onSelect={setSelectedTier} />
         <ErrorBoundary>
           <TradeCard
             key={selectedTrade.riskTier}

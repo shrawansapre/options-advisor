@@ -241,94 +241,92 @@
 
 @media (max-width: 900px) { .mtv-grid { display: none; } }
 
-/* ─── Mobile comparison matrix ──────────────────────────────────────────── */
+/* ─── Mobile strategy switcher ───────────────────────────────────────────── */
 .mtv-mobile { display: none; }
 @media (max-width: 900px) { .mtv-mobile { display: block; } }
 
-/* Card container wrapping the matrix table — matches .trade-card surface */
-.mtv-matrix-wrap {
+.msw-wrap {
+  margin-bottom: 1rem;
+}
+
+.msw-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
-  margin-bottom: 1.2rem;
 }
 
-.mtv-matrix {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.mtv-matrix th,
-.mtv-matrix td {
-  padding: 0.55rem 0.5rem;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: var(--t1);
-}
-
-/* Label column (first) */
-.mtv-matrix th:first-child,
-.mtv-matrix td:first-child {
-  text-align: left;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  color: var(--t3);
-  padding-left: 1rem;
-  width: 3.6rem;
-}
-
-/* Active column — matches tc-tab--active surface */
-.mtv-matrix-th--active,
-.mtv-matrix-td--active {
-  background: var(--surface-2);
-}
-
-/* Active header: full-contrast strategy name */
-.mtv-matrix-th--active .mtv-matrix-strat { color: var(--t1); }
-
-/* Tier header button */
-.mtv-matrix-th-btn {
+.msw-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.28rem;
+  padding: 0.9rem 0.4rem 0.75rem;
   background: none;
   border: none;
+  border-right: 1px solid var(--border);
+  border-bottom: 3px solid transparent;
   cursor: pointer;
-  padding: 0.25rem 0;
-  width: 100%;
+  text-align: center;
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
 }
+.msw-btn:last-child { border-right: none; }
+.msw-btn:active { opacity: 0.75; }
 
-.mtv-matrix-abbr {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.mtv-matrix-abbr--green { color: var(--green); }
-.mtv-matrix-abbr--amber { color: var(--amber); }
-.mtv-matrix-abbr--red   { color: var(--red);   }
-
-.mtv-matrix-strat {
+.msw-tier {
   font-family: var(--font);
-  font-size: 0.68rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t3);
+  transition: color 0.15s;
+}
+
+.msw-strat {
+  font-family: var(--font);
+  font-size: 0.73rem;
+  font-weight: 600;
   color: var(--t2);
   line-height: 1.3;
-  text-align: center;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  max-width: 7rem;
+  transition: color 0.15s;
 }
 
-.mtv-matrix-td--profit { color: var(--green); }
-.mtv-matrix-td--loss   { color: var(--red);   }
+.msw-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  margin-top: 0.1rem;
+}
+
+.msw-stat {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--t3);
+  white-space: nowrap;
+}
+.msw-stat--profit { color: var(--green); }
+.msw-stat--loss   { color: var(--red); }
+
+/* Active: tier-tinted background + colored bottom border + stronger text */
+.msw-btn--active.msw-btn--green { background: var(--green-light); border-bottom-color: var(--green); }
+.msw-btn--active.msw-btn--amber { background: var(--amber-light); border-bottom-color: var(--amber-ui); }
+.msw-btn--active.msw-btn--red   { background: var(--red-light);   border-bottom-color: var(--red); }
+
+.msw-btn--active.msw-btn--green .msw-tier { color: var(--green); }
+.msw-btn--active.msw-btn--amber .msw-tier { color: var(--amber); }
+.msw-btn--active.msw-btn--red   .msw-tier { color: var(--red); }
+
+.msw-btn--active .msw-strat { color: var(--t1); }
 
 /* ─── Trade Card ───────────────────────────────────────────────────────── */
 .trade-card {
