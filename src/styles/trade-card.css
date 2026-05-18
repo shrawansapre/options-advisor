@@ -503,6 +503,8 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
+.share-trigger-btn:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+
 .share-trigger-btn:hover,
 .share-trigger-btn--open {
   background: var(--navy);
@@ -524,6 +526,7 @@
   border-radius: 10px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.13);
   min-width: 182px;
+  max-width: calc(100vw - 20px);
   z-index: 200;
   overflow: hidden;
 }
@@ -1871,11 +1874,13 @@
   background: none;
   border: 1px solid var(--navy);
   border-radius: 4px;
-  padding: 0.35rem 0.9rem;
+  padding: 0.5rem 1.2rem;
+  min-height: 44px;
   cursor: pointer;
 }
 
 .mcv-audit-btn:hover { background: var(--navy); color: var(--surface); }
+.mcv-audit-btn:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 
 .mcv-audit-status {
   font-family: var(--mono);
@@ -1950,8 +1955,8 @@
 
 .mcv-charts-tab {
   flex: 1;
-  padding: 0.35rem 0;
-  font-size: 0.6rem;
+  padding: 0.45rem 0;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1959,6 +1964,7 @@
   border: 1px solid var(--border);
   background: transparent;
   color: var(--t2);
+  min-height: 36px;
   cursor: pointer;
   font-family: var(--mono);
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -2013,6 +2019,7 @@
 }
 
 .tc-mantine-tabs__tab:hover { color: var(--navy); }
+.tc-mantine-tabs__tab:focus-visible { outline: 2px solid var(--navy); outline-offset: -2px; }
 
 .tc-mantine-tabs__tab[data-active] {
   color: var(--navy);
@@ -2036,7 +2043,7 @@
 
 .mcv-accordion-control {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.1em;
   color: var(--t2);
@@ -2047,6 +2054,7 @@
 }
 
 .mcv-accordion-control:hover { background: var(--surface-2); }
+.mcv-accordion-control:focus-visible { outline: 2px solid var(--navy); outline-offset: -2px; }
 
 .mcv-accordion-chevron {
   color: var(--t3);
@@ -2056,5 +2064,14 @@
 
 .mcv-accordion-panel > div {
   padding: 0;
+}
+
+/* ≤380px: bump illegibly small font sizes in the MCV grid */
+@media (max-width: 380px) {
+  .mcv-tier-label { font-size: 0.62rem; }
+  .mcv-col-strategy { font-size: 0.7rem; }
+  .mcv-row-label { font-size: 0.58rem; }
+  .mcv-cell { font-size: 0.7rem; }
+  .mcv-audit-abbr { font-size: 0.52rem; }
 }
 

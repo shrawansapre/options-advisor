@@ -650,11 +650,12 @@ body {
   line-height: 1;
   color: currentColor;
   opacity: 0.5;
-  padding: 0 0 0 2px;
+  padding: 2px 4px;
   transition: opacity 0.15s;
   cursor: pointer;
 }
 .tab-close:hover { opacity: 1; }
+.tab-close:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; opacity: 1; }
 
 .signin-nudge-btn {
   padding: 4px 10px; border-radius: var(--r-sm);

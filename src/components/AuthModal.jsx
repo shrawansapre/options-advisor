@@ -30,6 +30,7 @@ export default function AuthModal({ onClose }) {
     <Modal
       opened
       onClose={onClose}
+      title="Sign in"
       centered
       withCloseButton
       size="sm"

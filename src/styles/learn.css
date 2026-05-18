@@ -95,7 +95,7 @@
 /* ─── SVG diagrams ──────────────────────────────────────────────────────── */
 .learn-payoff-svg { width: 100%; height: auto; margin: 10px 0 4px; display: block; }
 .learn-diagram-caption {
-  font-family: var(--mono); font-size: 10px; color: var(--t3);
+  font-family: var(--mono); font-size: clamp(10px, 2vw, 11px); color: var(--t3);
   text-align: center; margin-top: 4px;
 }
 

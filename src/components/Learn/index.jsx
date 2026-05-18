@@ -44,7 +44,7 @@ export default function LearnPage() {
             tab:  'learn-mantine-tabs__tab',
           }}
         >
-          <Tabs.List>
+          <Tabs.List aria-label="Learn navigation">
             {SECTIONS.map(s => (
               <Tabs.Tab key={s.id} value={s.id}>{s.label}</Tabs.Tab>
             ))}

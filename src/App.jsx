@@ -169,6 +169,7 @@ export default function App() {
 
         {!showLearn && showNudge && (
           <Alert
+            title="Save your analyses"
             variant="light"
             color="navy"
             withCloseButton
@@ -221,6 +222,7 @@ export default function App() {
               initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <Alert
                 icon={<AlertTriangle size={15} />}
+                title="Analysis error"
                 color="red"
                 variant="light"
                 classNames={{ root: 'app-error-alert' }}

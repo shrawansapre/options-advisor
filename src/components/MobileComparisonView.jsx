@@ -154,6 +154,7 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
       <div className="mcv-content">
         <Accordion
           multiple
+          aria-label="Trade comparison sections"
           defaultValue={["DETAILS", "METRICS", "THESIS", "ENTRY", "EXIT", "GREEKS", "SCENARIOS", "SIGNALS", "CHECKLIST"]}
           classNames={{
             item:    'mcv-accordion-item',
@@ -395,6 +396,7 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
       <div className="mcv-charts">
         <Accordion
           multiple
+          aria-label="Trade charts"
           defaultValue={["CHARTS"]}
           classNames={{
             item:    'mcv-accordion-item',
