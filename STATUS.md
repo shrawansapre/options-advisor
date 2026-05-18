@@ -2,6 +2,14 @@
 
 ## Recently Completed
 
+- **Mobile strategy switcher** — replaced cramped comparison matrix with a 3-column card bar; full tier names (Conservative / Moderate / Aggressive), strategy name, max profit/max loss per column; tier-tinted active state (green/amber/red-light) with 3px bottom border indicator; tap feedback on `:active`; old `.mtv-matrix-*` CSS removed
+
+- **Option chain expansion** — tiered expiry selection: 2 near (7–45d) + 2 mid (45–120d) + 2 far (120–365d); `strikeLimit` 5→10; `delta=.05-.95` filter; fetch uses `from`/`to` range (comma-separated expiration param was broken); `buildLiveDataBlock()` updated with compact per-contract format and expiry summary header; cost analysis documented at `docs/COST_ANALYSIS.md` (~$0.20/analysis typical)
+
+- **Desktop comparison table polish** — shared IV ENV row spans all 3 strategy columns (`grid-column: 2 / -1`); `IVGauge` restored (semicircle recharts, `hideIV` prop added to GreeksGrid so IV doesn't repeat per-column); Greek symbols added (Δ Θ ν Γ); bull/bear/base scenario arrows (↑ → ↓); chart title `.card-label` styled; double-padding in DETAILS row fixed; checklist border-top removed inside `.dct-cell` context
+
+- **Checklist toggle layout** — toggle button is now two-row: title + dot on row 1, score summary on row 2; score format changed to `X/N passed · Y failed` for clarity
+
 - **TradeCard terminal redesign** — full Bloomberg/thinkorswim aesthetic: monospace header line, two-row data grid (STRIKES/EXPIRY/DTE/ENTRY/MAX WIN/MAX LOSS/B/E + IV RANK/DELTA/PROB/R/R), tab bar (SUMMARY | GREEKS | ANALYSIS), ASCII IV bar and probability bars, dot risk meter; ~924 lines of old card CSS removed
 
 - **Risk tier ordering fix** — Strategist prompt now enforces conservative < moderate < aggressive max loss; Critic check #6 flags moderate > aggressive as HIGH severity to trigger retry
