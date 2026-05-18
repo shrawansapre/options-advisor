@@ -138,6 +138,7 @@
 .auth-modal-header {
   background: var(--surface);
   padding: 12px 16px 0;
+  border-bottom: none;
 }
 
 .auth-modal-body {
