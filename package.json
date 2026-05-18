@@ -10,11 +10,9 @@
   },
   "dependencies": {
     "@mantine/core": "^8.3.18",
-    "@mantine/hooks": "^8.3.18",
     "@supabase/supabase-js": "^2.105.1",
     "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.38.0",
-    "html-to-image": "^1.11.13",
     "html2canvas-pro": "^2.0.2",
     "jsonrepair": "^3.14.0",
     "lucide-react": "^1.14.0",
