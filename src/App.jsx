@@ -20,7 +20,7 @@ const LearnPage = lazy(() => import("./components/Learn"));
 export default function App() {
   const [ticker, setTicker] = useState("");
   const [dark, toggleDark] = useTheme();
-  const { analyses, activeId, active, setActiveId, openTab, closeTab, update, handleSelectCached } = useAnalysisState();
+  const { analyses, activeId, active, setActiveId, openTab, closeTab, update, handleSelectCached, resetState } = useAnalysisState();
   const { history, addEntry, updateEntry, clearHistory } = useSearchHistory();
   const { user, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
@@ -271,7 +271,7 @@ export default function App() {
       {showUserMenu && (
         <div className="user-menu" style={{ top: menuPos.top, right: menuPos.right }} onClick={() => setShowUserMenu(false)}>
           <div className="user-menu-email">{user?.email}</div>
-          <button className="user-menu-item" onClick={signOut}>
+          <button className="user-menu-item" onClick={() => { resetState(); signOut(); }}>
             <LogOut size={12} /> Sign out
           </button>
         </div>
