@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Accordion } from "@mantine/core";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChevronRight, ChevronDown } from "lucide-react";
 import ShareMenu from "./TradeCard/ShareMenu";
 import { checklistAuditorBatch } from "../agents/checklistAuditor";
 import { PayoffChart, ThetaDecayChart } from "./TradeCharts";
@@ -345,7 +345,7 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
                       const rows = [
                         <div key={name} className="mcv-row mcv-audit-section-row" onClick={() => toggleSection(name)}>
                           <div className="mcv-row-label mcv-audit-section-label">
-                            <span className="mcv-audit-chevron-icon">{isOpen ? "▼" : "▶"}</span>
+                            <span className="mcv-audit-chevron-icon">{isOpen ? <ChevronDown size={8} /> : <ChevronRight size={8} />}</span>
                             <span className="mcv-audit-abbr">{SECTION_ABBR[name] ?? name.slice(0, 4)}</span>
                           </div>
                           {auditResults.map((r, i) => (

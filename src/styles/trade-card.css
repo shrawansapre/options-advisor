@@ -1893,7 +1893,7 @@
   gap: 0.08rem;
   padding: 0.25rem 0.05rem;
 }
-.mcv-audit-chevron-icon { font-size: 0.45rem; color: var(--t3); }
+.mcv-audit-chevron-icon { display: flex; align-items: center; justify-content: center; color: var(--t3); }
 .mcv-audit-abbr {
   font-size: 0.43rem;
   font-weight: 700;
