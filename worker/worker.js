@@ -166,16 +166,18 @@ async function handleMarket(req, env) {
     const allExpirations = extractExpirations(expData);
     if (!allExpirations.length) throw new Error('no expirations');
 
-    // All expiries in 7–365 DTE range — gives strategists the full landscape
-    // to choose from (weeklies for event plays, LEAPS for conservative trades).
-    // Capped at 20 to keep prompt tokens reasonable (~12k tokens worst case).
-    const expirations = allExpirations
-      .filter(exp => { const d = daysToExpiry(exp); return d >= 7 && d <= 365; })
-      .slice(0, 20);
-    const selected = expirations.length > 0 ? expirations : allExpirations.slice(0, 6);
+    // Tiered selection: 2 near (7–45d), 2 mid (45–120d), 2 far (120–365d)
+    // Covers event plays, standard trades, and conservative LEAPS.
+    const withDTE = allExpirations.map(exp => ({ exp, dte: daysToExpiry(exp) }));
+    const pick = (min, max, n) => withDTE.filter(e => e.dte >= min && e.dte < max).slice(0, n).map(e => e.exp);
+    const tiered = [...pick(7, 45, 2), ...pick(45, 120, 2), ...pick(120, 365, 2)];
+    const selected = (tiered.length > 0 ? tiered : allExpirations.slice(0, 6)).sort();
 
+    // Use from/to range (tested, reliable) — extractChains filters to selected dates only
+    const from = selected[0];
+    const to = selected[selected.length - 1];
     const chainRes = await fetch(
-      `${base}/options/chain/${ticker}/?expiration=${selected.join(',')}&strikeLimit=10&delta=.05-.95`,
+      `${base}/options/chain/${ticker}/?from=${from}&to=${to}&strikeLimit=10&delta=.05-.95`,
       { headers }
     );
     if (!chainRes.ok) throw new Error('chain fetch failed');
