@@ -1,3 +1,5 @@
+import { tallyItems } from "../utils.jsx";
+
 function isCreditStrategy(strategy) {
   return /credit|iron condor|covered call|cash.secured|bull put|bear call/i.test(strategy || "");
 }
@@ -176,15 +178,5 @@ export function runLocalChecks(trade) {
   const sections = results.map(r => r.section);
   const criticalFlags = results.flatMap(r => r.criticalFlags);
 
-  let passed = 0, failed = 0, warnings = 0, needsInput = 0;
-  for (const s of sections) {
-    for (const item of s.items) {
-      if (item.status === "pass") passed++;
-      else if (item.status === "fail") failed++;
-      else if (item.status === "warning") warnings++;
-      else needsInput++;
-    }
-  }
-
-  return { sections, criticalFlags, overallScore: { passed, failed, warnings, needsInput, total: passed + failed + warnings + needsInput } };
+  return { sections, criticalFlags, overallScore: tallyItems(sections) };
 }

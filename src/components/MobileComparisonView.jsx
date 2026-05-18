@@ -4,7 +4,7 @@ import { AlertTriangle, ChevronRight, ChevronDown } from "lucide-react";
 import ShareMenu from "./TradeCard/ShareMenu";
 import { checklistAuditorBatch } from "../agents/checklistAuditor";
 import { PayoffChart, ThetaDecayChart } from "./TradeCharts";
-import { parseBold } from "../utils";
+import { parseBold, TIER_COLOR, TIER_LABEL, formatRRRatio, formatDelta } from "../utils";
 
 const SECTION_ABBR = {
   "DTE Rules": "DTE",
@@ -44,9 +44,6 @@ function sectionCellClass(result, name) {
   if (items.every(i => i.status === "needs_input")) return "mcv-cell--audit-ni";
   return "mcv-cell--audit-pass";
 }
-
-const TIER_COLOR = { conservative: "green", moderate: "amber", aggressive: "red" };
-const TIER_LABEL = { conservative: "Conservative", moderate: "Moderate", aggressive: "Aggressive" };
 
 function Row({ label, values, cellClass, cellClasses }) {
   return (
@@ -95,15 +92,7 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
   const td = trades.map(trade => {
     const isSpread = !!trade.strike2;
     const strikeDisplay = isSpread ? `$${trade.strike}/$${trade.strike2}` : `$${trade.strike}`;
-    const maxProfitNum = parseFloat((trade.maxProfit ?? "").replace(/[^0-9.]/g, ""));
-    const maxLossNum   = parseFloat((trade.maxLoss   ?? "").replace(/[^0-9.]/g, ""));
-    const rrRatio = (!isNaN(maxProfitNum) && !isNaN(maxLossNum) && maxLossNum > 0)
-      ? (maxProfitNum / maxLossNum).toFixed(1) + ":1" : "—";
-    const deltaRaw = trade.greeks?.delta?.value;
-    const deltaDisplay = deltaRaw != null
-      ? (isNaN(+deltaRaw) ? deltaRaw : (+deltaRaw).toFixed(2))
-      : "—";
-    return { ...trade, strikeDisplay, rrRatio, deltaDisplay };
+    return { ...trade, strikeDisplay, rrRatio: formatRRRatio(trade), deltaDisplay: formatDelta(trade) };
   });
 
   return (

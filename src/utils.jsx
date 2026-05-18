@@ -1,4 +1,31 @@
 export const STRATEGY_COLORS = { bullish: "var(--green)", bearish: "var(--red)", neutral: "var(--amber)" };
+export const TIER_COLOR = { conservative: "green", moderate: "amber", aggressive: "red" };
+export const TIER_LABEL = { conservative: "Conservative", moderate: "Moderate", aggressive: "Aggressive" };
+
+export function tallyItems(sections) {
+  let passed = 0, failed = 0, warnings = 0, needsInput = 0;
+  for (const s of sections) {
+    for (const item of s.items || []) {
+      if (item.status === "pass") passed++;
+      else if (item.status === "fail") failed++;
+      else if (item.status === "warning") warnings++;
+      else needsInput++;
+    }
+  }
+  return { passed, failed, warnings, needsInput, total: passed + failed + warnings + needsInput };
+}
+
+export function formatRRRatio(trade) {
+  const p = parseFloat((trade.maxProfit ?? "").replace(/[^0-9.]/g, ""));
+  const l = parseFloat((trade.maxLoss   ?? "").replace(/[^0-9.]/g, ""));
+  return (!isNaN(p) && !isNaN(l) && l > 0) ? (p / l).toFixed(1) + ":1" : "—";
+}
+
+export function formatDelta(trade) {
+  const raw = trade.greeks?.delta?.value;
+  if (raw == null) return "—";
+  return isNaN(+raw) ? raw : (+raw).toFixed(2);
+}
 
 export function stripCitations(text) {
   if (!text) return text;

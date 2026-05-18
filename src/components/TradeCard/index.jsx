@@ -11,6 +11,7 @@ import ThesisRisk from "./ThesisRisk";
 import ScenariosSection from "./ScenariosSection";
 import SignalsSection from "./SignalsSection";
 import ChecklistSection from "./ChecklistSection";
+import { formatRRRatio } from "../../utils";
 
 export default function TradeCard({ trade, index, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel, activeTab, onTabChange }) {
   const { summary, entryTiming, exitStrategy, predictions, greeks,
@@ -27,11 +28,7 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
   const isSpread = !!trade.strike2;
   const strikeDisplay = isSpread ? `$${trade.strike}/$${trade.strike2}` : `$${trade.strike}`;
 
-  const maxProfitNum = parseFloat((trade.maxProfit ?? "").replace(/[^0-9.]/g, ""));
-  const maxLossNum   = parseFloat((trade.maxLoss   ?? "").replace(/[^0-9.]/g, ""));
-  const rrRatio = (!isNaN(maxProfitNum) && !isNaN(maxLossNum) && maxLossNum > 0)
-    ? (maxProfitNum / maxLossNum).toFixed(1) + ":1"
-    : "—";
+  const rrRatio = formatRRRatio(trade);
 
   const probDisplay = predictions?.baseCase?.probability ?? "—";
 

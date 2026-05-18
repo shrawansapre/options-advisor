@@ -10,24 +10,16 @@ import GreeksGrid from "./TradeCard/GreeksGrid";
 import ScenariosSection from "./TradeCard/ScenariosSection";
 import ChecklistSection from "./TradeCard/ChecklistSection";
 import IVGauge from "./IVGauge";
-import { parseBold } from "../utils";
+import { parseBold, TIER_COLOR, formatRRRatio, formatDelta } from "../utils";
 import { PayoffChart, ThetaDecayChart } from "./TradeCharts";
-
-const TIER_COLOR = { conservative: "green", moderate: "amber", aggressive: "red" };
 
 function DataGrid({ trade }) {
   const isSpread = !!trade.strike2;
   const strikeDisplay = isSpread ? `$${trade.strike}/$${trade.strike2}` : `$${trade.strike}`;
 
-  const maxProfitNum = parseFloat((trade.maxProfit ?? "").replace(/[^0-9.]/g, ""));
-  const maxLossNum   = parseFloat((trade.maxLoss   ?? "").replace(/[^0-9.]/g, ""));
-  const rrRatio = (!isNaN(maxProfitNum) && !isNaN(maxLossNum) && maxLossNum > 0)
-    ? (maxProfitNum / maxLossNum).toFixed(1) + ":1" : "—";
+  const rrRatio = formatRRRatio(trade);
   const probDisplay = trade.predictions?.baseCase?.probability ?? "—";
-  const deltaRaw = trade.greeks?.delta?.value;
-  const deltaDisplay = deltaRaw != null
-    ? (isNaN(+deltaRaw) ? deltaRaw : (+deltaRaw).toFixed(2))
-    : "—";
+  const deltaDisplay = formatDelta(trade);
 
   return (
     <div className="dct-data-grid">

@@ -2,24 +2,16 @@ import { callAPI } from "../lib/claude.js";
 import { buildLiveDataBlock } from "../orchestrator.js";
 import { CHECKLIST_AUDITOR_SYSTEM_PROMPT } from "../prompts/checklist.js";
 import { runLocalChecks } from "./checklistLocal.js";
+import { tallyItems } from "../utils.jsx";
 
 function mergeLocalAndAI(trade, localResult, aiAudit) {
   const allSections = [...localResult.sections, ...(aiAudit?.sections || [])];
   const allCriticalFlags = [...localResult.criticalFlags, ...(aiAudit?.criticalFlags || [])];
-  let passed = 0, failed = 0, warnings = 0, needsInput = 0;
-  for (const s of allSections) {
-    for (const item of s.items || []) {
-      if (item.status === "pass") passed++;
-      else if (item.status === "fail") failed++;
-      else if (item.status === "warning") warnings++;
-      else needsInput++;
-    }
-  }
   return {
     riskTier: trade.riskTier,
     sections: allSections,
     criticalFlags: allCriticalFlags,
-    overallScore: { passed, failed, warnings, needsInput, total: passed + failed + warnings + needsInput },
+    overallScore: tallyItems(allSections),
     summary: aiAudit?.summary || "",
   };
 }

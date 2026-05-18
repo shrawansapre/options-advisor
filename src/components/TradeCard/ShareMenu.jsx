@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas-pro";
 import { Copy, Download, Share2 } from "lucide-react";
 import { formatTradeAsMarkdown } from "../../utils";
@@ -21,8 +21,7 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     return () => document.removeEventListener("mousedown", onOutsideClick);
   }, [shareOpen]);
 
-  // Clone snapshot into preview container whenever preview becomes visible
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!previewPos || !snapshotRef.current || !previewRef.current) return;
     const clone = snapshotRef.current.cloneNode(true);
     clone.style.position = "relative";
@@ -54,14 +53,13 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
   function handleDownloadEnter() {
     if (window.innerWidth < 900 || !btnRef.current || !snapshotRef.current) return;
     const r = btnRef.current.getBoundingClientRect();
-    // Anchor preview to the right of the button, offset left past the dropdown (182px) + gap
     setPreviewPos({ top: r.bottom + 6, right: window.innerWidth - r.right + 190 });
   }
 
-  async function captureSnapshot() {
+  async function captureCanvas() {
     const el = snapshotRef.current;
     const bg = window.getComputedStyle(el).backgroundColor || "#ffffff";
-    const canvas = await html2canvas(el, {
+    return html2canvas(el, {
       scale: Math.max(3, window.devicePixelRatio || 3),
       useCORS: true,
       logging: false,
@@ -72,7 +70,6 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
         clonedEl.style.top = "auto";
       },
     });
-    return canvas.toDataURL("image/png");
   }
 
   async function handleDownloadImage() {
@@ -81,7 +78,7 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     if (!snapshotRef.current) return;
     setImgLoading(true);
     try {
-      const dataUrl = await captureSnapshot();
+      const dataUrl = (await captureCanvas()).toDataURL("image/png");
       const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
       if (isIOS) {
         window.open(dataUrl, "_blank");
@@ -101,13 +98,15 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
   async function handleNativeShare() {
     setShareOpen(false);
     try {
-      const dataUrl = snapshotRef.current ? await captureSnapshot() : null;
+      let file = null;
+      if (snapshotRef.current) {
+        const canvas = await captureCanvas();
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+        file = new File([blob], `${trade.ticker}-analysis.png`, { type: "image/png" });
+      }
       const title = `${trade.ticker} Options Analysis`;
       const text = trade.summary?.headline ?? "";
-      if (dataUrl) {
-        const res = await fetch(dataUrl);
-        const blob = await res.blob();
-        const file = new File([blob], `${trade.ticker}-analysis.png`, { type: "image/png" });
+      if (file) {
         const payload = { title, text, files: [file] };
         if (navigator.canShare?.(payload)) { await navigator.share(payload); return; }
       }

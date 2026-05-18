@@ -120,7 +120,7 @@ export default function ChecklistSection({ trade, chainData, initialResult, noHe
           )}
           <div className="checklist-sections">
             {(result.sections ?? []).map((section, i) => (
-              <AuditSection key={i} section={section} defaultOpen={noHeader || undefined} />
+              <AuditSection key={i} section={section} defaultOpen={noHeader ? true : undefined} />
             ))}
           </div>
         </div>
