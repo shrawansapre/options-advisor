@@ -29,12 +29,13 @@ export function buildLiveDataBlock(marketData) {
 
   let block = `[LIVE MARKET DATA — fetched ${fetchTime} ET]\n`;
   block += `Stock: ${marketData.ticker} @ $${quote.last} (${(quote.changePercent ?? 0) >= 0 ? "+" : ""}${quote.changePercent?.toFixed(1) ?? "0.0"}%) | Bid: $${quote.bid} | Ask: $${quote.ask}\n`;
-  block += `IV: ${iv} | IV Rank: ${ivRankStr}\n\nOptions Chain:\n`;
+  block += `IV: ${iv} | IV Rank: ${ivRankStr}\n`;
+  block += `Available expiries: ${chains.map(c => `${c.expiry}(${c.daysToExpiry}d)`).join(", ")}\n\nOptions Chain:\n`;
 
   for (const chain of chains) {
     block += `${chain.expiry} (${chain.daysToExpiry} DTE):\n`;
     for (const o of chain.options) {
-      block += `  ${o.strike} ${o.type} | bid: $${g(o.bid, 2)} | ask: $${g(o.ask, 2)} | Δ ${g(o.delta, 2)} | θ ${g(o.theta, 2)} | γ ${g(o.gamma, 3)} | ν ${g(o.vega, 2)} | IV: ${o.iv != null ? (o.iv * 100).toFixed(1) + "%" : "n/a"} | vol: ${o.volume ?? "n/a"}\n`;
+      block += `  ${o.strike}${o.type[0]} bid:$${g(o.bid,2)} ask:$${g(o.ask,2)} Δ${g(o.delta,2)} θ${g(o.theta,2)} IV:${o.iv!=null?(o.iv*100).toFixed(0)+"%" :"n/a"} OI:${o.openInterest??"-"}\n`;
     }
     block += "\n";
   }

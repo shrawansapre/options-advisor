@@ -165,20 +165,21 @@ async function handleMarket(req, env) {
 
     const allExpirations = extractExpirations(expData);
     if (!allExpirations.length) throw new Error('no expirations');
-    const nearTerm = allExpirations.filter(exp => {
-      const dte = daysToExpiry(exp);
-      return dte >= 21 && dte <= 120;
-    });
-    const expirations = (nearTerm.length > 0 ? nearTerm : allExpirations).slice(0, 3);
 
-    const from = expirations[0];
-    const to = expirations[expirations.length - 1];
+    // All expiries in 7–365 DTE range — gives strategists the full landscape
+    // to choose from (weeklies for event plays, LEAPS for conservative trades).
+    // Capped at 20 to keep prompt tokens reasonable (~12k tokens worst case).
+    const expirations = allExpirations
+      .filter(exp => { const d = daysToExpiry(exp); return d >= 7 && d <= 365; })
+      .slice(0, 20);
+    const selected = expirations.length > 0 ? expirations : allExpirations.slice(0, 6);
+
     const chainRes = await fetch(
-      `${base}/options/chain/${ticker}/?from=${from}&to=${to}&strikeLimit=5&delta=.05-.95`,
+      `${base}/options/chain/${ticker}/?expiration=${selected.join(',')}&strikeLimit=10&delta=.05-.95`,
       { headers }
     );
     if (!chainRes.ok) throw new Error('chain fetch failed');
-    const chains = extractChains(await chainRes.json(), quote.last, expirations);
+    const chains = extractChains(await chainRes.json(), quote.last, selected);
 
     const result = {
       ticker,
