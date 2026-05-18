@@ -663,12 +663,13 @@ body {
 
 .signin-nudge-btn {
   padding: 4px 10px; border-radius: var(--r-sm);
-  background: var(--navy); color: #fff; border: none;
+  background: var(--navy); color: var(--bg); border: none;
   font-family: var(--mono); font-size: 11px; font-weight: 500;
   cursor: pointer; white-space: nowrap;
   transition: background 0.15s;
 }
 .signin-nudge-btn:hover { background: #162d4a; }
+[data-mantine-color-scheme="dark"] .signin-nudge-btn:hover { background: rgba(243,240,233,0.85); }
 
 .empty-hint {
   text-align: center;
