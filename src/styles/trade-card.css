@@ -2050,3 +2050,9 @@
   background: none;
 }
 
+.tc-mantine-tabs__tab[data-active]:hover {
+  background: none;
+  color: var(--navy);
+  border-bottom-color: var(--navy);
+}
+
