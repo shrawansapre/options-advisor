@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Moon, Sun, LogOut, X } from "lucide-react";
 import { fetchRecommendation } from "./api";
-import { fmtElapsed } from "./utils";
+import { fmtElapsed, stripCitations } from "./utils";
 import { useSearchHistory, SearchHistory } from "./components/SearchHistory";
 import LoadingMessages from "./components/LoadingMessages";
 import MultiTradeView from "./components/MultiTradeView";
@@ -234,7 +234,7 @@ export default function App() {
                       </span>
                     )}
                   </div>
-                  <p className="market-text">{active.result.marketContext}</p>
+                  <p className="market-text">{stripCitations(active.result.marketContext)}</p>
                 </div>
               )}
               <MultiTradeView

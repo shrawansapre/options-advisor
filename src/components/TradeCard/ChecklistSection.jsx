@@ -77,10 +77,10 @@ export default function ChecklistSection({ trade, chainData }) {
     const { passed = 0, failed = 0, warnings = 0, needsInput = 0 } = result.overallScore ?? {};
     return (
       <span className="checklist-score-inline">
-        <span className="checklist-score-pass">{passed} ✓</span>
-        {failed > 0 && <span className="checklist-score-fail"> · {failed} ✗</span>}
-        {warnings > 0 && <span className="checklist-score-warn"> · {warnings} ⚠</span>}
-        {needsInput > 0 && <span className="checklist-score-input"> · {needsInput} ?</span>}
+        <span className="checklist-score-pass">{passed}✓</span>
+        {failed > 0 && <span className="checklist-score-fail">{failed}✗</span>}
+        {warnings > 0 && <span className="checklist-score-warn">{warnings}⚠</span>}
+        {needsInput > 0 && <span className="checklist-score-input">{needsInput}?</span>}
       </span>
     );
   }

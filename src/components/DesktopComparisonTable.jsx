@@ -119,11 +119,15 @@ export default function DesktopComparisonTable({ trades, chainData, analysedAt, 
       ),
     },
     {
-      key: "analysis",
-      label: "ANALYSIS",
+      key: "scenarios",
+      label: "SCENARIOS",
+      render: (trade) => <ScenariosSection predictions={trade.predictions} />,
+    },
+    {
+      key: "charts",
+      label: "CHARTS",
       render: (trade) => (
         <>
-          <ScenariosSection predictions={trade.predictions} />
           <PayoffChart trade={trade} />
           <ThetaDecayChart trade={trade} analysedAt={analysedAt} />
         </>
@@ -133,49 +137,50 @@ export default function DesktopComparisonTable({ trades, chainData, analysedAt, 
 
   return (
     <div className="dct">
-      {/* Single shared header — ticker/price/live/time shown once */}
-      <div className="dct-header">
-        <span className="tc-ticker">{first.ticker}</span>
-        <span className="tc-price">${first.currentPrice}</span>
-        <span className="tc-sep">·</span>
-        <span className={`tc-data-badge tc-data-badge--${hasLiveData ? "live" : "web"}`}>
-          {hasLiveData ? "Live" : "Web"}
-        </span>
-        {analysedAt && (
-          <span className="tc-time">
-            {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+      {/* Sticky wrapper — spans all columns so both header rows stick together */}
+      <div className="dct-sticky">
+        <div className="dct-header">
+          <span className="tc-ticker">{first.ticker}</span>
+          <span className="tc-price">${first.currentPrice}</span>
+          <span className="tc-sep">·</span>
+          <span className={`tc-data-badge tc-data-badge--${hasLiveData ? "live" : "web"}`}>
+            {hasLiveData ? "Live" : "Web"}
           </span>
-        )}
-      </div>
+          {analysedAt && (
+            <span className="tc-time">
+              {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+        </div>
 
-      {/* Column headers row — one per strategy */}
-      <div className="dct-col-headers">
-        <div className="dct-label-spacer" />
-        {trades.map((trade, i) => {
-          const color = TIER_COLOR[trade.riskTier] ?? "amber";
-          const expired = trade.expiry && analysedAt && new Date(trade.expiry) < analysedAt;
-          return (
-            <div key={i} className={`dct-col-header dct-col-header--${color}`}>
-              <div className="dct-col-header-row">
-                <span className={`dct-tier-label dct-tier-label--${color}`}>
-                  {trade.riskTier?.toUpperCase() ?? `OPTION ${i + 1}`}
-                </span>
-                <ShareMenu
-                  trade={trade}
-                  analysedAt={analysedAt}
-                  marketContext={marketContext}
-                  snapshotRef={{ current: null }}
-                />
-              </div>
-              <span className="dct-strategy-name">{trade.strategy}</span>
-              {expired && (
-                <div className="dct-expired-badge">
-                  <AlertTriangle size={10} /> Expired
+        <div className="dct-col-headers">
+          <div className="dct-label-spacer" />
+          {trades.map((trade, i) => {
+            const color = TIER_COLOR[trade.riskTier] ?? "amber";
+            const expired = trade.expiry && analysedAt && new Date(trade.expiry) < analysedAt;
+            return (
+              <div key={i} className={`dct-col-header dct-col-header--${color}`}>
+                <div className="dct-col-header-row">
+                  <span className={`dct-tier-label dct-tier-label--${color}`}>
+                    {trade.riskTier?.toUpperCase() ?? `OPTION ${i + 1}`}
+                  </span>
+                  <ShareMenu
+                    trade={trade}
+                    analysedAt={analysedAt}
+                    marketContext={marketContext}
+                    snapshotRef={{ current: null }}
+                  />
                 </div>
-              )}
-            </div>
-          );
-        })}
+                <span className="dct-strategy-name">{trade.strategy}</span>
+                {expired && (
+                  <div className="dct-expired-badge">
+                    <AlertTriangle size={10} /> Expired
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Section rows */}

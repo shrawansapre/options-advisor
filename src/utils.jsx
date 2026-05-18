@@ -1,5 +1,10 @@
 export const STRATEGY_COLORS = { bullish: "var(--green)", bearish: "var(--red)", neutral: "var(--amber)" };
 
+export function stripCitations(text) {
+  if (!text) return text;
+  return text.replace(/<cite[^>]*>|<\/cite>/g, "");
+}
+
 export function parseBold(text) {
   if (!text) return null;
   return text.split(/\*\*(.*?)\*\*/g).map((part, i) =>
