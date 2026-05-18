@@ -346,8 +346,8 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
                       const rows = [
                         <div key={name} className="mcv-row mcv-audit-section-row" onClick={() => toggleSection(name)}>
                           <div className="mcv-row-label mcv-audit-section-label">
-                            <span className="mcv-audit-chevron-icon">{isOpen ? <ChevronDown size={8} /> : <ChevronRight size={8} />}</span>
-                            <span className="mcv-audit-abbr">{SECTION_ABBR[name] ?? name.slice(0, 4)}</span>
+                              <span className="mcv-audit-abbr">{SECTION_ABBR[name] ?? name.slice(0, 4)}</span>
+                          <span className="mcv-audit-chevron-icon">{isOpen ? <ChevronDown size={8} /> : <ChevronRight size={8} />}</span>
                           </div>
                           {auditResults.map((r, i) => (
                             <div key={i} className={`mcv-cell ${sectionCellClass(r, name)}`}>{sectionSummary(r, name)}</div>
