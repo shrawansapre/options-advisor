@@ -33,11 +33,11 @@
 
 [data-mantine-color-scheme="dark"] {
   --bg:          #0D1B2A;
-  --surface:     #1A3352;
-  --surface-2:   #1F3D60;
-  --surface-3:   #25476E;
-  --border:      rgba(243,240,233,0.11);
-  --border-2:    rgba(243,240,233,0.06);
+  --surface:     #122338;
+  --surface-2:   #172D46;
+  --surface-3:   #1C3654;
+  --border:      rgba(243,240,233,0.09);
+  --border-2:    rgba(243,240,233,0.05);
   --navy:        #F3F0E9;
   --navy-light:  rgba(243,240,233,0.1);
   --green:       #4ADE80;
