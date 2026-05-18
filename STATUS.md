@@ -60,6 +60,14 @@
 - **Placeholder simplified** — search input placeholder changed to "Enter a ticker"
 - **Console.log removed** — removed `console.error` from analyze error handler
 
+- **Mobile comparison view overhaul** — replaced mobile switcher with 3-column sticky-header comparison grid (MobileComparisonView); all sections (DETAILS, METRICS, THESIS, ENTRY, EXIT, GREEKS, SCENARIOS, SIGNALS, CHECKLIST, CHARTS) collapsible via chevron toggle; expanded checklist sections show per-column item detail (status + value + note) within the 3-column grid instead of a full-width panel; section label column shows stacked chevron + abbreviated name
+
+- **Trade Discipline Checklist** — single "Run Checklist" button triggers 3 parallel Haiku calls (one per trade tier); fixed blank moderate/aggressive columns caused by batch call's sparse schema example and token budget; results persisted to localStorage/Supabase via onAuditComplete; cached results pre-populate on reload for both mobile and desktop; desktop: full-width header row with single "Run Checklist" button, per-column results rendered directly (no per-column toggle buttons), all sections auto-expanded; checklist section summary shows "x/x passed" format
+
+- **Citation strip** — `<cite>` tags from web search tool stripped from market summary banner via `stripCitations()` in utils
+
+- **COST_ANALYSIS.md updated** — Trade Discipline Checklist adds ~$0.023/run (3 × 1200-token Haiku calls, one-time cost per analysis due to caching)
+
 ## Known Issues / Next Up
 
 - Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)
