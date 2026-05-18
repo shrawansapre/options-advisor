@@ -30,7 +30,7 @@ export default function AuthModal({ onClose }) {
     <Modal
       opened
       onClose={onClose}
-      title="Sign in"
+      aria-label="Sign in"
       centered
       withCloseButton
       size="sm"

@@ -66,6 +66,7 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   min-height: 100dvh;
+  scrollbar-gutter: stable;
 }
 
 /* ─── Header ───────────────────────────────────────────────────────────── */
@@ -233,6 +234,8 @@ body {
   background: #1E3A5F; color: #fff; border: none; margin-bottom: 0;
 }
 .modal-btn--google:hover { background: #162d4a; }
+[data-mantine-color-scheme="dark"] .modal-btn--google { background: var(--navy); color: var(--bg); }
+[data-mantine-color-scheme="dark"] .modal-btn--google:hover { background: rgba(243,240,233,0.85); }
 .modal-btn--email {
   background: var(--surface-2); color: var(--t1);
   border: 1px solid var(--border);
