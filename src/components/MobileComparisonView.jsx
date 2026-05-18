@@ -119,7 +119,7 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
           </span>
           {analysedAt && (
             <span className="mcv-time">
-              {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+              {analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · {analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
             </span>
           )}
         </div>

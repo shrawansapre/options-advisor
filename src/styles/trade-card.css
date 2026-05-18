@@ -302,10 +302,9 @@
 .mtv-mobile { display: none; }
 @media (max-width: 900px) { .mtv-mobile { display: block; } }
 
-/* Flat card on mobile — no rounded corners so there's no gap below the app header */
 @media (max-width: 600px) {
   .mtv-mobile .mcv {
-    border-radius: 0;
+    border-radius: var(--r-xl);
     border-left: none;
     border-right: none;
   }
@@ -498,28 +497,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
+  padding: 4px;
+  border-radius: 4px;
+  border: none;
   background: transparent;
-  color: var(--t2);
+  color: var(--t3);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: color 0.15s;
 }
 
 .share-trigger-btn:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 
 .share-trigger-btn:hover,
 .share-trigger-btn--open {
-  background: var(--navy);
-  color: #fff;
-  border-color: var(--navy);
+  color: var(--t1);
 }
 
 [data-mantine-color-scheme="dark"] .share-trigger-btn:hover,
 [data-mantine-color-scheme="dark"] .share-trigger-btn--open {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.25);
   color: #fff;
 }
 
@@ -533,6 +528,25 @@
   max-width: calc(100vw - 20px);
   z-index: 200;
   overflow: hidden;
+}
+
+.share-preview-popup {
+  position: fixed;
+  z-index: 199;
+  pointer-events: none;
+  width: 400px;
+  transform: scale(0.55);
+  transform-origin: top right;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.22);
+  border: 1px solid var(--border);
+  animation: share-preview-fade 0.12s ease;
+}
+
+@keyframes share-preview-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .share-menu-item {
@@ -1472,7 +1486,7 @@
 .mcv {
   font-family: var(--mono);
   border: 1px solid var(--border);
-  border-radius: var(--r-md);
+  border-radius: var(--r-xl);
   overflow: clip; /* clip keeps border-radius clipping without breaking sticky */
   background: var(--surface);
 }

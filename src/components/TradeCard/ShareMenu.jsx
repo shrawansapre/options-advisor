@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { toPng } from "html-to-image";
+import html2canvas from "html2canvas-pro";
 import { Copy, Download, Share2 } from "lucide-react";
 import { formatTradeAsMarkdown } from "../../utils";
 
@@ -7,8 +7,10 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
   const [shareOpen, setShareOpen] = useState(false);
   const [imgLoading, setImgLoading] = useState(false);
   const [dropPos, setDropPos] = useState(null);
+  const [previewPos, setPreviewPos] = useState(null);
   const shareRef = useRef(null);
   const btnRef = useRef(null);
+  const previewRef = useRef(null);
 
   useEffect(() => {
     if (!shareOpen) return;
@@ -18,6 +20,16 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     document.addEventListener("mousedown", onOutsideClick);
     return () => document.removeEventListener("mousedown", onOutsideClick);
   }, [shareOpen]);
+
+  // Clone snapshot into preview container whenever preview becomes visible
+  useEffect(() => {
+    if (!previewPos || !snapshotRef.current || !previewRef.current) return;
+    const clone = snapshotRef.current.cloneNode(true);
+    clone.style.position = "relative";
+    clone.style.left = "auto";
+    clone.style.top = "auto";
+    previewRef.current.replaceChildren(clone);
+  }, [previewPos]);
 
   function handleToggle() {
     const next = !shareOpen;
@@ -39,17 +51,37 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     navigator.clipboard.writeText(md).catch(() => {});
   }
 
-  function snapshotOptions() {
-    const bg = window.getComputedStyle(snapshotRef.current).backgroundColor;
-    return { pixelRatio: 2, skipFonts: true, backgroundColor: bg, cacheBust: true };
+  function handleDownloadEnter() {
+    if (window.innerWidth < 900 || !btnRef.current || !snapshotRef.current) return;
+    const r = btnRef.current.getBoundingClientRect();
+    // Anchor preview to the right of the button, offset left past the dropdown (182px) + gap
+    setPreviewPos({ top: r.bottom + 6, right: window.innerWidth - r.right + 190 });
+  }
+
+  async function captureSnapshot() {
+    const el = snapshotRef.current;
+    const bg = window.getComputedStyle(el).backgroundColor || "#ffffff";
+    const canvas = await html2canvas(el, {
+      scale: Math.max(3, window.devicePixelRatio || 3),
+      useCORS: true,
+      logging: false,
+      backgroundColor: bg,
+      onclone: (_doc, clonedEl) => {
+        clonedEl.style.position = "relative";
+        clonedEl.style.left = "auto";
+        clonedEl.style.top = "auto";
+      },
+    });
+    return canvas.toDataURL("image/png");
   }
 
   async function handleDownloadImage() {
     setShareOpen(false);
+    setPreviewPos(null);
     if (!snapshotRef.current) return;
     setImgLoading(true);
     try {
-      const dataUrl = await toPng(snapshotRef.current, snapshotOptions());
+      const dataUrl = await captureSnapshot();
       const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
       if (isIOS) {
         window.open(dataUrl, "_blank");
@@ -69,9 +101,7 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
   async function handleNativeShare() {
     setShareOpen(false);
     try {
-      const dataUrl = snapshotRef.current
-        ? await toPng(snapshotRef.current, snapshotOptions())
-        : null;
+      const dataUrl = snapshotRef.current ? await captureSnapshot() : null;
       const title = `${trade.ticker} Options Analysis`;
       const text = trade.summary?.headline ?? "";
       if (dataUrl) {
@@ -95,13 +125,20 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
       >
         <Share2 size={13} />
       </button>
+
       {shareOpen && dropPos && (
         <div className="share-menu" style={{ top: dropPos.top, ...(dropPos.right != null ? { right: dropPos.right } : { left: dropPos.left }) }}>
           <button className="share-menu-item" onClick={handleCopyMarkdown}>
             <Copy size={14} />
             Copy markdown
           </button>
-          <button className="share-menu-item" onClick={handleDownloadImage} disabled={imgLoading}>
+          <button
+            className="share-menu-item"
+            onClick={handleDownloadImage}
+            disabled={imgLoading}
+            onMouseEnter={handleDownloadEnter}
+            onMouseLeave={() => setPreviewPos(null)}
+          >
             <Download size={14} />
             {imgLoading ? "Generating…" : "Download image"}
           </button>
@@ -111,6 +148,15 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
               Share…
             </button>
           )}
+        </div>
+      )}
+
+      {previewPos && (
+        <div
+          className="share-preview-popup"
+          style={{ top: previewPos.top, right: previewPos.right }}
+        >
+          <div ref={previewRef} />
         </div>
       )}
     </div>
