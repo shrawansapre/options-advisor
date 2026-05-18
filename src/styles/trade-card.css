@@ -451,6 +451,10 @@
   overflow: hidden;
   margin-bottom: 28px;
 }
+[data-mantine-color-scheme="dark"] .trade-card {
+  background: #1A3352;
+  border-color: rgba(243,240,233,0.12);
+}
 
 .trade-analysis-time {
   display: inline-flex;
@@ -503,6 +507,8 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
+.share-trigger-btn:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+
 .share-trigger-btn:hover,
 .share-trigger-btn--open {
   background: var(--navy);
@@ -510,8 +516,8 @@
   border-color: var(--navy);
 }
 
-[data-theme="dark"] .share-trigger-btn:hover,
-[data-theme="dark"] .share-trigger-btn--open {
+[data-mantine-color-scheme="dark"] .share-trigger-btn:hover,
+[data-mantine-color-scheme="dark"] .share-trigger-btn--open {
   background: rgba(255,255,255,0.12);
   border-color: rgba(255,255,255,0.25);
   color: #fff;
@@ -524,6 +530,7 @@
   border-radius: 10px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.13);
   min-width: 182px;
+  max-width: calc(100vw - 20px);
   z-index: 200;
   overflow: hidden;
 }
@@ -1057,31 +1064,6 @@
 .tc-cell-value--profit { color: var(--green); }
 .tc-cell-value--loss   { color: var(--red); }
 
-/* Tab bar */
-.tc-tab-bar {
-  display: flex;
-  gap: 1.4rem;
-  padding: 0.6rem 1.4rem 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 1rem;
-}
-.tc-tab {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  color: var(--t3);
-  background: none;
-  border: none;
-  padding: 0 0 0.5rem;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-}
-.tc-tab:hover { color: var(--t2); }
-.tc-tab:focus { outline: none; color: var(--t1); border-bottom-color: var(--t1); }
-.tc-tab--active { color: var(--t1); border-bottom-color: var(--t1); }
-.tc-tab--active:hover { color: var(--t1); border-bottom-color: var(--t1); }
-
 /* Tab content */
 .tc-tab-content { padding: 0 1.4rem 1.2rem; }
 
@@ -1253,7 +1235,6 @@
   .tc-grid { padding: 0.5rem 1rem 0.7rem; }
   .tc-grid-row { gap: 0.4rem 1rem; }
   .tc-cell { min-width: calc(33% - 0.7rem); }
-  .tc-tab-bar { padding: 0.5rem 1rem 0; gap: 1rem; }
   .tc-tab-content { padding: 0 1rem 1rem; }
 
   /* ── Card header: 2-row layout ─────────────────────── */
@@ -1602,36 +1583,6 @@
   margin-top: 0.12rem;
 }
 
-/* Content rows — match column grid to header */
-.mcv-section-head {
-  background: var(--surface-2);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 0.5rem;
-  cursor: pointer;
-  user-select: none;
-}
-.mcv-section-head:hover { background: color-mix(in srgb, var(--border) 30%, var(--surface-2)); }
-
-.mcv-section-head > span:first-child {
-  display: block;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--t2);
-  font-family: var(--font);
-}
-
-.mcv-section-chevron {
-  font-size: 0.5rem;
-  color: var(--t3);
-  flex-shrink: 0;
-}
 
 .mcv-row {
   display: grid;
@@ -1927,11 +1878,13 @@
   background: none;
   border: 1px solid var(--navy);
   border-radius: 4px;
-  padding: 0.35rem 0.9rem;
+  padding: 0.5rem 1.2rem;
+  min-height: 44px;
   cursor: pointer;
 }
 
 .mcv-audit-btn:hover { background: var(--navy); color: var(--surface); }
+.mcv-audit-btn:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 
 .mcv-audit-status {
   font-family: var(--mono);
@@ -1949,7 +1902,7 @@
   gap: 0.08rem;
   padding: 0.25rem 0.05rem;
 }
-.mcv-audit-chevron-icon { font-size: 0.45rem; color: var(--t3); }
+.mcv-audit-chevron-icon { display: flex; align-items: center; justify-content: center; color: var(--t3); }
 .mcv-audit-abbr {
   font-size: 0.43rem;
   font-weight: 700;
@@ -2006,8 +1959,8 @@
 
 .mcv-charts-tab {
   flex: 1;
-  padding: 0.35rem 0;
-  font-size: 0.6rem;
+  padding: 0.45rem 0;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2015,6 +1968,7 @@
   border: 1px solid var(--border);
   background: transparent;
   color: var(--t2);
+  min-height: 36px;
   cursor: pointer;
   font-family: var(--mono);
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -2040,5 +1994,88 @@
 
 .mcv-charts-content {
   padding: 0 0.65rem 0.65rem;
+}
+
+/* Mantine Tabs override — TradeCard tab bar */
+.tc-mantine-tabs { margin: 0 0 12px; }
+
+.tc-mantine-tabs__list {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: none;
+}
+
+.tc-mantine-tabs__list::before { display: none; }
+
+.tc-mantine-tabs__tab {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--t2);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tc-mantine-tabs__tab:hover { color: var(--navy); }
+.tc-mantine-tabs__tab:focus-visible { outline: 2px solid var(--navy); outline-offset: -2px; }
+
+.tc-mantine-tabs__tab[data-active] {
+  color: var(--navy);
+  border-bottom-color: var(--navy);
+  background: none;
+}
+
+.tc-mantine-tabs__tab[data-active]:hover {
+  background: none;
+  color: var(--navy);
+  border-bottom-color: var(--navy);
+}
+
+/* Mantine Accordion overrides — MobileComparisonView */
+.mcv-accordion-item {
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+}
+
+.mcv-accordion-item + .mcv-accordion-item { border-top: 1px solid var(--border); }
+
+.mcv-accordion-control {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--t2);
+  padding: 8px 12px;
+  background: none;
+  width: 100%;
+  min-height: unset;
+}
+
+.mcv-accordion-control:hover { background: var(--surface-2); }
+.mcv-accordion-control:focus-visible { outline: 2px solid var(--navy); outline-offset: -2px; }
+
+.mcv-accordion-chevron {
+  color: var(--t3);
+  width: 10px;
+  height: 10px;
+}
+
+.mcv-accordion-panel > div {
+  padding: 0;
+}
+
+/* ≤380px: bump illegibly small font sizes in the MCV grid */
+@media (max-width: 380px) {
+  .mcv-tier-label { font-size: 0.62rem; }
+  .mcv-col-strategy { font-size: 0.7rem; }
+  .mcv-row-label { font-size: 0.58rem; }
+  .mcv-cell { font-size: 0.7rem; }
+  .mcv-audit-abbr { font-size: 0.52rem; }
 }
 

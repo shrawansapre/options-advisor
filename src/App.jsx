@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Moon, Sun, LogOut, X } from "lucide-react";
+import { AlertTriangle, Moon, Sun, LogOut } from "lucide-react";
+import { Alert } from "@mantine/core";
 import { fetchRecommendation } from "./api";
 import { fmtElapsed, stripCitations } from "./utils";
 import { useSearchHistory, SearchHistory } from "./components/SearchHistory";
@@ -13,17 +14,13 @@ import AuthModal from "./components/AuthModal";
 import { useAuth } from "./components/AuthContext";
 import { useTheme } from "./hooks/useTheme";
 import { useAnalysisState, makeAnalysis } from "./hooks/useAnalysisState";
-import "./styles/tokens.css";
-import "./styles/app.css";
-import "./styles/trade-card.css";
-import "./styles/learn.css";
 
 const LearnPage = lazy(() => import("./components/Learn"));
 
 export default function App() {
   const [ticker, setTicker] = useState("");
   const [dark, toggleDark] = useTheme();
-  const { analyses, activeId, active, setActiveId, openTab, closeTab, update, handleSelectCached } = useAnalysisState();
+  const { analyses, activeId, active, setActiveId, openTab, closeTab, update, handleSelectCached, resetState } = useAnalysisState();
   const { history, addEntry, updateEntry, clearHistory } = useSearchHistory();
   const { user, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
@@ -171,11 +168,17 @@ export default function App() {
         </div>
 
         {!showLearn && showNudge && (
-          <div className="signin-nudge">
+          <Alert
+            title="Save your analyses"
+            variant="light"
+            color="navy"
+            withCloseButton
+            onClose={dismissNudge}
+            classNames={{ root: 'app-nudge-alert', body: 'app-nudge-alert__body' }}
+          >
             <span>Sign in to save your analyses across devices</span>
             <button className="signin-nudge-btn" onClick={() => setShowAuth(true)}>Sign in</button>
-            <button className="signin-nudge-close" onClick={dismissNudge}><X size={11} /></button>
-          </div>
+          </Alert>
         )}
 
         {!showLearn && (
@@ -215,10 +218,17 @@ export default function App() {
           )}
 
           {active?.status === "error" && (
-            <motion.div key={`error-${active.id}`} className="error-bar"
+            <motion.div key={`error-${active.id}`}
               initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <AlertTriangle size={15} />
-              <span>{active.error}</span>
+              <Alert
+                icon={<AlertTriangle size={15} />}
+                title="Analysis error"
+                color="red"
+                variant="light"
+                classNames={{ root: 'app-error-alert' }}
+              >
+                {active.error}
+              </Alert>
             </motion.div>
           )}
 
@@ -261,7 +271,7 @@ export default function App() {
       {showUserMenu && (
         <div className="user-menu" style={{ top: menuPos.top, right: menuPos.right }} onClick={() => setShowUserMenu(false)}>
           <div className="user-menu-email">{user?.email}</div>
-          <button className="user-menu-item" onClick={signOut}>
+          <button className="user-menu-item" onClick={() => { resetState(); signOut(); }}>
             <LogOut size={12} /> Sign out
           </button>
         </div>

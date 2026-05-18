@@ -67,5 +67,10 @@ export function useAnalysisState() {
     openTab(a);
   }
 
-  return { analyses, activeId, active, setActiveId, openTab, closeTab, update, handleSelectCached };
+  function resetState() {
+    setAnalyses([]);
+    setActiveId(null);
+  }
+
+  return { analyses, activeId, active, setActiveId, openTab, closeTab, update, handleSelectCached, resetState };
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AlertTriangle } from "lucide-react";
 import { checklistAuditorBatch } from "../agents/checklistAuditor.js";
 import ShareMenu from "./TradeCard/ShareMenu";
@@ -68,6 +68,7 @@ function DataGrid({ trade }) {
 export default function DesktopComparisonTable({ trades, chainData, analysedAt, hasLiveData, marketContext, initialAuditResults, onAuditComplete }) {
   const [auditState, setAuditState] = useState(initialAuditResults ? "done" : "idle");
   const [auditResults, setAuditResults] = useState(initialAuditResults ?? null);
+  const snapshotRefs = useRef([]);
 
   async function runChecklist() {
     setAuditState("loading");
@@ -185,7 +186,7 @@ export default function DesktopComparisonTable({ trades, chainData, analysedAt, 
                     trade={trade}
                     analysedAt={analysedAt}
                     marketContext={marketContext}
-                    snapshotRef={{ current: null }}
+                    snapshotRef={{ get current() { return snapshotRefs.current[i]; } }}
                   />
                 </div>
                 <span className="dct-strategy-name">{trade.strategy}</span>
@@ -233,6 +234,64 @@ export default function DesktopComparisonTable({ trades, chainData, analysedAt, 
           </div>
         ))}
       </div>
+
+      {trades.map((trade, i) => {
+        const summary = trade.summary ?? {};
+        return (
+          <div
+            key={i}
+            ref={el => { snapshotRefs.current[i] = el; }}
+            className="share-snapshot"
+            data-strategy={trade.strategyType}
+          >
+            <div className={`ss-flag ss-flag--${trade.riskTier ?? "moderate"}`}>
+              <span className="ss-flag-name">{trade.strategy}</span>
+              <span className="ss-flag-tier">
+                {trade.riskTier === "conservative" ? "Conservative" :
+                 trade.riskTier === "moderate"     ? "Moderate"     : "Aggressive"}
+                {" · "}
+                {trade.strategyType === "bullish" ? "Bullish" :
+                 trade.strategyType === "bearish" ? "Bearish" : "Neutral"}
+              </span>
+            </div>
+            <div className="ss-hero">
+              <span className="ss-ticker">{trade.ticker}</span>
+              <div className="ss-price-col">
+                <span className="ss-price">${trade.currentPrice}</span>
+                <span className="ss-price-label">current price</span>
+              </div>
+            </div>
+            <p className="ss-headline">{summary.headline}</p>
+            <div className="ss-grid">
+              <div className="ss-cell ss-cell--primary">
+                <span className="ss-label">Entry</span>
+                <span className="ss-value">{trade.totalCost}</span>
+              </div>
+              <div className="ss-cell">
+                <span className="ss-label">Max profit</span>
+                <span className="ss-value ss-value--profit">{trade.maxProfit}</span>
+              </div>
+              <div className="ss-cell">
+                <span className="ss-label">Max loss</span>
+                <span className="ss-value ss-value--loss">{trade.maxLoss}</span>
+              </div>
+            </div>
+            {trade.watchFor?.warningSignals?.length > 0 && (
+              <div className="ss-warnings">
+                <span className="ss-warnings-label">Watch out for</span>
+                <ul className="ss-warnings-list">
+                  {trade.watchFor.warningSignals.slice(0, 3).map((s, j) => (
+                    <li key={j}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="ss-footer">
+              ◈ Options Brief{analysedAt ? ` · ${analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""} · Educational purposes only
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

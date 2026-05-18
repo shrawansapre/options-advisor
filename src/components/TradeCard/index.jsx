@@ -1,3 +1,4 @@
+import { Tabs } from "@mantine/core";
 import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 import { useRef, useState } from "react";
@@ -125,17 +126,21 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
         </div>
       </div>
 
-      <div className="tc-tab-bar">
-        {["summary", "greeks", "analysis"].map(t => (
-          <button
-            key={t}
-            className={`tc-tab${tab === t ? " tc-tab--active" : ""}`}
-            onClick={() => setTab(t)}
-          >
-            {t.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        value={tab}
+        onChange={setTab}
+        classNames={{
+          root: 'tc-mantine-tabs',
+          list: 'tc-mantine-tabs__list',
+          tab:  'tc-mantine-tabs__tab',
+        }}
+      >
+        <Tabs.List>
+          <Tabs.Tab value="summary">SUMMARY</Tabs.Tab>
+          <Tabs.Tab value="greeks">GREEKS</Tabs.Tab>
+          <Tabs.Tab value="analysis">ANALYSIS</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
 
       <div className="tc-tab-content">
         {tab === "summary" && (
