@@ -77,6 +77,9 @@ body {
   border-bottom: 1px solid var(--border);
   overflow: hidden;
 }
+[data-mantine-color-scheme="dark"] .app-header {
+  background: rgba(13,27,42,0.92);
+}
 .app-header::after {
   content: '';
   position: absolute;

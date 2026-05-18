@@ -11,7 +11,7 @@ export const theme = createTheme({
     lg: '1200px',
   },
 
-  // Index 5 is the primary swatch — derive full 10-step ramps from tokens.css
+  // Index 5 is the primary swatch — full token values in :root block in app.css
   colors: {
     navy: [
       '#EDF2F9', '#D6E2F0', '#B0C8E4', '#8AAED8', '#4A7AB5',
