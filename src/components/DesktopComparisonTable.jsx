@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
+import { checklistAuditorBatch } from "../agents/checklistAuditor.js";
 import ShareMenu from "./TradeCard/ShareMenu";
 import ThesisRisk from "./TradeCard/ThesisRisk";
 import EntrySection from "./TradeCard/EntrySection";
@@ -63,7 +65,22 @@ function DataGrid({ trade }) {
   );
 }
 
-export default function DesktopComparisonTable({ trades, chainData, analysedAt, hasLiveData, marketContext }) {
+export default function DesktopComparisonTable({ trades, chainData, analysedAt, hasLiveData, marketContext, initialAuditResults, onAuditComplete }) {
+  const [auditState, setAuditState] = useState(initialAuditResults ? "done" : "idle");
+  const [auditResults, setAuditResults] = useState(initialAuditResults ?? null);
+
+  async function runChecklist() {
+    setAuditState("loading");
+    try {
+      const results = await checklistAuditorBatch({ trades, chainData });
+      setAuditResults(results);
+      setAuditState("done");
+      onAuditComplete?.(results);
+    } catch {
+      setAuditState("idle");
+    }
+  }
+
   const first = trades[0];
 
   const ROWS = [
@@ -196,12 +213,23 @@ export default function DesktopComparisonTable({ trades, chainData, analysedAt, 
         </div>
       ))}
 
+      {/* Checklist header — spans full width */}
+      <div className="dct-checklist-header">
+        <span className="dct-checklist-title">Trade Discipline Checklist</span>
+        {auditState === "idle" && (
+          <button className="dct-checklist-run-btn" onClick={runChecklist}>Run Checklist</button>
+        )}
+        {auditState === "loading" && (
+          <span className="dct-checklist-status">Auditing…</span>
+        )}
+      </div>
+
       {/* Checklist row */}
       <div className="dct-row dct-row--last">
         <div className="dct-row-label">AUDIT</div>
         {trades.map((trade, i) => (
           <div key={i} className="dct-cell">
-            <ChecklistSection trade={trade} chainData={chainData} />
+            <ChecklistSection trade={trade} chainData={chainData} initialResult={auditResults?.[i] ?? null} noHeader />
           </div>
         ))}
       </div>

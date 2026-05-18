@@ -28,6 +28,8 @@ export default function MultiTradeView({ trades, chainData, analysedAt, marketCo
         <DesktopComparisonTable
           trades={trades} chainData={chainData} analysedAt={analysedAt}
           hasLiveData={hasLiveData} marketContext={marketContext}
+          initialAuditResults={initialAuditResults}
+          onAuditComplete={onAuditComplete}
         />
       </ErrorBoundary>
 

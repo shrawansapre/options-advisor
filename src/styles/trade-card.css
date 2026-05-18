@@ -131,6 +131,45 @@
 .dct-row--last .dct-row-label,
 .dct-row--last .dct-cell { border-bottom: none; }
 
+/* Checklist header spanning all columns */
+.dct-checklist-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.2rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.dct-checklist-title {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t3);
+}
+.dct-checklist-run-btn {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--navy);
+  background: none;
+  border: 1px solid var(--navy);
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.dct-checklist-run-btn:hover { background: var(--navy); color: var(--surface); }
+.dct-checklist-status {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--t3);
+}
+
 /* Strip section labels inside cells — row label provides that context */
 .dct-cell .tc-section > .tc-section-label:not(.tc-section-label--spaced):first-child {
   display: none;

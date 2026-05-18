@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { checklistAuditor } from "../../agents/checklistAuditor.js";
 
 const STATUS_ICON = { pass: "✓", fail: "✗", warning: "⚠", needs_input: "?" };
@@ -16,9 +16,9 @@ function AuditItem({ item }) {
   );
 }
 
-function AuditSection({ section }) {
+function AuditSection({ section, defaultOpen }) {
   const hasConcerns = section.items.some(i => i.status !== "pass");
-  const [open, setOpen] = useState(hasConcerns);
+  const [open, setOpen] = useState(defaultOpen ?? hasConcerns);
   const failCount = section.items.filter(i => i.status === "fail").length;
   const warnCount = section.items.filter(i => i.status === "warning").length;
   const passCount = section.items.filter(i => i.status === "pass").length;
@@ -44,10 +44,17 @@ function AuditSection({ section }) {
   );
 }
 
-export default function ChecklistSection({ trade, chainData }) {
-  const [loadState, setLoadState] = useState("idle"); // idle | loading | loaded | error
-  const [result, setResult] = useState(null);
+export default function ChecklistSection({ trade, chainData, initialResult, noHeader }) {
+  const [loadState, setLoadState] = useState(initialResult ? "loaded" : "idle");
+  const [result, setResult] = useState(initialResult ?? null);
   const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (initialResult) {
+      setResult(initialResult);
+      setLoadState("loaded");
+    }
+  }, [initialResult]);
 
   async function handleToggle() {
     const next = !expanded;
@@ -85,20 +92,24 @@ export default function ChecklistSection({ trade, chainData }) {
     );
   }
 
+  const showBody = noHeader ? loadState === "loaded" : (expanded && loadState === "loaded");
+
   return (
     <div className="checklist-wrap">
-      <button className="checklist-toggle" onClick={handleToggle}>
-        <div className="checklist-toggle-row">
-          <span className="checklist-chevron">{expanded ? "▼" : "▶"}</span>
-          <span className="checklist-title">Trade Discipline Checklist</span>
-          {dotColor && <span className={`checklist-dot checklist-dot--${dotColor}`} />}
-        </div>
-        {loadState !== "idle" && (
-          <div className="checklist-toggle-score">{headerSummary()}</div>
-        )}
-      </button>
+      {!noHeader && (
+        <button className="checklist-toggle" onClick={handleToggle}>
+          <div className="checklist-toggle-row">
+            <span className="checklist-chevron">{expanded ? "▼" : "▶"}</span>
+            <span className="checklist-title">Trade Discipline Checklist</span>
+            {dotColor && <span className={`checklist-dot checklist-dot--${dotColor}`} />}
+          </div>
+          {loadState !== "idle" && (
+            <div className="checklist-toggle-score">{headerSummary()}</div>
+          )}
+        </button>
+      )}
 
-      {expanded && loadState === "loaded" && result && (
+      {showBody && result && (
         <div className="checklist-body">
           {result.criticalFlags?.length > 0 && (
             <div className="checklist-critical">
@@ -109,7 +120,7 @@ export default function ChecklistSection({ trade, chainData }) {
           )}
           <div className="checklist-sections">
             {(result.sections ?? []).map((section, i) => (
-              <AuditSection key={i} section={section} />
+              <AuditSection key={i} section={section} defaultOpen={noHeader || undefined} />
             ))}
           </div>
         </div>
