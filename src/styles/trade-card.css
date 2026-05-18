@@ -1576,36 +1576,6 @@
   margin-top: 0.12rem;
 }
 
-/* Content rows — match column grid to header */
-.mcv-section-head {
-  background: var(--surface-2);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 0.5rem;
-  cursor: pointer;
-  user-select: none;
-}
-.mcv-section-head:hover { background: color-mix(in srgb, var(--border) 30%, var(--surface-2)); }
-
-.mcv-section-head > span:first-child {
-  display: block;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--t2);
-  font-family: var(--font);
-}
-
-.mcv-section-chevron {
-  font-size: 0.5rem;
-  color: var(--t3);
-  flex-shrink: 0;
-}
 
 .mcv-row {
   display: grid;
@@ -2054,5 +2024,37 @@
   background: none;
   color: var(--navy);
   border-bottom-color: var(--navy);
+}
+
+/* Mantine Accordion overrides — MobileComparisonView */
+.mcv-accordion-item {
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+}
+
+.mcv-accordion-item + .mcv-accordion-item { border-top: 1px solid var(--border); }
+
+.mcv-accordion-control {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--t2);
+  padding: 8px 12px;
+  background: none;
+  width: 100%;
+  min-height: unset;
+}
+
+.mcv-accordion-control:hover { background: var(--surface-2); }
+
+.mcv-accordion-chevron {
+  color: var(--t3);
+  width: 10px;
+  height: 10px;
+}
+
+.mcv-accordion-panel > div {
+  padding: 0;
 }
 
