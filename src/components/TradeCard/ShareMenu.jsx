@@ -6,7 +6,9 @@ import { formatTradeAsMarkdown } from "../../utils";
 export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRef }) {
   const [shareOpen, setShareOpen] = useState(false);
   const [imgLoading, setImgLoading] = useState(false);
+  const [dropPos, setDropPos] = useState(null);
   const shareRef = useRef(null);
+  const btnRef = useRef(null);
 
   useEffect(() => {
     if (!shareOpen) return;
@@ -16,6 +18,20 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     document.addEventListener("mousedown", onOutsideClick);
     return () => document.removeEventListener("mousedown", onOutsideClick);
   }, [shareOpen]);
+
+  function handleToggle() {
+    const next = !shareOpen;
+    if (next && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      const menuWidth = 182;
+      if (r.right >= menuWidth) {
+        setDropPos({ top: r.bottom + 6, right: window.innerWidth - r.right });
+      } else {
+        setDropPos({ top: r.bottom + 6, left: r.left });
+      }
+    }
+    setShareOpen(next);
+  }
 
   function handleCopyMarkdown() {
     setShareOpen(false);
@@ -72,14 +88,15 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
   return (
     <div className="share-menu-wrap" ref={shareRef}>
       <button
+        ref={btnRef}
         className={`share-trigger-btn${shareOpen ? " share-trigger-btn--open" : ""}`}
-        onClick={() => setShareOpen(v => !v)}
+        onClick={handleToggle}
         aria-label="Share"
       >
         <Share2 size={13} />
       </button>
-      {shareOpen && (
-        <div className="share-menu">
+      {shareOpen && dropPos && (
+        <div className="share-menu" style={{ top: dropPos.top, ...(dropPos.right != null ? { right: dropPos.right } : { left: dropPos.left }) }}>
           <button className="share-menu-item" onClick={handleCopyMarkdown}>
             <Copy size={14} />
             Copy markdown

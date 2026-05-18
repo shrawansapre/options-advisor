@@ -518,9 +518,7 @@
 }
 
 .share-menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 6px);
+  position: fixed;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -1539,7 +1537,7 @@
 /* Column headers in sticky */
 .mcv-col-headers {
   display: grid;
-  grid-template-columns: 2.4rem 1fr 1fr 1fr;
+  grid-template-columns: 3.2rem 1fr 1fr 1fr;
 }
 
 .mcv-col-header {
@@ -1621,23 +1619,23 @@
 .mcv-section-head > span:first-child {
   display: block;
   padding: 0.25rem 0.5rem;
-  font-size: 0.55rem;
-  font-weight: 700;
+  font-size: 0.6rem;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--t3);
-  font-family: var(--mono);
+  color: var(--t2);
+  font-family: var(--font);
 }
 
 .mcv-section-chevron {
-  font-size: 0.45rem;
+  font-size: 0.5rem;
   color: var(--t3);
   flex-shrink: 0;
 }
 
 .mcv-row {
   display: grid;
-  grid-template-columns: 2.4rem 1fr 1fr 1fr;
+  grid-template-columns: 3.2rem 1fr 1fr 1fr;
   border-bottom: 1px solid var(--border);
   min-height: 1.8rem;
 }
@@ -1662,7 +1660,7 @@
   display: flex;
   align-items: center;
   padding: 0.3rem 0.3rem;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   color: var(--t1);
   border-left: 1px solid var(--border);
   font-family: var(--mono);
@@ -1677,16 +1675,26 @@
 
 .mcv-text-row {
   display: grid;
-  grid-template-columns: 2.4rem 1fr 1fr 1fr;
+  grid-template-columns: 3.2rem 1fr 1fr 1fr;
   border-bottom: 1px solid var(--border);
   align-items: stretch;
 }
 
 .mcv-text-row--last { border-bottom: none; }
 
+.mcv-text-row--thesis .mcv-text-cell {
+  display: flex;
+  flex-direction: column;
+}
+.mcv-text-row--thesis .mcv-risk-row {
+  margin-top: auto;
+  padding-top: 0.3rem;
+}
+
 .mcv-text-cell {
   padding: 0.45rem 0.3rem;
   font-size: 0.68rem;
+  font-family: var(--font);
   color: var(--t2);
   border-left: 1px solid var(--border);
   min-width: 0;
@@ -1749,7 +1757,7 @@
 }
 
 .mcv-exit-val {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-family: var(--mono);
   font-weight: 600;
   overflow: hidden;
@@ -1762,7 +1770,7 @@
   align-items: flex-start;
   justify-content: center;
   padding-top: 0.45rem;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
 }
 
@@ -1779,7 +1787,7 @@
 }
 
 .mcv-scenario-prob {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
   color: var(--t1);
   font-family: var(--mono);
@@ -1943,7 +1951,7 @@
 }
 .mcv-audit-chevron-icon { font-size: 0.45rem; color: var(--t3); }
 .mcv-audit-abbr {
-  font-size: 0.38rem;
+  font-size: 0.43rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;

@@ -192,7 +192,7 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
 
         <SectionHead label="THESIS" collapsed={col("THESIS")} onToggle={() => toggleTop("THESIS")} />
         {!col("THESIS") && (
-          <div className="mcv-text-row">
+          <div className="mcv-text-row mcv-text-row--thesis">
             <div className="mcv-row-label" />
             {td.map((trade, i) => {
               const rl = trade.riskLevel ?? 3;
