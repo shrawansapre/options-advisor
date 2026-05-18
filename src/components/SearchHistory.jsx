@@ -94,6 +94,21 @@ export function useSearchHistory() {
     }
   }
 
+  async function updateEntry(analysedAt, resultPatch) {
+    const ts = analysedAt instanceof Date ? analysedAt.toISOString() : analysedAt;
+    const idx = history.findIndex(h => h.ts === ts);
+    if (idx === -1) return;
+    const updated = { ...history[idx], result: { ...history[idx].result, ...resultPatch } };
+    const next = [...history];
+    next[idx] = updated;
+    setHistory(next);
+    if (user && supabase) {
+      await supabase.from("analyses").update({ result_json: updated.result }).eq("id", updated.id);
+    } else {
+      try { localStorage.setItem("oa-history", JSON.stringify(next)); } catch (_) {}
+    }
+  }
+
   async function clearHistory() {
     setHistory([]);
     if (user && supabase) {
@@ -103,7 +118,7 @@ export function useSearchHistory() {
     }
   }
 
-  return { history, addEntry, clearHistory };
+  return { history, addEntry, updateEntry, clearHistory };
 }
 
 export function SearchHistory({ history, onSelect, onSelectCached, onClear }) {

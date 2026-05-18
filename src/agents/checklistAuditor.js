@@ -1,6 +1,6 @@
 import { callAPI } from "../lib/claude.js";
 import { buildLiveDataBlock } from "../orchestrator.js";
-import { CHECKLIST_AUDITOR_SYSTEM_PROMPT, CHECKLIST_AUDITOR_BATCH_PROMPT } from "../prompts/checklist.js";
+import { CHECKLIST_AUDITOR_SYSTEM_PROMPT } from "../prompts/checklist.js";
 import { runLocalChecks } from "./checklistLocal.js";
 
 function mergeLocalAndAI(trade, localResult, aiAudit) {
@@ -25,32 +25,13 @@ function mergeLocalAndAI(trade, localResult, aiAudit) {
 }
 
 export async function checklistAuditorBatch({ trades, chainData }) {
-  const localResults = trades.map(trade => runLocalChecks(trade));
-  const chainText = chainData ? buildLiveDataBlock(chainData) : null;
-
-  const userMsg = `Audit these 3 options trades. ALREADY COMPUTED LOCALLY — DO NOT RE-AUDIT: DTE Rules, IV Environment vs Strategy, Profit Target & Stop Loss, Position Sizing.
-Audit ONLY: Liquidity, Delta Checks, Greeks Alignment, Strategy Match, Retail Trap Scan, Final Gate.
-
-${trades.map((t, i) => `TRADE ${i + 1} (${t.riskTier}):\n${JSON.stringify(t, null, 2)}`).join("\n\n")}
-
-${chainText ? `LIVE MARKET DATA:\n${chainText}` : "No live market data. Mark all data-dependent checks as needs_input."}`;
-
-  let aiResult = { audits: [] };
-  try {
-    aiResult = await callAPI({
-      systemPrompt: CHECKLIST_AUDITOR_BATCH_PROMPT,
-      userMessage: userMsg,
-      useWebSearch: false,
-      maxTokens: 3500,
-      model: "claude-haiku-4-5-20251001",
-      onProgress: null,
-      timeoutMs: 60000,
-    });
-  } catch (_) {}
-
-  return trades.map((trade, i) =>
-    mergeLocalAndAI(trade, localResults[i], aiResult.audits?.[i])
+  const results = await Promise.allSettled(
+    trades.map(trade => checklistAuditor({ trade, chainData }))
   );
+  return results.map((r, i) => {
+    if (r.status === "fulfilled") return r.value;
+    return mergeLocalAndAI(trades[i], runLocalChecks(trades[i]), null);
+  });
 }
 
 export async function checklistAuditor({ trade, chainData }) {

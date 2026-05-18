@@ -39,7 +39,7 @@ export default function GreeksGrid({ greeks, strategyRationale, strategy, ivRank
         <div className="tc-section">
           <div className="tc-section-label">IV ENVIRONMENT</div>
           <IVGauge value={ivRank} reading={greeks.ivRankReading} />
-          <p className="tc-body tc-body--muted">{greeks.ivRankInsight}</p>
+          {greeks.ivRankInsight && <p className="tc-body">{greeks.ivRankInsight}</p>}
           {strategyRationale && (
             <p className="tc-body">Why {strategy}: {parseBold(strategyRationale)}</p>
           )}

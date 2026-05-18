@@ -1570,9 +1570,16 @@
   background: var(--surface-2);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.5rem;
+  cursor: pointer;
+  user-select: none;
 }
+.mcv-section-head:hover { background: color-mix(in srgb, var(--border) 30%, var(--surface-2)); }
 
-.mcv-section-head > span {
+.mcv-section-head > span:first-child {
   display: block;
   padding: 0.25rem 0.5rem;
   font-size: 0.55rem;
@@ -1581,6 +1588,12 @@
   text-transform: uppercase;
   color: var(--t3);
   font-family: var(--mono);
+}
+
+.mcv-section-chevron {
+  font-size: 0.45rem;
+  color: var(--t3);
+  flex-shrink: 0;
 }
 
 .mcv-row {
@@ -1880,6 +1893,56 @@
 }
 
 .mcv-audit-rows .mcv-row:last-child { border-bottom: none; }
+
+.mcv-audit-section-row { cursor: pointer; }
+.mcv-audit-section-row:hover { background: var(--surface-2); }
+
+.mcv-audit-section-label {
+  flex-direction: column;
+  gap: 0.08rem;
+  padding: 0.25rem 0.05rem;
+}
+.mcv-audit-chevron-icon { font-size: 0.45rem; color: var(--t3); }
+.mcv-audit-abbr {
+  font-size: 0.38rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--t2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  text-align: center;
+}
+
+.mcv-acol-item {
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.mcv-acol-item:last-child { border-bottom: none; }
+.mcv-acol-status {
+  font-family: var(--mono);
+  font-size: 0.57rem;
+  color: var(--t2);
+  line-height: 1.3;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.mcv-acol-value {
+  font-family: var(--mono);
+  font-size: 0.54rem;
+  color: var(--t3);
+  margin-top: 0.06rem;
+}
+.mcv-acol-note {
+  font-size: 0.54rem;
+  line-height: 1.3;
+  color: var(--t2);
+  margin-top: 0.06rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
 
 .mcv-cell--audit-pass { color: var(--green); }
 .mcv-cell--audit-warn { color: var(--amber); }

@@ -4,7 +4,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import DesktopComparisonTable from "./DesktopComparisonTable";
 import MobileComparisonView from "./MobileComparisonView";
 
-export default function MultiTradeView({ trades, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel }) {
+export default function MultiTradeView({ trades, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel, initialAuditResults, onAuditComplete }) {
   const [activeTab, setActiveTab] = useState("summary");
 
   if (!trades?.length) return null;
@@ -37,6 +37,8 @@ export default function MultiTradeView({ trades, chainData, analysedAt, marketCo
           <MobileComparisonView
             trades={trades} chainData={chainData} analysedAt={analysedAt}
             hasLiveData={hasLiveData} marketContext={marketContext}
+            initialAuditResults={initialAuditResults}
+            onAuditComplete={onAuditComplete}
           />
         </ErrorBoundary>
       </div>

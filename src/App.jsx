@@ -24,7 +24,7 @@ export default function App() {
   const [ticker, setTicker] = useState("");
   const [dark, toggleDark] = useTheme();
   const { analyses, activeId, active, setActiveId, openTab, closeTab, update, handleSelectCached } = useAnalysisState();
-  const { history, addEntry, clearHistory } = useSearchHistory();
+  const { history, addEntry, updateEntry, clearHistory } = useSearchHistory();
   const { user, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -244,6 +244,11 @@ export default function App() {
                 marketContext={active.result.marketContext}
                 hasLiveData={active.result.hasLiveData}
                 marketSessionLabel={active.result.marketSessionLabel}
+                initialAuditResults={active.result.auditResults ?? null}
+                onAuditComplete={auditResults => {
+                  update(active.id, { result: { ...active.result, auditResults } });
+                  if (active.analysedAt) updateEntry(active.analysedAt, { auditResults });
+                }}
               />
               {active.elapsedMs != null && (
                 <p className="analyzed-in">Analyzed in {fmtElapsed(active.elapsedMs)}</p>

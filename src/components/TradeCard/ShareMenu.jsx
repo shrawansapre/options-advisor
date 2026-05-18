@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toPng } from "html-to-image";
-import { ChevronDown, Copy, Download, ExternalLink, Share2 } from "lucide-react";
+import { Copy, Download, Share2 } from "lucide-react";
 import { formatTradeAsMarkdown } from "../../utils";
 
 export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRef }) {
@@ -21,20 +21,6 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
     setShareOpen(false);
     const md = formatTradeAsMarkdown(trade, marketContext, analysedAt);
     navigator.clipboard.writeText(md).catch(() => {});
-  }
-
-  function handleOpenInClaude() {
-    setShareOpen(false);
-    const md = formatTradeAsMarkdown(trade, marketContext, analysedAt);
-    navigator.clipboard.writeText(md).catch(() => {});
-    const MAX = 8000;
-    const prompt = md.length > MAX
-      ? md.slice(0, MAX) + "\n\n[Full analysis copied to clipboard — paste it here to continue]"
-      : md;
-    const url = "https://claude.ai/new?q=" + encodeURIComponent(prompt);
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (isIOS) window.location.href = url;
-    else window.open(url, "_blank", "noopener");
   }
 
   function snapshotOptions() {
@@ -88,17 +74,12 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
       <button
         className={`share-trigger-btn${shareOpen ? " share-trigger-btn--open" : ""}`}
         onClick={() => setShareOpen(v => !v)}
+        aria-label="Share"
       >
         <Share2 size={13} />
-        Share
-        <ChevronDown size={11} />
       </button>
       {shareOpen && (
         <div className="share-menu">
-          <button className="share-menu-item" onClick={handleOpenInClaude}>
-            <ExternalLink size={14} />
-            Open in Claude
-          </button>
           <button className="share-menu-item" onClick={handleCopyMarkdown}>
             <Copy size={14} />
             Copy markdown
