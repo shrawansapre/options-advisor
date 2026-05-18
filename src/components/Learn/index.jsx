@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Tabs } from "@mantine/core";
 import IntroSection from "./IntroSection";
 import BasicsSection from "./BasicsSection";
 import GreeksSection from "./GreeksSection";
@@ -35,17 +36,20 @@ export default function LearnPage() {
           </button>
           <h1 className="learn-heading">Options Glossary</h1>
         </div>
-        <nav className="learn-nav">
-          {SECTIONS.map(s => (
-            <button
-              key={s.id}
-              className={`learn-nav-btn${section === s.id ? " learn-nav-btn--active" : ""}`}
-              onClick={() => setSection(s.id)}
-            >
-              {s.label}
-            </button>
-          ))}
-        </nav>
+        <Tabs
+          value={section}
+          onChange={setSection}
+          classNames={{
+            list: 'learn-mantine-tabs__list',
+            tab:  'learn-mantine-tabs__tab',
+          }}
+        >
+          <Tabs.List>
+            {SECTIONS.map(s => (
+              <Tabs.Tab key={s.id} value={s.id}>{s.label}</Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
       </div>
 
       <AnimatePresence mode="wait">
