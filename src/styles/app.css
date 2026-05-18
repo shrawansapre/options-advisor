@@ -1,3 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,300;1,9..144,500;1,9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+/* ─── Custom tokens not covered by Mantine theme ─────────────────────────────────────────────── */
+:root {
+  --bg:          #F3F0E9;
+  --surface:     #FFFFFF;
+  --surface-2:   #F8F6F1;
+  --surface-3:   #EFECE5;
+  --border:      #E2DDD3;
+  --border-2:    #EAE6DF;
+  --navy:        #1E3A5F;
+  --navy-light:  #EDF2F9;
+  --green:       #166534;
+  --green-light: #DCFCE7;
+  --red:         #991B1B;
+  --red-light:   #FEE2E2;
+  --amber:       #92400E;
+  --amber-light: #FEF3C7;
+  --amber-ui:    #f59e0b;
+  --violet:      #5B21B6;
+  --violet-light:#EDE9FE;
+  --t1: #1C1916;
+  --t2: #6E6860;
+  --t3: #A8A099;
+  --font:  'Plus Jakarta Sans', system-ui, sans-serif;
+  --serif: 'Fraunces', Georgia, serif;
+  --mono:  'IBM Plex Mono', 'Menlo', monospace;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.05);
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 18px;
+}
+
+[data-mantine-color-scheme="dark"] {
+  --bg:          #0D1B2A;
+  --surface:     #112233;
+  --surface-2:   #172A3F;
+  --surface-3:   #1D3048;
+  --border:      rgba(243,240,233,0.08);
+  --border-2:    rgba(243,240,233,0.04);
+  --navy:        #F3F0E9;
+  --navy-light:  rgba(243,240,233,0.1);
+  --green:       #4ADE80;
+  --green-light: rgba(74,222,128,0.1);
+  --red:         #F87171;
+  --red-light:   rgba(248,113,113,0.1);
+  --amber:       #FCD34D;
+  --amber-light: rgba(252,211,77,0.1);
+  --violet:      #C084FC;
+  --violet-light: rgba(192,132,252,0.1);
+  --t1: #F3F0E9;
+  --t2: rgba(243,240,233,0.55);
+  --t3: rgba(243,240,233,0.32);
+  --shadow-sm: 0 1px 4px rgba(0,8,20,0.6);
+  --shadow-md: 0 4px 20px rgba(0,8,20,0.7);
+  --shadow-lg: 0 8px 40px rgba(0,8,20,0.85);
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scrollbar-gutter: stable; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--t1);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
 
 /* ─── Header ───────────────────────────────────────────────────────────── */
 .app-header {
@@ -550,8 +619,8 @@
 .tab:hover { border-color: var(--t3); color: var(--t1); }
 .tab--active,
 .tab--active:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
-[data-theme="dark"] .tab--active,
-[data-theme="dark"] .tab--active:hover { color: #0D1B2A; }
+[data-mantine-color-scheme="dark"] .tab--active,
+[data-mantine-color-scheme="dark"] .tab--active:hover { color: #0D1B2A; }
 
 .tab-dot {
   width: 7px; height: 7px;
@@ -604,7 +673,7 @@
 /* ─── Landing empty state ───────────────────────────────────────────────── */
 
 /* Subtle ambient glow behind landing in dark mode */
-[data-theme="dark"] .app-main--landing::before {
+[data-mantine-color-scheme="dark"] .app-main--landing::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -759,7 +828,7 @@
   transition: background 0.15s;
 }
 .bg-ready-banner:hover { background: #bbf7d0; }
-[data-theme="dark"] .bg-ready-banner { background: var(--green-light); border-color: rgba(74,222,128,0.2); }
+[data-mantine-color-scheme="dark"] .bg-ready-banner { background: var(--green-light); border-color: rgba(74,222,128,0.2); }
 
 /* ─── Market Banner ────────────────────────────────────────────────────── */
 .market-banner {

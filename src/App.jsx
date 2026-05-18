@@ -14,10 +14,6 @@ import AuthModal from "./components/AuthModal";
 import { useAuth } from "./components/AuthContext";
 import { useTheme } from "./hooks/useTheme";
 import { useAnalysisState, makeAnalysis } from "./hooks/useAnalysisState";
-import "./styles/tokens.css";
-import "./styles/app.css";
-import "./styles/trade-card.css";
-import "./styles/learn.css";
 
 const LearnPage = lazy(() => import("./components/Learn"));
 

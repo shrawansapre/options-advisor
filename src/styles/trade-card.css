@@ -510,8 +510,8 @@
   border-color: var(--navy);
 }
 
-[data-theme="dark"] .share-trigger-btn:hover,
-[data-theme="dark"] .share-trigger-btn--open {
+[data-mantine-color-scheme="dark"] .share-trigger-btn:hover,
+[data-mantine-color-scheme="dark"] .share-trigger-btn--open {
   background: rgba(255,255,255,0.12);
   border-color: rgba(255,255,255,0.25);
   color: #fff;

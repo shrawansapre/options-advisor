@@ -7,7 +7,6 @@ import "@mantine/core/styles.css";
 import App from "./App";
 import { AuthProvider } from "./components/AuthContext";
 import { theme } from "./theme";
-import "./styles/tokens.css";
 import "./styles/app.css";
 import "./styles/trade-card.css";
 import "./styles/learn.css";

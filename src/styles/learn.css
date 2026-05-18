@@ -10,8 +10,8 @@
 .learn-btn:hover { color: var(--t1); border-color: var(--t2); background: var(--surface-2); }
 .learn-btn--active,
 .learn-btn--active:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
-[data-theme="dark"] .learn-btn--active,
-[data-theme="dark"] .learn-btn--active:hover { color: #0D1B2A; }
+[data-mantine-color-scheme="dark"] .learn-btn--active,
+[data-mantine-color-scheme="dark"] .learn-btn--active:hover { color: #0D1B2A; }
 
 /* ─── Learn Page ────────────────────────────────────────────────────────── */
 .learn-page { padding-bottom: 80px; }
@@ -308,7 +308,7 @@
   background: var(--navy-light);
   border-color: rgba(30,58,95,0.18);
 }
-[data-theme="dark"] .learn-intro-hero {
+[data-mantine-color-scheme="dark"] .learn-intro-hero {
   background: rgba(243,240,233,0.05);
   border-color: rgba(243,240,233,0.12);
 }
