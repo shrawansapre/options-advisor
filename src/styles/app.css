@@ -584,15 +584,6 @@
 }
 .tab-close:hover { opacity: 1; }
 
-/* ─── Sign-in nudge ─────────────────────────────────────────────────────── */
-.signin-nudge {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; margin-bottom: 12px;
-  background: var(--navy-light); border: 1px solid rgba(30,58,95,0.15);
-  border-radius: var(--r-md);
-  font-size: 12px; font-family: var(--mono); color: var(--navy);
-}
-.signin-nudge span { flex: 1; }
 .signin-nudge-btn {
   padding: 4px 10px; border-radius: var(--r-sm);
   background: var(--navy); color: #fff; border: none;
@@ -601,13 +592,6 @@
   transition: background 0.15s;
 }
 .signin-nudge-btn:hover { background: #162d4a; }
-.signin-nudge-close {
-  background: none; border: none; color: var(--navy);
-  opacity: 0.5; cursor: pointer; padding: 2px;
-  display: flex; align-items: center;
-  transition: opacity 0.15s;
-}
-.signin-nudge-close:hover { opacity: 1; }
 
 .empty-hint {
   text-align: center;
@@ -745,14 +729,22 @@
   .landing-learn-link { display: none; }
 }
 
-/* ─── Error ────────────────────────────────────────────────────────────── */
-.error-bar {
-  display: flex; align-items: center; gap: 10px;
-  padding: 14px 16px;
-  background: var(--red-light);
-  border: 1px solid rgba(153,27,27,0.2);
+/* ─── Mantine Alert overrides ───────────────────────────────────────────── */
+.app-error-alert {
+  margin: 0 0 12px;
   border-radius: var(--r-md);
-  font-size: 13px; font-family: var(--mono); color: var(--red);
+}
+
+.app-nudge-alert {
+  margin: 0 0 12px;
+  border-radius: var(--r-md);
+}
+
+.app-nudge-alert__body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* ─── Background-ready banner ──────────────────────────────────────────── */

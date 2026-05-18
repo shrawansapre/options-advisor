@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Moon, Sun, LogOut, X } from "lucide-react";
+import { AlertTriangle, Moon, Sun, LogOut } from "lucide-react";
+import { Alert } from "@mantine/core";
 import { fetchRecommendation } from "./api";
 import { fmtElapsed, stripCitations } from "./utils";
 import { useSearchHistory, SearchHistory } from "./components/SearchHistory";
@@ -171,11 +172,16 @@ export default function App() {
         </div>
 
         {!showLearn && showNudge && (
-          <div className="signin-nudge">
+          <Alert
+            variant="light"
+            color="navy"
+            withCloseButton
+            onClose={dismissNudge}
+            classNames={{ root: 'app-nudge-alert', body: 'app-nudge-alert__body' }}
+          >
             <span>Sign in to save your analyses across devices</span>
             <button className="signin-nudge-btn" onClick={() => setShowAuth(true)}>Sign in</button>
-            <button className="signin-nudge-close" onClick={dismissNudge}><X size={11} /></button>
-          </div>
+          </Alert>
         )}
 
         {!showLearn && (
@@ -215,10 +221,16 @@ export default function App() {
           )}
 
           {active?.status === "error" && (
-            <motion.div key={`error-${active.id}`} className="error-bar"
+            <motion.div key={`error-${active.id}`}
               initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <AlertTriangle size={15} />
-              <span>{active.error}</span>
+              <Alert
+                icon={<AlertTriangle size={15} />}
+                color="red"
+                variant="light"
+                classNames={{ root: 'app-error-alert' }}
+              >
+                {active.error}
+              </Alert>
             </motion.div>
           )}
 
