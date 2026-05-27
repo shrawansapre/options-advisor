@@ -1,11 +1,11 @@
 import { TrendingUp, Clock, Activity } from "lucide-react";
 
 const CMP_ROWS = [
-  { label: "Capital needed",   stock: "$500",            call: "$500",              callClass: "" },
-  { label: "Stock rises to $120 (+20%)", stock: "+$100  (+20%)",  call: "+$1,500 (+300%)", callClass: "green" },
-  { label: "Stock stays flat",  stock: "$0",              call: "−$500 (−100%)",    callClass: "red" },
-  { label: "Stock falls to $80 (−20%)", stock: "−$100 (−20%)",  call: "−$500 (−100%)",   callClass: "red" },
-  { label: "Max possible loss", stock: "−$500 (only if stock → $0)", call: "−$500 (always capped)", callClass: "" },
+  { label: "Capital needed",       stock: "$500",         call: "$500",          callClass: "" },
+  { label: "Stock → $120 (+20%)",  stock: "+$100 (+20%)", call: "+$1,500 (+300%)", callClass: "green" },
+  { label: "Stock stays flat",     stock: "$0",           call: "−$500 (−100%)", callClass: "red" },
+  { label: "Stock → $80 (−20%)",   stock: "−$100 (−20%)", call: "−$500 (−100%)", callClass: "red" },
+  { label: "Max loss",             stock: "−$500",        call: "−$500 (capped)", callClass: "" },
 ];
 
 function Analogy({ children }) {
