@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { checklistAuditor } from "../../agents/checklistAuditor.js";
 
 const STATUS_ICON = { pass: "✓", fail: "✗", warning: "⚠", needs_input: "?" };
@@ -48,13 +48,6 @@ export default function ChecklistSection({ trade, chainData, initialResult, noHe
   const [loadState, setLoadState] = useState(initialResult ? "loaded" : "idle");
   const [result, setResult] = useState(initialResult ?? null);
   const [expanded, setExpanded] = useState(false);
-
-  useEffect(() => {
-    if (initialResult) {
-      setResult(initialResult);
-      setLoadState("loaded");
-    }
-  }, [initialResult]);
 
   async function handleToggle() {
     const next = !expanded;

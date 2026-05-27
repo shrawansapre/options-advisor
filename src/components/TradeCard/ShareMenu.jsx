@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { useOutsideClick } from "../../hooks/useOutsideClick";
 import html2canvas from "html2canvas-pro";
 import { Copy, Download, Share2 } from "lucide-react";
 import { formatTradeAsMarkdown } from "../../utils";
@@ -12,14 +13,7 @@ export default function ShareMenu({ trade, analysedAt, marketContext, snapshotRe
   const btnRef = useRef(null);
   const previewRef = useRef(null);
 
-  useEffect(() => {
-    if (!shareOpen) return;
-    function onOutsideClick(e) {
-      if (shareRef.current && !shareRef.current.contains(e.target)) setShareOpen(false);
-    }
-    document.addEventListener("mousedown", onOutsideClick);
-    return () => document.removeEventListener("mousedown", onOutsideClick);
-  }, [shareOpen]);
+  useOutsideClick(shareRef, () => setShareOpen(false), shareOpen);
 
   useLayoutEffect(() => {
     if (!previewPos || !snapshotRef.current || !previewRef.current) return;

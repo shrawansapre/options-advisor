@@ -68,12 +68,12 @@ function extractJSON(accumulated) {
   }
 
   let parsed;
-  const scrubbed = () => slice.replace(/[\x00-\x1F\x7F]/g, " ");
+  const scrubbed = slice.replace(/[\x00-\x1F\x7F]/g, " ");
   const attempts = [
     () => JSON.parse(slice),
     () => JSON.parse(jsonrepair(slice)),
-    () => JSON.parse(jsonrepair(scrubbed())),
-    () => JSON.parse(jsonrepair(fixUnescapedQuotes(scrubbed()))),
+    () => JSON.parse(jsonrepair(scrubbed)),
+    () => JSON.parse(jsonrepair(fixUnescapedQuotes(scrubbed))),
   ];
   for (const attempt of attempts) {
     try { parsed = attempt(); break; } catch (_) {}
@@ -160,10 +160,12 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
         const evt = JSON.parse(raw);
         if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta") {
           accumulated += evt.delta.text;
-          const strings = extractReadableStrings(accumulated);
-          if (strings.length !== lastStringCount) {
-            lastStringCount = strings.length;
-            onProgress?.({ type: "text", strings });
+          if (onProgress) {
+            const strings = extractReadableStrings(accumulated);
+            if (strings.length !== lastStringCount) {
+              lastStringCount = strings.length;
+              onProgress({ type: "text", strings });
+            }
           }
         } else if (evt.type === "content_block_start") {
           if (evt.content_block?.type === "tool_use") {

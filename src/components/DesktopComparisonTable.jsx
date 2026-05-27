@@ -10,12 +10,11 @@ import GreeksGrid from "./TradeCard/GreeksGrid";
 import ScenariosSection from "./TradeCard/ScenariosSection";
 import ChecklistSection from "./TradeCard/ChecklistSection";
 import IVGauge from "./IVGauge";
-import { parseBold, TIER_COLOR, formatRRRatio, formatDelta } from "../utils";
+import { parseBold, TIER_COLOR, TIER_LABEL, formatRRRatio, formatDelta, formatStrike, STRATEGY_LABEL } from "../utils";
 import { PayoffChart, ThetaDecayChart } from "./TradeCharts";
 
 function DataGrid({ trade }) {
-  const isSpread = !!trade.strike2;
-  const strikeDisplay = isSpread ? `$${trade.strike}/$${trade.strike2}` : `$${trade.strike}`;
+  const strikeDisplay = formatStrike(trade);
 
   const rrRatio = formatRRRatio(trade);
   const probDisplay = trade.predictions?.baseCase?.probability ?? "—";
@@ -241,8 +240,7 @@ export default function DesktopComparisonTable({ trades, chainData, analysedAt, 
               <span className="ss-flag-tier">
                 {TIER_LABEL[trade.riskTier] ?? "Moderate"}
                 {" · "}
-                {trade.strategyType === "bullish" ? "Bullish" :
-                 trade.strategyType === "bearish" ? "Bearish" : "Neutral"}
+                {STRATEGY_LABEL[trade.strategyType] ?? "Neutral"}
               </span>
             </div>
             <div className="ss-hero">

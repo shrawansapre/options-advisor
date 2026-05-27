@@ -4,7 +4,7 @@ import { AlertTriangle, ChevronRight, ChevronDown } from "lucide-react";
 import ShareMenu from "./TradeCard/ShareMenu";
 import { checklistAuditorBatch } from "../agents/checklistAuditor";
 import { PayoffChart, ThetaDecayChart } from "./TradeCharts";
-import { parseBold, TIER_COLOR, TIER_LABEL, formatRRRatio, formatDelta } from "../utils";
+import { parseBold, TIER_COLOR, TIER_LABEL, formatRRRatio, formatDelta, formatStrike, STRATEGY_LABEL } from "../utils";
 
 const SECTION_ABBR = {
   "DTE Rules": "DTE",
@@ -89,11 +89,9 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
   }
   const first = trades[0];
 
-  const td = trades.map(trade => {
-    const isSpread = !!trade.strike2;
-    const strikeDisplay = isSpread ? `$${trade.strike}/$${trade.strike2}` : `$${trade.strike}`;
-    return { ...trade, strikeDisplay, rrRatio: formatRRRatio(trade), deltaDisplay: formatDelta(trade) };
-  });
+  const td = trades.map(trade => ({
+    ...trade, strikeDisplay: formatStrike(trade), rrRatio: formatRRRatio(trade), deltaDisplay: formatDelta(trade),
+  }));
 
   return (
     <div className="mcv">
@@ -435,8 +433,7 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
               <span className="ss-flag-tier">
                 {TIER_LABEL[trade.riskTier] ?? "Moderate"}
                 {" · "}
-                {trade.strategyType === "bullish" ? "Bullish" :
-                 trade.strategyType === "bearish" ? "Bearish" : "Neutral"}
+                {STRATEGY_LABEL[trade.strategyType] ?? "Neutral"}
               </span>
             </div>
             <div className="ss-hero">

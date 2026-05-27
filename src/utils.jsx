@@ -1,4 +1,5 @@
 export const STRATEGY_COLORS = { bullish: "var(--green)", bearish: "var(--red)", neutral: "var(--amber)" };
+export const STRATEGY_LABEL = { bullish: "Bullish", bearish: "Bearish", neutral: "Neutral" };
 export const TIER_COLOR = { conservative: "green", moderate: "amber", aggressive: "red" };
 export const TIER_LABEL = { conservative: "Conservative", moderate: "Moderate", aggressive: "Aggressive" };
 
@@ -25,6 +26,10 @@ export function formatDelta(trade) {
   const raw = trade.greeks?.delta?.value;
   if (raw == null) return "—";
   return isNaN(+raw) ? raw : (+raw).toFixed(2);
+}
+
+export function formatStrike(trade) {
+  return trade.strike2 ? `$${trade.strike} / $${trade.strike2}` : `$${trade.strike}`;
 }
 
 export function stripCitations(text) {

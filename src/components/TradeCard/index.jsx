@@ -11,7 +11,7 @@ import ThesisRisk from "./ThesisRisk";
 import ScenariosSection from "./ScenariosSection";
 import SignalsSection from "./SignalsSection";
 import ChecklistSection from "./ChecklistSection";
-import { formatRRRatio, TIER_LABEL } from "../../utils";
+import { formatRRRatio, formatDelta, formatStrike, TIER_LABEL, STRATEGY_LABEL } from "../../utils";
 
 export default function TradeCard({ trade, index, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel, activeTab, onTabChange }) {
   const { summary, entryTiming, exitStrategy, predictions, greeks,
@@ -25,8 +25,7 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
 
   const expiryExpired = trade.expiry && analysedAt && new Date(trade.expiry) < analysedAt;
   const validSources = sources?.filter(s => s.url?.startsWith("http")) ?? [];
-  const isSpread = !!trade.strike2;
-  const strikeDisplay = isSpread ? `$${trade.strike}/$${trade.strike2}` : `$${trade.strike}`;
+  const strikeDisplay = formatStrike(trade);
 
   const rrRatio = formatRRRatio(trade);
 
@@ -107,9 +106,7 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
           <div className="tc-cell">
             <span className="tc-cell-label">DELTA</span>
             <span className="tc-cell-value">
-              {greeks?.delta?.value != null
-                ? (isNaN(+greeks.delta.value) ? greeks.delta.value : (+greeks.delta.value).toFixed(2))
-                : "—"}
+              {formatDelta(trade)}
             </span>
           </div>
           <div className="tc-cell">
@@ -170,8 +167,7 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
         <span className="ss-flag-tier">
           {TIER_LABEL[trade.riskTier] ?? "Moderate"}
           {" · "}
-          {trade.strategyType === "bullish" ? "Bullish" :
-           trade.strategyType === "bearish" ? "Bearish" : "Neutral"}
+          {STRATEGY_LABEL[trade.strategyType] ?? "Neutral"}
         </span>
       </div>
       <div className="ss-hero">

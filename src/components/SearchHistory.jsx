@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useOutsideClick } from "../hooks/useOutsideClick";
 import { motion, AnimatePresence } from "framer-motion";
 import { History, ChevronRight, X } from "lucide-react";
 import { supabase } from "../lib/supabase";
@@ -125,14 +126,7 @@ export function SearchHistory({ history, onSelect, onSelectCached, onClear }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  useEffect(() => {
-    if (!open) return;
-    function onOutside(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onOutside);
-    return () => document.removeEventListener("mousedown", onOutside);
-  }, [open]);
+  useOutsideClick(ref, () => setOpen(false), open);
 
   if (!history.length) return null;
 
