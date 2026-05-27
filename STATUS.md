@@ -70,6 +70,8 @@
 
 - **COST_ANALYSIS.md updated** — Trade Discipline Checklist adds ~$0.023/run (3 × 1200-token Haiku calls, one-time cost per analysis due to caching)
 
+- **Code simplification** — extracted `tallyItems`, `formatRRRatio`, `formatDelta`, `TIER_COLOR`, `TIER_LABEL` into `utils.jsx`; removed 3× duplicate R/R+delta derivations and 2× duplicate tally loops; ShareMenu clone effect changed to `useLayoutEffect` (fixes empty-preview flash); `captureCanvas()` returns canvas directly so `handleNativeShare` uses `canvas.toBlob()` instead of `fetch(dataUrl)`; `noHeader ? true : undefined` clarity fix in ChecklistSection
+
 ## Known Issues / Next Up
 
 - Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)

@@ -181,7 +181,26 @@ async function handleMarket(req, env) {
       { headers }
     );
     if (!chainRes.ok) throw new Error('chain fetch failed');
-    const chains = extractChains(await chainRes.json(), quote.last, selected);
+    let chains = extractChains(await chainRes.json(), quote.last, selected);
+
+    // After a large intraday move (e.g. earnings gap), delta values in the chain can be stale,
+    // causing all returned strikes to be far from the current price. Detect this and retry
+    // using an explicit price-anchored strike range so the chain stays usable.
+    const chainsHaveATM = chains.some(c =>
+      c.options.some(o => o.strike >= quote.last * 0.90 && o.strike <= quote.last * 1.10)
+    );
+    if (!chainsHaveATM && chains.length > 0) {
+      const strikeFrom = Math.round(quote.last * 0.85);
+      const strikeTo = Math.round(quote.last * 1.15);
+      const retryRes = await fetch(
+        `${base}/options/chain/${ticker}/?from=${from}&to=${to}&strikeLimit=10&strike=${strikeFrom}-${strikeTo}`,
+        { headers, signal: AbortSignal.timeout(4000) }
+      );
+      if (retryRes.ok) {
+        const retryChains = extractChains(await retryRes.json(), quote.last, selected);
+        if (retryChains.length > 0) chains = retryChains;
+      }
+    }
 
     const result = {
       ticker,
