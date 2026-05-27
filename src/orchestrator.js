@@ -10,6 +10,7 @@ async function fetchMarketData(ticker, externalSignal) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 9000);
   let onExternalAbort = null;
+  let onInternalAbort = null;
 
   try {
     let signal = controller.signal;
@@ -21,8 +22,9 @@ async function fetchMarketData(ticker, externalSignal) {
         if (externalSignal.aborted) {
           combined.abort();
         } else {
+          onInternalAbort = () => combined.abort();
           onExternalAbort = () => combined.abort();
-          controller.signal.addEventListener("abort", () => combined.abort(), { once: true });
+          controller.signal.addEventListener("abort", onInternalAbort, { once: true });
           externalSignal.addEventListener("abort", onExternalAbort, { once: true });
         }
         signal = combined.signal;
@@ -38,6 +40,7 @@ async function fetchMarketData(ticker, externalSignal) {
   } finally {
     clearTimeout(timer);
     if (onExternalAbort) externalSignal.removeEventListener("abort", onExternalAbort);
+    if (onInternalAbort) controller.signal.removeEventListener("abort", onInternalAbort);
   }
 }
 

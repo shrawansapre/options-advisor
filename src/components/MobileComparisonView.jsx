@@ -433,7 +433,7 @@ export default function MobileComparisonView({ trades, chainData, analysedAt, ha
             <div className={`ss-flag ss-flag--${trade.riskTier ?? "moderate"}`}>
               <span className="ss-flag-name">{trade.strategy}</span>
               <span className="ss-flag-tier">
-                {TIER_LABEL[trade.riskTier] ?? "Aggressive"}
+                {TIER_LABEL[trade.riskTier] ?? "Moderate"}
                 {" · "}
                 {trade.strategyType === "bullish" ? "Bullish" :
                  trade.strategyType === "bearish" ? "Bearish" : "Neutral"}

@@ -87,6 +87,7 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   let onExternalAbort = null;
+  let onInternalAbort = null;
   let signal = controller.signal;
   if (externalSignal) {
     if (typeof AbortSignal.any === "function") {
@@ -96,8 +97,9 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
       if (externalSignal.aborted) {
         combined.abort();
       } else {
+        onInternalAbort = () => combined.abort();
         onExternalAbort = () => combined.abort();
-        controller.signal.addEventListener("abort", () => combined.abort(), { once: true });
+        controller.signal.addEventListener("abort", onInternalAbort, { once: true });
         externalSignal.addEventListener("abort", onExternalAbort, { once: true });
       }
       signal = combined.signal;
@@ -123,84 +125,83 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
     body.tools = [{ type: "web_search_20250305", name: "web_search" }];
   }
 
-  let response;
   try {
-    response = await fetch(
-      USE_PROXY ? `${import.meta.env.VITE_API_BASE ?? ''}/analyze` : "https://api.anthropic.com/v1/messages",
-      { method: "POST", headers, body: JSON.stringify(body), signal }
-    );
-  } catch (err) {
-    clearTimeout(timer);
-    if (onExternalAbort) externalSignal.removeEventListener("abort", onExternalAbort);
-    if (err.name === "AbortError") {
-      if (externalSignal?.aborted) throw new Error("__BACKGROUNDED__");
-      throw new Error("Analysis timed out — the web search took too long. Please try again.");
-    }
-    throw err;
-  }
-
-  if (!response.ok) {
-    clearTimeout(timer);
-    if (onExternalAbort) externalSignal.removeEventListener("abort", onExternalAbort);
-    const b = await response.json().catch(() => ({}));
-    throw new Error(`API ${response.status}: ${b?.error?.message ?? "unknown error"}`);
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let accumulated = "";
-  let lineBuffer = "";
-  let searchCount = 0;
-  let lastStringCount = 0;
-
-  const processLine = (line) => {
-    if (!line.startsWith("data: ")) return;
-    const raw = line.slice(6).trim();
-    if (!raw || raw === "[DONE]") return;
+    let response;
     try {
-      const evt = JSON.parse(raw);
-      if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta") {
-        accumulated += evt.delta.text;
-        const strings = extractReadableStrings(accumulated);
-        if (strings.length !== lastStringCount) {
-          lastStringCount = strings.length;
-          onProgress?.({ type: "text", strings });
-        }
-      } else if (evt.type === "content_block_start") {
-        if (evt.content_block?.type === "tool_use") {
-          searchCount++;
-          onProgress?.({ type: "search", count: searchCount });
-        } else if (evt.content_block?.type === "text") {
-          accumulated = "";
-          lastStringCount = 0;
-        }
+      response = await fetch(
+        USE_PROXY ? `${import.meta.env.VITE_API_BASE ?? ''}/analyze` : "https://api.anthropic.com/v1/messages",
+        { method: "POST", headers, body: JSON.stringify(body), signal }
+      );
+    } catch (err) {
+      if (err.name === "AbortError") {
+        if (externalSignal?.aborted) throw err;
+        throw new Error("Analysis timed out — the web search took too long. Please try again.");
       }
-    } catch (_) {}
-  };
+      throw err;
+    }
 
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        lineBuffer += decoder.decode();
-        if (lineBuffer.trim()) processLine(lineBuffer.trim());
-        break;
+    if (!response.ok) {
+      const b = await response.json().catch(() => ({}));
+      throw new Error(`API ${response.status}: ${b?.error?.message ?? "unknown error"}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let accumulated = "";
+    let lineBuffer = "";
+    let searchCount = 0;
+    let lastStringCount = 0;
+
+    const processLine = (line) => {
+      if (!line.startsWith("data: ")) return;
+      const raw = line.slice(6).trim();
+      if (!raw || raw === "[DONE]") return;
+      try {
+        const evt = JSON.parse(raw);
+        if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta") {
+          accumulated += evt.delta.text;
+          const strings = extractReadableStrings(accumulated);
+          if (strings.length !== lastStringCount) {
+            lastStringCount = strings.length;
+            onProgress?.({ type: "text", strings });
+          }
+        } else if (evt.type === "content_block_start") {
+          if (evt.content_block?.type === "tool_use") {
+            searchCount++;
+            onProgress?.({ type: "search", count: searchCount });
+          } else if (evt.content_block?.type === "text") {
+            accumulated = "";
+            lastStringCount = 0;
+          }
+        }
+      } catch (_) {}
+    };
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          lineBuffer += decoder.decode();
+          if (lineBuffer.trim()) processLine(lineBuffer.trim());
+          break;
+        }
+        lineBuffer += decoder.decode(value, { stream: true });
+        const lines = lineBuffer.split("\n");
+        lineBuffer = lines.pop();
+        for (const line of lines) processLine(line);
       }
-      lineBuffer += decoder.decode(value, { stream: true });
-      const lines = lineBuffer.split("\n");
-      lineBuffer = lines.pop();
-      for (const line of lines) processLine(line);
+    } catch (err) {
+      if (err.name === "AbortError") {
+        if (externalSignal?.aborted) throw err;
+        throw new Error("Analysis timed out — the web search took too long. Please try again.");
+      }
+      throw err;
     }
-  } catch (err) {
-    if (err.name === "AbortError") {
-      if (externalSignal?.aborted) throw new Error("__BACKGROUNDED__");
-      throw new Error("Analysis timed out — the web search took too long. Please try again.");
-    }
-    throw err;
+
+    return extractJSON(accumulated);
   } finally {
     clearTimeout(timer);
     if (onExternalAbort) externalSignal.removeEventListener("abort", onExternalAbort);
+    if (onInternalAbort) controller.signal.removeEventListener("abort", onInternalAbort);
   }
-
-  return extractJSON(accumulated);
 }
