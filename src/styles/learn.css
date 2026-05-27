@@ -388,21 +388,47 @@
 }
 
 @media (max-width: 620px) {
-  .learn-topbar { flex-direction: column; align-items: flex-start; }
+  /* Topbar: stack back button and tabs, tighter spacing */
+  .learn-topbar {
+    flex-direction: column; align-items: stretch;
+    gap: 10px; margin-bottom: 16px; padding-bottom: 12px;
+  }
+  .learn-topbar-left { gap: 10px; }
+  .learn-heading { font-size: 17px; }
+
+  /* Tabs: scroll horizontally — no wrapping onto a second line */
+  .learn-mantine-tabs__list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .learn-mantine-tabs__list::-webkit-scrollbar { display: none; }
+  .learn-mantine-tabs__tab {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 6px 11px;
+  }
+
+  /* Grids: single column */
   .learn-grid { grid-template-columns: 1fr; }
   .learn-card--wide { grid-column: span 1; }
   .learn-greeks-grid { grid-template-columns: 1fr; }
   .learn-strategies-grid { grid-template-columns: 1fr; }
+
+  /* IV section */
   .learn-gauge-row { gap: 8px; }
   .learn-iv-label { min-width: unset; font-size: 10px; }
   .learn-forces { grid-template-columns: 1fr; gap: 8px; }
   .learn-force-card { grid-column: auto; }
+
+  /* Comparison table: reflow to 2-col with labels as header */
   .learn-cmp-header { display: none; }
   .learn-cmp-row {
     grid-template-columns: 1fr 1fr;
     grid-template-areas: "label label" "stock call";
-    gap: 2px 8px;
-    padding: 10px 12px;
+    gap: 2px 8px; padding: 10px 12px;
   }
   .learn-cmp-label { grid-area: label; font-size: 12px; font-weight: 500; color: var(--t1); padding-bottom: 6px; }
   .learn-cmp-stock { grid-area: stock; font-size: 12px; }
@@ -417,12 +443,18 @@
     font-family: var(--mono); font-size: 9px; color: var(--t3);
     letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; text-align: right;
   }
+
+  /* Interactive components */
   .learn-intro-hook { font-size: 17px; }
   .learn-pl-note { display: none; }
   .learn-pl-display { gap: 6px; padding: 8px 10px; }
   .learn-pl-value { font-size: 17px; }
   .learn-slider-labels { flex-direction: column; gap: 2px; }
   .learn-itm-intrinsic { display: none; }
+}
+
+@media (max-width: 380px) {
+  .learn-heading { display: none; }
 }
 
 /* ── iPad portrait  768px ──────────────────────────────────────────────── */
