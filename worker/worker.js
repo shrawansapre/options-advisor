@@ -4,8 +4,13 @@ const MAX_TOKENS_LIMIT = 16000;
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Token',
 };
+
+function checkToken(req, env) {
+  if (!env.INTERNAL_TOKEN) return true;
+  return req.headers.get('X-Internal-Token') === env.INTERNAL_TOKEN;
+}
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -22,6 +27,7 @@ function text(body, status = 200) {
 
 async function handleAnalyze(req, env) {
   if (req.method !== 'POST') return text('Method not allowed', 405);
+  if (!checkToken(req, env)) return text('Forbidden', 403);
 
   const apiKey = env.ANTHROPIC_API_KEY;
   if (!apiKey) return json({ error: { message: 'ANTHROPIC_API_KEY not configured' } }, 500);
@@ -32,16 +38,26 @@ async function handleAnalyze(req, env) {
   if (!ALLOWED_MODELS.has(body.model)) return text('Forbidden', 403);
   if (!body.max_tokens || body.max_tokens > MAX_TOKENS_LIMIT) return text('Forbidden', 403);
 
-  const upstream = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-beta': 'prompt-caching-2024-07-31',
-    },
-    body: JSON.stringify(body),
-  });
+  let upstream;
+  try {
+    upstream = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'prompt-caching-2024-07-31',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    console.error('handleAnalyze upstream error:', err?.message ?? err);
+    return json({ error: { message: 'Failed to reach Anthropic API' } }, 502);
+  }
+
+  if (!upstream.ok) {
+    console.error('handleAnalyze upstream status:', upstream.status);
+  }
 
   return new Response(upstream.body, {
     status: upstream.status,
@@ -138,12 +154,16 @@ function extractIvCurrent(chains, currentPrice) {
 
 async function handleMarket(req, env) {
   if (req.method !== 'GET') return text('Method not allowed', 405);
+  if (!checkToken(req, env)) return text('Forbidden', 403);
 
   const ticker = sanitizeTicker(new URL(req.url).searchParams.get('ticker'));
   if (!ticker) return json({ error: 'ticker_required' }, 400);
 
   const key = cacheKey(ticker);
-  if (cache.has(key)) return json(cache.get(key));
+  const cached = env.MARKET_CACHE
+    ? await env.MARKET_CACHE.get(key, 'json')
+    : (cache.has(key) ? cache.get(key) : null);
+  if (cached) return json(cached);
 
   const token = env.MARKET_DATA_TOKEN;
   if (!token) return json({ error: 'market_data_unavailable' });
@@ -211,10 +231,15 @@ async function handleMarket(req, env) {
       fetchedAt: new Date().toISOString(),
     };
 
-    if (cache.size > 500) cache.clear();
-    cache.set(key, result);
+    if (env.MARKET_CACHE) {
+      await env.MARKET_CACHE.put(key, JSON.stringify(result), { expirationTtl: 120 });
+    } else {
+      if (cache.size > 500) cache.clear();
+      cache.set(key, result);
+    }
     return json(result);
-  } catch {
+  } catch (err) {
+    console.error('handleMarket error:', err?.message ?? err);
     return json({ error: 'market_data_unavailable' });
   }
 }

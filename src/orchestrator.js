@@ -1,6 +1,7 @@
 import { runResearcher } from "./agents/researcher.js";
 import { runStrategist } from "./agents/strategist.js";
 import { runCritic } from "./agents/critic.js";
+import { buildLiveDataBlock } from "./utils.jsx";
 
 const DISCLAIMER = "This is AI-generated analysis for educational and informational purposes only. It does not constitute financial advice, a solicitation, or a recommendation to buy or sell any security. Options trading involves substantial risk of loss and is not suitable for all investors. Past performance does not guarantee future results. Always consult a qualified financial advisor and do your own research before trading.";
 
@@ -30,7 +31,11 @@ async function fetchMarketData(ticker, externalSignal) {
         signal = combined.signal;
       }
     }
-    const res = await fetch(`${import.meta.env.VITE_API_BASE ?? ''}/market?ticker=${ticker}`, { signal });
+    const marketHeaders = {};
+    if (import.meta.env.VITE_INTERNAL_TOKEN) {
+      marketHeaders["X-Internal-Token"] = import.meta.env.VITE_INTERNAL_TOKEN;
+    }
+    const res = await fetch(`${import.meta.env.VITE_API_BASE ?? ''}/market?ticker=${ticker}`, { signal, headers: marketHeaders });
     if (!res.ok) return null;
     const data = await res.json();
     return data.error ? null : data;
@@ -44,26 +49,24 @@ async function fetchMarketData(ticker, externalSignal) {
   }
 }
 
-export function buildLiveDataBlock(marketData) {
-  const { quote, ivCurrent, ivRank, chains, fetchedAt } = marketData;
-  const fetchTime = new Date(fetchedAt).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit" });
-  const iv = ivCurrent != null ? `${(ivCurrent * 100).toFixed(1)}%` : "unavailable";
-  const ivRankStr = ivRank != null ? `${ivRank}th percentile` : "unavailable";
-  const g = (v, d) => v != null ? v.toFixed(d) : "n/a";
-
-  let block = `[LIVE MARKET DATA — fetched ${fetchTime} ET]\n`;
-  block += `Stock: ${marketData.ticker} @ $${quote.last} (${(quote.changePercent ?? 0) >= 0 ? "+" : ""}${quote.changePercent?.toFixed(1) ?? "0.0"}%) | Bid: $${quote.bid} | Ask: $${quote.ask}\n`;
-  block += `IV: ${iv} | IV Rank: ${ivRankStr}\n`;
-  block += `Available expiries: ${chains.map(c => `${c.expiry}(${c.daysToExpiry}d)`).join(", ")}\n\nOptions Chain:\n`;
-
-  for (const chain of chains) {
-    block += `${chain.expiry} (${chain.daysToExpiry} DTE):\n`;
-    for (const o of chain.options) {
-      block += `  ${o.strike}${o.type[0]} bid:$${g(o.bid,2)} ask:$${g(o.ask,2)} Δ${g(o.delta,2)} θ${g(o.theta,2)} IV:${o.iv!=null?(o.iv*100).toFixed(0)+"%" :"n/a"} OI:${o.openInterest??"-"}\n`;
-    }
-    block += "\n";
-  }
-  return block;
+function ensureTradeShape(t) {
+  if (!t || typeof t !== "object") return null;
+  if (!t.strategy && !t.ticker) return null;
+  return {
+    strategyType: "neutral",
+    strategy: "",
+    ticker: "",
+    currentPrice: 0,
+    strike: 0,
+    expiry: "",
+    expiryLabel: "",
+    daysToExpiry: 0,
+    totalCost: "—",
+    maxProfit: "—",
+    maxLoss: "—",
+    breakeven: 0,
+    ...t,
+  };
 }
 
 export async function orchestrate({ ticker, onProgress, signal }) {
@@ -127,7 +130,7 @@ export async function orchestrate({ ticker, onProgress, signal }) {
   );
 
   const trades = results.map((r, i) => {
-    const t = r.trades?.[0];
+    const t = ensureTradeShape(r.trades?.[0]);
     if (!t) return null;
     t.riskTier = tiers[i];
     t.riskLevel = TIER_LEVELS[tiers[i]];
@@ -178,7 +181,7 @@ export async function orchestrate({ ticker, onProgress, signal }) {
         }
       }
     } catch {
-      // Critic failed entirely — ship uncritiqued
+      onProgress?.({ type: "critic", status: "skipped" });
     }
   }
 

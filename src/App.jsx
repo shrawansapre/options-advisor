@@ -46,9 +46,14 @@ export default function App() {
     setShowUserMenu(m => !m);
   }
 
+  const inFlight = useRef(new Set());
+
   async function handleAnalyze(explicitTicker) {
     const t = (explicitTicker !== undefined ? explicitTicker : ticker).trim();
     if (explicitTicker !== undefined) setTicker(explicitTicker);
+
+    const key = t || "__scan__";
+    if (inFlight.current.has(key)) return;
 
     if (t && !/^[A-Z]{1,5}([.\-][A-Z]{0,2})?$/.test(t)) {
       const errAnalysis = {
@@ -62,6 +67,7 @@ export default function App() {
 
     const a = makeAnalysis(t);
     openTab(a);
+    inFlight.current.add(key);
 
     const abortController = new AbortController();
     const onFreeze = () => abortController.abort();
@@ -83,6 +89,7 @@ export default function App() {
         : (e.message || "Could not generate an analysis. Please try again.");
       update(a.id, { status: "error", error: msg });
     } finally {
+      inFlight.current.delete(key);
       document.removeEventListener("freeze", onFreeze);
     }
   }

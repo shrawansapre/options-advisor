@@ -39,16 +39,12 @@ export function useAnalysisState() {
   }
 
   function closeTab(id) {
-    setAnalyses(prev => {
-      const next = prev.filter(a => a.id !== id);
-      if (activeId === id && next.length) {
-        const idx = Math.max(0, prev.findIndex(a => a.id === id) - 1);
-        setActiveId(next[Math.min(idx, next.length - 1)].id);
-      } else if (!next.length) {
-        setActiveId(null);
-      }
-      return next;
-    });
+    const next = analyses.filter(a => a.id !== id);
+    if (activeId === id) {
+      const idx = Math.max(0, analyses.findIndex(a => a.id === id) - 1);
+      setActiveId(next.length ? next[Math.min(idx, next.length - 1)].id : null);
+    }
+    setAnalyses(next);
   }
 
   function handleSelectCached(cachedResult, cachedAt) {

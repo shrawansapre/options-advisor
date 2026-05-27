@@ -77,6 +77,27 @@ export function impactDotColor(impact) {
   return "var(--t3)";
 }
 
+export function buildLiveDataBlock(marketData) {
+  const { quote, ivCurrent, ivRank, chains, fetchedAt } = marketData;
+  const fetchTime = new Date(fetchedAt).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit" });
+  const iv = ivCurrent != null ? `${(ivCurrent * 100).toFixed(1)}%` : "unavailable";
+  const ivRankStr = ivRank != null ? `${ivRank}th percentile` : "unavailable";
+  const g = (v, d) => v != null ? v.toFixed(d) : "n/a";
+
+  let block = `[LIVE MARKET DATA — fetched ${fetchTime} ET]\n`;
+  block += `Stock: ${marketData.ticker} @ $${quote.last} (${(quote.changePercent ?? 0) >= 0 ? "+" : ""}${quote.changePercent?.toFixed(1) ?? "0.0"}%) | Bid: $${quote.bid} | Ask: $${quote.ask}\n`;
+  block += `IV: ${iv} | IV Rank: ${ivRankStr}\n`;
+  block += `Available expiries: ${chains.map(c => `${c.expiry}(${c.daysToExpiry}d)`).join(", ")}\n\nOptions Chain:\n`;
+  for (const chain of chains) {
+    block += `${chain.expiry} (${chain.daysToExpiry} DTE):\n`;
+    for (const o of chain.options) {
+      block += `  ${o.strike}${o.type[0]} bid:$${g(o.bid,2)} ask:$${g(o.ask,2)} Δ${g(o.delta,2)} θ${g(o.theta,2)} IV:${o.iv!=null?(o.iv*100).toFixed(0)+"%" :"n/a"} OI:${o.openInterest??"-"}\n`;
+    }
+    block += "\n";
+  }
+  return block;
+}
+
 export function formatTradeAsMarkdown(trade, marketContext, analysedAt) {
   const { summary, exitStrategy, predictions, greeks, rationale, riskFactors, strategyRationale, watchFor } = trade;
   const isSpread = !!trade.strike2;

@@ -107,7 +107,11 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
   }
 
   const headers = { "Content-Type": "application/json" };
-  if (!USE_PROXY) {
+  if (USE_PROXY) {
+    if (import.meta.env.VITE_INTERNAL_TOKEN) {
+      headers["X-Internal-Token"] = import.meta.env.VITE_INTERNAL_TOKEN;
+    }
+  } else {
     headers["x-api-key"] = import.meta.env.VITE_ANTHROPIC_API_KEY;
     headers["anthropic-version"] = "2023-06-01";
     headers["anthropic-beta"] = "prompt-caching-2024-07-31";

@@ -1,6 +1,6 @@
 import { callAPI } from "../lib/claude.js";
-import { buildLiveDataBlock } from "../orchestrator.js";
-import { CHECKLIST_AUDITOR_SYSTEM_PROMPT } from "../prompts/checklist.js";
+import { buildLiveDataBlock } from "../utils.jsx";
+import { CHECKLIST_AUDITOR_SYSTEM_PROMPT, CHECKLIST_AUDITOR_BATCH_PROMPT } from "../prompts/checklist.js";
 import { runLocalChecks } from "./checklistLocal.js";
 import { tallyItems } from "../utils.jsx";
 
@@ -16,19 +16,45 @@ function mergeLocalAndAI(trade, localResult, aiAudit) {
   };
 }
 
-export async function checklistAuditorBatch({ trades, chainData }) {
-  const results = await Promise.allSettled(
-    trades.map(trade => checklistAuditor({ trade, chainData }))
-  );
-  return results.map((r, i) => {
-    if (r.status === "fulfilled") return r.value;
-    return mergeLocalAndAI(trades[i], runLocalChecks(trades[i]), null);
+export async function checklistAuditorBatch({ trades, chainData, signal }) {
+  const localResults = trades.map(t => runLocalChecks(t));
+  const chainText = chainData ? buildLiveDataBlock(chainData) : null;
+
+  const userMsg = `Audit all 3 options trades below.
+
+ALREADY COMPUTED LOCALLY — DO NOT RE-AUDIT: DTE Rules, IV Environment vs Strategy, Profit Target & Stop Loss, Position Sizing.
+
+Audit ONLY: Liquidity, Delta Checks (Short Strikes Only), Greeks Alignment, Strategy Match, Retail Trap Scan, Final Gate.
+
+TRADES:
+${trades.map(t => `[${t.riskTier?.toUpperCase() ?? "UNKNOWN"}]\n${JSON.stringify(t, null, 2)}`).join("\n\n")}
+
+${chainText
+    ? `LIVE MARKET DATA:\n${chainText}`
+    : "No live market data available. Mark all data-dependent checks as needs_input."}`;
+
+  let batchResult = null;
+  try {
+    batchResult = await callAPI({
+      systemPrompt: CHECKLIST_AUDITOR_BATCH_PROMPT,
+      userMessage: userMsg,
+      useWebSearch: false,
+      maxTokens: 4000,
+      model: "claude-haiku-4-5-20251001",
+      onProgress: null,
+      timeoutMs: 60000,
+      signal,
+    });
+  } catch (_) {}
+
+  return trades.map((trade, i) => {
+    const aiAudit = batchResult?.audits?.[i] ?? null;
+    return mergeLocalAndAI(trade, localResults[i], aiAudit);
   });
 }
 
-export async function checklistAuditor({ trade, chainData }) {
+export async function checklistAuditor({ trade, chainData, signal }) {
   const localResult = runLocalChecks(trade);
-
   const chainText = chainData ? buildLiveDataBlock(chainData) : null;
 
   const userMsg = `Audit this ${trade.riskTier} options trade.
@@ -54,6 +80,7 @@ ${chainText
       model: "claude-haiku-4-5-20251001",
       onProgress: null,
       timeoutMs: 45000,
+      signal,
     });
   } catch (_) {}
 

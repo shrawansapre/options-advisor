@@ -1,5 +1,5 @@
 import { callAPI } from "../lib/claude.js";
-import { buildLiveDataBlock } from "../orchestrator.js";
+import { buildLiveDataBlock } from "../utils.jsx";
 import { CRITIC_SYSTEM_PROMPT } from "../prompts/critic.js";
 
 export async function runCritic({ trades, marketData, signal }) {
