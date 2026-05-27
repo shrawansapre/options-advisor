@@ -2,13 +2,9 @@ name = "api"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
-# KV cache for market data (survives isolate eviction unlike in-memory Map)
-# To enable:
-#   1. npx wrangler kv namespace create MARKET_CACHE
-#   2. Uncomment and fill in the id from the output above
-# [[kv_namespaces]]
-# binding = "MARKET_CACHE"
-# id = "<paste-namespace-id-here>"
+[[kv_namespaces]]
+binding = "MARKET_CACHE"
+id = "122c51ef34e540fabb07f7939b1e01b6"
 
 [observability]
 enabled = false
