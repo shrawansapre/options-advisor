@@ -82,9 +82,21 @@ function extractJSON(accumulated) {
   return parsed;
 }
 
-export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, model = "claude-sonnet-4-6", onProgress, timeoutMs = 120000 }) {
+export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, model = "claude-sonnet-4-6", onProgress, timeoutMs = 120000, signal: externalSignal }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  let signal = controller.signal;
+  if (externalSignal) {
+    if (typeof AbortSignal.any === "function") {
+      signal = AbortSignal.any([controller.signal, externalSignal]);
+    } else {
+      const combined = new AbortController();
+      controller.signal.addEventListener("abort", () => combined.abort(), { once: true });
+      externalSignal.addEventListener("abort", () => combined.abort(), { once: true });
+      signal = combined.signal;
+    }
+  }
 
   const headers = { "Content-Type": "application/json" };
   if (!USE_PROXY) {
@@ -109,11 +121,14 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
   try {
     response = await fetch(
       USE_PROXY ? `${import.meta.env.VITE_API_BASE ?? ''}/analyze` : "https://api.anthropic.com/v1/messages",
-      { method: "POST", headers, body: JSON.stringify(body), signal: controller.signal }
+      { method: "POST", headers, body: JSON.stringify(body), signal }
     );
   } catch (err) {
     clearTimeout(timer);
-    if (err.name === "AbortError") throw new Error("Analysis timed out — the web search took too long. Please try again.");
+    if (err.name === "AbortError") {
+      if (externalSignal?.aborted) throw new Error("__BACKGROUNDED__");
+      throw new Error("Analysis timed out — the web search took too long. Please try again.");
+    }
     throw err;
   }
 
@@ -169,7 +184,10 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
       for (const line of lines) processLine(line);
     }
   } catch (err) {
-    if (err.name === "AbortError") throw new Error("Analysis timed out — the web search took too long. Please try again.");
+    if (err.name === "AbortError") {
+      if (externalSignal?.aborted) throw new Error("__BACKGROUNDED__");
+      throw new Error("Analysis timed out — the web search took too long. Please try again.");
+    }
     throw err;
   } finally {
     clearTimeout(timer);

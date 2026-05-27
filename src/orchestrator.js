@@ -6,16 +6,23 @@ const DISCLAIMER = "This is AI-generated analysis for educational and informatio
 
 const TIER_LEVELS = { conservative: 2, moderate: 3, aggressive: 4 };
 
-async function fetchMarketData(ticker) {
+async function fetchMarketData(ticker, externalSignal) {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 9000);
-    const res = await fetch(`${import.meta.env.VITE_API_BASE ?? ''}/market?ticker=${ticker}`, { signal: controller.signal });
+    let signal = controller.signal;
+    if (externalSignal) {
+      signal = typeof AbortSignal.any === "function"
+        ? AbortSignal.any([controller.signal, externalSignal])
+        : controller.signal;
+    }
+    const res = await fetch(`${import.meta.env.VITE_API_BASE ?? ''}/market?ticker=${ticker}`, { signal });
     clearTimeout(timer);
     if (!res.ok) return null;
     const data = await res.json();
     return data.error ? null : data;
-  } catch {
+  } catch (e) {
+    if (e.name === "AbortError" && externalSignal?.aborted) throw e;
     return null;
   }
 }
@@ -42,7 +49,7 @@ export function buildLiveDataBlock(marketData) {
   return block;
 }
 
-export async function orchestrate({ ticker, onProgress }) {
+export async function orchestrate({ ticker, onProgress, signal }) {
   const safeTicker = (ticker || "").replace(/[^A-Z0-9.\-]/gi, "").slice(0, 10).toUpperCase();
 
   const nowET = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
@@ -66,7 +73,7 @@ export async function orchestrate({ ticker, onProgress }) {
     : "After-hours";
   const timeContext = `Today is ${today}, current time is ${timeStr}. ${marketStatus}`;
 
-  const marketDataPromise = safeTicker ? fetchMarketData(safeTicker) : Promise.resolve(null);
+  const marketDataPromise = safeTicker ? fetchMarketData(safeTicker, signal) : Promise.resolve(null);
   const marketData = await marketDataPromise;
   const hasLiveData = marketData !== null;
   if (safeTicker) onProgress?.({ type: "marketData", ok: hasLiveData });
@@ -76,7 +83,7 @@ export async function orchestrate({ ticker, onProgress }) {
     ? `${livePrefix}${timeContext} Gather comprehensive market research for ${safeTicker} to support options strategy analysis. All expiry dates must be at least 21 days from today.`
     : `${timeContext} Scan the US stock market and identify the single best options trade opportunity today, then gather full research for that ticker. All expiry dates must be at least 21 days from today.`;
 
-  const research = await runResearcher({ researchMsg, hasLiveData, onProgress });
+  const research = await runResearcher({ researchMsg, hasLiveData, onProgress, signal });
 
   if (hasLiveData) {
     research.chains = marketData.chains;
@@ -95,7 +102,7 @@ export async function orchestrate({ ticker, onProgress }) {
 
   const results = await Promise.all(
     tiers.map(async (tier) => {
-      const result = await runStrategist({ tier, resolvedTicker, researchJSON, hasLiveData, greeksNote, timeContext });
+      const result = await runStrategist({ tier, resolvedTicker, researchJSON, hasLiveData, greeksNote, timeContext, signal });
       tierStatus[tier] = "done";
       onProgress?.({ type: "strategies", tiers: { ...tierStatus } });
       return result;
@@ -124,7 +131,7 @@ export async function orchestrate({ ticker, onProgress }) {
   if (hasLiveData) {
     try {
       onProgress?.({ type: "critic", status: "running" });
-      const criticResult = await runCritic({ trades: currentTrades, marketData });
+      const criticResult = await runCritic({ trades: currentTrades, marketData, signal });
       const failedCritiques = (criticResult.trades ?? []).filter(t => !t.pass);
       onProgress?.({
         type: "critic",
@@ -140,7 +147,7 @@ export async function orchestrate({ ticker, onProgress }) {
           try {
             const retried = await runStrategist({
               tier, resolvedTicker, researchJSON, hasLiveData, greeksNote, timeContext,
-              critique: failedCritique.concerns,
+              critique: failedCritique.concerns, signal,
             });
             const retriedTrade = retried.trades?.[0];
             if (retriedTrade) {

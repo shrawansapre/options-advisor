@@ -2,7 +2,7 @@ import { callAPI } from "../lib/claude.js";
 import { buildLiveDataBlock } from "../orchestrator.js";
 import { CRITIC_SYSTEM_PROMPT } from "../prompts/critic.js";
 
-export async function runCritic({ trades, marketData }) {
+export async function runCritic({ trades, marketData, signal }) {
   const chainText = marketData
     ? buildLiveDataBlock(marketData)
     : "No live chain data available. Skip checks 1-4 (strike, price, delta, spread).";
@@ -21,5 +21,6 @@ ${JSON.stringify(trades, null, 2)}`;
     model: "claude-haiku-4-5-20251001",
     onProgress: null,
     timeoutMs: 30000,
+    signal,
   });
 }

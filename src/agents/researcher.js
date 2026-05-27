@@ -1,7 +1,7 @@
 import { callAPI } from "../lib/claude.js";
 import { RESEARCH_SYSTEM_PROMPT, RESEARCH_SYSTEM_PROMPT_LIVE } from "../prompts/research.js";
 
-export async function runResearcher({ researchMsg, hasLiveData, onProgress }) {
+export async function runResearcher({ researchMsg, hasLiveData, onProgress, signal }) {
   const result = await callAPI({
     systemPrompt: hasLiveData ? RESEARCH_SYSTEM_PROMPT_LIVE : RESEARCH_SYSTEM_PROMPT,
     userMessage: researchMsg,
@@ -9,6 +9,7 @@ export async function runResearcher({ researchMsg, hasLiveData, onProgress }) {
     maxTokens: 4000,
     model: "claude-haiku-4-5-20251001",
     onProgress,
+    signal,
   });
   if (result.error) throw new Error(result.message || "Ticker not found. Please check the symbol and try again.");
   return result;
