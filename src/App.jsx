@@ -64,17 +64,8 @@ export default function App() {
     openTab(a);
 
     const abortController = new AbortController();
-    let hideTimer = null;
     const onFreeze = () => abortController.abort();
-    const onVisibility = () => {
-      if (document.hidden) {
-        hideTimer = setTimeout(() => abortController.abort(), 5000);
-      } else {
-        clearTimeout(hideTimer);
-      }
-    };
     document.addEventListener("freeze", onFreeze);
-    document.addEventListener("visibilitychange", onVisibility);
 
     try {
       const data = await fetchRecommendation(t, progress => update(a.id, { progress }), abortController.signal);
@@ -87,14 +78,12 @@ export default function App() {
       });
       if (data.trades?.[0]) addEntry(t, data.trades[0], data);
     } catch (e) {
-      const msg = abortController.signal.aborted
+      const msg = abortController.signal.aborted || e.message === "__BACKGROUNDED__"
         ? "Analysis interrupted — the app was sent to the background. Tap to retry."
-        : (e.message === "__BACKGROUNDED__" ? "Analysis interrupted — the app was sent to the background. Tap to retry." : (e.message || "Could not generate an analysis. Please try again."));
+        : (e.message || "Could not generate an analysis. Please try again.");
       update(a.id, { status: "error", error: msg });
     } finally {
-      clearTimeout(hideTimer);
       document.removeEventListener("freeze", onFreeze);
-      document.removeEventListener("visibilitychange", onVisibility);
     }
   }
 
