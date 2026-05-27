@@ -239,8 +239,7 @@ export default function DesktopComparisonTable({ trades, chainData, analysedAt, 
             <div className={`ss-flag ss-flag--${trade.riskTier ?? "moderate"}`}>
               <span className="ss-flag-name">{trade.strategy}</span>
               <span className="ss-flag-tier">
-                {trade.riskTier === "conservative" ? "Conservative" :
-                 trade.riskTier === "moderate"     ? "Moderate"     : "Aggressive"}
+                {TIER_LABEL[trade.riskTier] ?? "Moderate"}
                 {" · "}
                 {trade.strategyType === "bullish" ? "Bullish" :
                  trade.strategyType === "bearish" ? "Bearish" : "Neutral"}

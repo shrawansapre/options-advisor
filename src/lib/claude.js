@@ -86,14 +86,20 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+  let onExternalAbort = null;
   let signal = controller.signal;
   if (externalSignal) {
     if (typeof AbortSignal.any === "function") {
       signal = AbortSignal.any([controller.signal, externalSignal]);
     } else {
       const combined = new AbortController();
-      controller.signal.addEventListener("abort", () => combined.abort(), { once: true });
-      externalSignal.addEventListener("abort", () => combined.abort(), { once: true });
+      if (externalSignal.aborted) {
+        combined.abort();
+      } else {
+        onExternalAbort = () => combined.abort();
+        controller.signal.addEventListener("abort", () => combined.abort(), { once: true });
+        externalSignal.addEventListener("abort", onExternalAbort, { once: true });
+      }
       signal = combined.signal;
     }
   }
@@ -125,6 +131,7 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
     );
   } catch (err) {
     clearTimeout(timer);
+    if (onExternalAbort) externalSignal.removeEventListener("abort", onExternalAbort);
     if (err.name === "AbortError") {
       if (externalSignal?.aborted) throw new Error("__BACKGROUNDED__");
       throw new Error("Analysis timed out — the web search took too long. Please try again.");
@@ -134,6 +141,7 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
 
   if (!response.ok) {
     clearTimeout(timer);
+    if (onExternalAbort) externalSignal.removeEventListener("abort", onExternalAbort);
     const b = await response.json().catch(() => ({}));
     throw new Error(`API ${response.status}: ${b?.error?.message ?? "unknown error"}`);
   }
@@ -191,6 +199,7 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
     throw err;
   } finally {
     clearTimeout(timer);
+    if (onExternalAbort) externalSignal.removeEventListener("abort", onExternalAbort);
   }
 
   return extractJSON(accumulated);

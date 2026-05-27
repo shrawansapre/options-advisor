@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
-import { fmtElapsed } from "../utils";
+import { fmtElapsed, TIER_COLOR, TIER_LABEL } from "../utils";
 
-const TIERS = [
-  { key: "conservative", label: "Conservative", color: "green" },
-  { key: "moderate",     label: "Moderate",     color: "amber" },
-  { key: "aggressive",   label: "Aggressive",   color: "red"   },
-];
+const TIERS = ["conservative", "moderate", "aggressive"];
 
 const STAGES = ["marketData", "research", "strategies", "critic"];
 
@@ -153,18 +149,18 @@ export default function LoadingMessages({ ticker, progress, startedAt }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              {TIERS.map(({ key, label, color }) => {
+              {TIERS.map(key => {
                 const done = tierStatus?.[key] === "done";
                 return (
                   <motion.div
                     key={key}
-                    className={`lp-tier-pill lp-tier-pill--${color}${done ? " lp-tier-pill--done" : ""}`}
+                    className={`lp-tier-pill lp-tier-pill--${TIER_COLOR[key]}${done ? " lp-tier-pill--done" : ""}`}
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25 }}
                   >
                     {done ? <CheckCircle2 size={12} className="lp-tier-icon" /> : <div className="lp-step-dot" />}
-                    <span>{label}</span>
+                    <span>{TIER_LABEL[key]}</span>
                   </motion.div>
                 );
               })}

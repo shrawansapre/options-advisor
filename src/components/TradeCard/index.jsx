@@ -11,7 +11,7 @@ import ThesisRisk from "./ThesisRisk";
 import ScenariosSection from "./ScenariosSection";
 import SignalsSection from "./SignalsSection";
 import ChecklistSection from "./ChecklistSection";
-import { formatRRRatio } from "../../utils";
+import { formatRRRatio, TIER_LABEL } from "../../utils";
 
 export default function TradeCard({ trade, index, chainData, analysedAt, marketContext, hasLiveData, marketSessionLabel, activeTab, onTabChange }) {
   const { summary, entryTiming, exitStrategy, predictions, greeks,
@@ -168,8 +168,7 @@ export default function TradeCard({ trade, index, chainData, analysedAt, marketC
       <div className={`ss-flag ss-flag--${trade.riskTier ?? "moderate"}`}>
         <span className="ss-flag-name">{trade.strategy}</span>
         <span className="ss-flag-tier">
-          {trade.riskTier === "conservative" ? "Conservative" :
-           trade.riskTier === "moderate"     ? "Moderate"     : "Aggressive"}
+          {TIER_LABEL[trade.riskTier] ?? "Moderate"}
           {" · "}
           {trade.strategyType === "bullish" ? "Bullish" :
            trade.strategyType === "bearish" ? "Bearish" : "Neutral"}

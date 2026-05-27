@@ -2,6 +2,12 @@
 
 ## Recently Completed
 
+- **Mobile backgrounding abort** — `freeze` event (Page Lifecycle API) aborts in-flight analysis when the OS suspends the browser (mobile backgrounding, screen lock); AbortSignal threaded through full pipeline (`App` → `api.js` → `orchestrate` → `fetchMarketData` + all agents → `callAPI`); shows "Analysis interrupted — tap to retry" instead of malformed card or hung spinner; desktop tab switches unaffected (`freeze` only fires on OS-level suspension)
+
+- **Stale options chain fix** — after a large intraday move (e.g. earnings gap), `delta=.05-.95` values are stale so all returned strikes can be far from current price; worker now detects this (no strike within 10% of current price) and retries chain fetch with `strike=${85%}–${115%}` anchored to real quote; retry capped at 4s via `AbortSignal.timeout`
+
+- **Mobile auth zoom fix** — `.modal-email-input` font-size `13px` → `16px`; iOS Safari auto-zooms inputs below 16px, causing full-screen zoom when the sign-in modal appears
+
 - **Mantine v8 migration** — replaced ~3,600 lines of vanilla CSS with Mantine components (Tabs, Modal, Accordion, Alert); `tokens.css` deleted, tokens consolidated into `src/theme.js` + `app.css`; dark mode migrated to `useMantineColorScheme()`; UI audit fixes: dark mode button/card contrast, modal layout shift, checklist arrow, a11y props, focus rings, touch targets, share/download wired up in all three views (TradeCard, MobileComparisonView, DesktopComparisonTable); sign-out resets app state
 
 - **Mobile strategy switcher** — replaced cramped comparison matrix with a 3-column card bar; full tier names (Conservative / Moderate / Aggressive), strategy name, max profit/max loss per column; tier-tinted active state (green/amber/red-light) with 3px bottom border indicator; tap feedback on `:active`; old `.mtv-matrix-*` CSS removed

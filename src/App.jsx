@@ -78,7 +78,7 @@ export default function App() {
       });
       if (data.trades?.[0]) addEntry(t, data.trades[0], data);
     } catch (e) {
-      const msg = abortController.signal.aborted || e.message === "__BACKGROUNDED__"
+      const msg = abortController.signal.aborted
         ? "Analysis interrupted — the app was sent to the background. Tap to retry."
         : (e.message || "Could not generate an analysis. Please try again.");
       update(a.id, { status: "error", error: msg });

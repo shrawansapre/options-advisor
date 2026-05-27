@@ -7,23 +7,37 @@ const DISCLAIMER = "This is AI-generated analysis for educational and informatio
 const TIER_LEVELS = { conservative: 2, moderate: 3, aggressive: 4 };
 
 async function fetchMarketData(ticker, externalSignal) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 9000);
+  let onExternalAbort = null;
+
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 9000);
     let signal = controller.signal;
     if (externalSignal) {
-      signal = typeof AbortSignal.any === "function"
-        ? AbortSignal.any([controller.signal, externalSignal])
-        : controller.signal;
+      if (typeof AbortSignal.any === "function") {
+        signal = AbortSignal.any([controller.signal, externalSignal]);
+      } else {
+        const combined = new AbortController();
+        if (externalSignal.aborted) {
+          combined.abort();
+        } else {
+          onExternalAbort = () => combined.abort();
+          controller.signal.addEventListener("abort", () => combined.abort(), { once: true });
+          externalSignal.addEventListener("abort", onExternalAbort, { once: true });
+        }
+        signal = combined.signal;
+      }
     }
     const res = await fetch(`${import.meta.env.VITE_API_BASE ?? ''}/market?ticker=${ticker}`, { signal });
-    clearTimeout(timer);
     if (!res.ok) return null;
     const data = await res.json();
     return data.error ? null : data;
   } catch (e) {
     if (e.name === "AbortError" && externalSignal?.aborted) throw e;
     return null;
+  } finally {
+    clearTimeout(timer);
+    if (onExternalAbort) externalSignal.removeEventListener("abort", onExternalAbort);
   }
 }
 
