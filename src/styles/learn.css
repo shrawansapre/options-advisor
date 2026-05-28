@@ -382,6 +382,45 @@
 }
 .landing-learn-link:hover { color: var(--navy); }
 
+/* ─── Mantine Tabs override — Learn nav ─────────────────────────────────── */
+.learn-mantine-tabs__list {
+  gap: 2px;
+  background: var(--surface-2);
+  border-radius: var(--r-md);
+  padding: 3px;
+  border-bottom: none;
+  flex-wrap: wrap;
+}
+
+.learn-mantine-tabs__list::before { display: none; }
+
+.learn-mantine-tabs__tab {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--t2);
+  background: none;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.learn-mantine-tabs__tab:hover { color: var(--navy); background: var(--surface); }
+
+.learn-mantine-tabs__tab[data-active] {
+  color: var(--navy);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.learn-mantine-tabs__tab[data-active]:hover {
+  color: var(--navy);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
 /* ─── Learn responsive ──────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .learn-strategies-grid { grid-template-columns: repeat(2, 1fr); }
@@ -652,43 +691,4 @@
 
   /* Inactive hover: subtle lift */
   .tier-tab:hover:not(.tier-tab--active) { box-shadow: var(--shadow-md); }
-}
-
-/* ─── Mantine Tabs override — Learn nav ─────────────────────────────────── */
-.learn-mantine-tabs__list {
-  gap: 2px;
-  background: var(--surface-2);
-  border-radius: var(--r-md);
-  padding: 3px;
-  border-bottom: none;
-  flex-wrap: wrap;
-}
-
-.learn-mantine-tabs__list::before { display: none; }
-
-.learn-mantine-tabs__tab {
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--t2);
-  background: none;
-  border: none;
-  border-radius: var(--r-sm);
-  padding: 6px 14px;
-  cursor: pointer;
-  transition: color 0.15s, background 0.15s, box-shadow 0.15s;
-}
-
-.learn-mantine-tabs__tab:hover { color: var(--navy); background: var(--surface); }
-
-.learn-mantine-tabs__tab[data-active] {
-  color: var(--navy);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-}
-
-.learn-mantine-tabs__tab[data-active]:hover {
-  color: var(--navy);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
 }
