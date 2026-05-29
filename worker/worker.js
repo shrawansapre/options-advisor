@@ -199,7 +199,11 @@ async function handleMarket(req, env) {
         .filter(e => e.dte >= 7 && e.dte <= 120)
         .map(e => e.exp)
         .sort();
-      if (selected.length === 0) selected = allExpirations.slice(0, 10).sort();
+      if (selected.length === 0) {
+        const withDTE2 = allExpirations.map(exp => ({ exp, dte: daysToExpiry(exp) }));
+        selected = withDTE2.filter(e => e.dte >= 1 && e.dte <= 180).map(e => e.exp).sort();
+        if (selected.length === 0) selected = allExpirations.slice(0, 10).sort();
+      }
       strikeParam = 'strikeLimit=20';
       deltaParam = ''; // no delta filter
     } else {
