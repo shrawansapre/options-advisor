@@ -1,18 +1,23 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 export function useOptionsChain() {
   const [ticker, setTicker] = useState('');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const abortRef = useRef(null);
 
   const scan = useCallback(async (sym) => {
     if (!sym) return;
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE}/market?ticker=${sym}&chain=full`
+        `${import.meta.env.VITE_API_BASE}/market?ticker=${sym}&chain=full`,
+        { signal: controller.signal }
       );
       if (!res.ok) throw new Error(`Market data unavailable (${res.status})`);
       const json = await res.json();
@@ -31,6 +36,7 @@ export function useOptionsChain() {
       setData({ ...json, contracts });
       setTicker(sym.toUpperCase());
     } catch (e) {
+      if (e.name === 'AbortError') return;
       setError(e.message);
       setData(null);
     } finally {
