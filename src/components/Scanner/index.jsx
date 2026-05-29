@@ -93,17 +93,24 @@ export default function Scanner() {
           <motion.div key="empty" className="scanner-empty"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="scanner-explainer">
+              <p className="scanner-explainer__heading">How it works</p>
               <div className="scanner-explainer__item">
-                <span className="scanner-explainer__label">What is Vol/OI?</span>
-                <span className="scanner-explainer__text">Volume is contracts traded today. Open interest is contracts currently held. A Vol/OI ratio above 2× means today's activity is twice the standing position — that's unusual.</span>
+                <div className="scanner-explainer__body">
+                  <span className="scanner-explainer__label">What is Vol/OI?</span>
+                  <span className="scanner-explainer__text">Volume is contracts traded today. Open interest is contracts currently held. A Vol/OI ratio above 2× means today's activity is twice the standing position — that's unusual.</span>
+                </div>
               </div>
               <div className="scanner-explainer__item">
-                <span className="scanner-explainer__label">What does it mean?</span>
-                <span className="scanner-explainer__text">High vol/OI can signal an earnings play, a hedge, or a sweep — most are institutional hedges or spread legs, not directional bets. Use it as a starting point for research, not a signal to trade.</span>
+                <div className="scanner-explainer__body">
+                  <span className="scanner-explainer__label">What does it mean?</span>
+                  <span className="scanner-explainer__text">High vol/OI can signal an earnings play, a hedge, or a sweep — most are institutional hedges or spread legs, not directional bets. Use it as a starting point for research, not a signal to trade.</span>
+                </div>
               </div>
               <div className="scanner-explainer__item">
-                <span className="scanner-explainer__label">How to use</span>
-                <span className="scanner-explainer__text">Enter a ticker, review the contracts table, tap a row for full Greeks. Adjust filters if nothing shows — liquid tickers like NVDA, SPY, or AAPL tend to have the most activity.</span>
+                <div className="scanner-explainer__body">
+                  <span className="scanner-explainer__label">How to use</span>
+                  <span className="scanner-explainer__text">Enter a ticker, review the contracts table, tap a row for full Greeks. Adjust filters if nothing shows — liquid tickers like NVDA, SPY, or AAPL tend to have the most activity.</span>
+                </div>
               </div>
             </div>
           </motion.div>

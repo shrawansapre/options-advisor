@@ -20,6 +20,59 @@ function numVal(c, key) {
   return parseFloat(c[key]) || 0;
 }
 
+function ContractCard({ contract: c }) {
+  const [expanded, setExpanded] = useState(false);
+  const sideKey = c.side === 'call' ? 'call' : 'put';
+  const strike = c.strike != null ? `$${parseFloat(c.strike).toFixed(0)}` : '—';
+  const exp = c.expiration ? c.expiration.slice(5).replace('-', '/') : '—';
+  const volOi = c._volOi != null ? `${c._volOi.toFixed(1)}×` : '—';
+  const vol = c.volume != null ? c.volume.toLocaleString() : '—';
+  const oi = c.openInterest != null ? c.openInterest.toLocaleString() : '—';
+  const iv = c.iv != null ? `${(parseFloat(c.iv) * 100).toFixed(1)}%` : '—';
+  const delta = c.delta != null ? parseFloat(c.delta).toFixed(2) : '—';
+  const gamma = c.gamma != null ? parseFloat(c.gamma).toFixed(4) : '—';
+  const theta = c.theta != null ? parseFloat(c.theta).toFixed(4) : '—';
+  const vega = c.vega != null ? parseFloat(c.vega).toFixed(4) : '—';
+
+  return (
+    <div
+      className={`scanner-contract-card scanner-contract-card--${sideKey}`}
+      onClick={() => setExpanded(e => !e)}
+    >
+      <div className="scanner-contract-card__top">
+        <div className="scanner-contract-card__id">
+          <span className={`scanner-side-badge scanner-side-badge--${sideKey}`}>
+            {sideKey === 'call' ? 'C' : 'P'}
+          </span>
+          <span className="scanner-contract-card__strike">{strike}</span>
+          <span className="scanner-contract-card__exp">{exp}</span>
+        </div>
+        <span className="scanner-contract-card__voloi">{volOi}</span>
+      </div>
+      <div className="scanner-contract-card__stats">
+        <span className="scanner-contract-card__stat">
+          <span className="scanner-contract-card__stat-label">Vol </span>{vol}
+        </span>
+        <span className="scanner-contract-card__stat">
+          <span className="scanner-contract-card__stat-label">OI </span>{oi}
+        </span>
+        <span className="scanner-contract-card__stat">
+          <span className="scanner-contract-card__stat-label">IV </span>{iv}
+        </span>
+      </div>
+      {expanded && (
+        <div className="scanner-contract-card__greeks">
+          <span><span className="scanner-greek-label">Δ</span> {delta}</span>
+          <span><span className="scanner-greek-label">Γ</span> {gamma}</span>
+          <span><span className="scanner-greek-label">Θ</span> {theta}</span>
+          <span><span className="scanner-greek-label">ν</span> {vega}</span>
+          <span><span className="scanner-greek-label">DTE</span> {c.dte ?? '—'}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function UnusualTable({ contracts, tilt, onLowerThresholds, ticker }) {
   const [sortKey, setSortKey] = useState('volume');
   const [sortDir, setSortDir] = useState('desc');
@@ -64,7 +117,9 @@ export default function UnusualTable({ contracts, tilt, onLowerThresholds, ticke
           </span>
         )}
       </div>
-      <div className="scanner-table-scroll">
+
+      {/* Desktop: scrollable table */}
+      <div className="scanner-table-scroll scanner-desktop-table">
         <table className="unusual-table">
           <thead>
             <tr>
@@ -88,6 +143,13 @@ export default function UnusualTable({ contracts, tilt, onLowerThresholds, ticke
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile: card list */}
+      <div className="scanner-mobile-cards">
+        {sorted.map((c, i) => (
+          <ContractCard key={`${c.expiration}-${c.strike}-${c.side}-${i}`} contract={c} />
+        ))}
       </div>
     </div>
   );

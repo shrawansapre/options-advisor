@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 
 export default function ScannerInput({ onScan, loading, filters, onFiltersChange, onReset }) {
   const [input, setInput] = useState('');
@@ -17,18 +17,9 @@ export default function ScannerInput({ onScan, loading, filters, onFiltersChange
 
   return (
     <div className="scanner-input-wrap">
-      <div className="scanner-header-row">
-        <div>
-          <h1 className="scanner-title">Unusual Activity Scanner</h1>
-          <p className="scanner-subtitle">Surfaces options contracts where today's volume is unusually high relative to open interest — a signal that something may be happening.</p>
-        </div>
-        <button
-          type="button"
-          className="scanner-filter-toggle"
-          onClick={() => setFiltersOpen(o => !o)}
-        >
-          Filters {filtersOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-        </button>
+      <div className="scanner-title-block">
+        <h1 className="scanner-title">Unusual Activity Scanner</h1>
+        <p className="scanner-subtitle">Surfaces options contracts where today's volume is unusually high relative to open interest — a signal that something may be happening.</p>
       </div>
 
       <form className="scanner-search-bar" onSubmit={handleSubmit}>
@@ -46,6 +37,18 @@ export default function ScannerInput({ onScan, loading, filters, onFiltersChange
           {loading ? 'Scanning…' : 'Scan'}
         </button>
       </form>
+
+      <div className="scanner-filter-ctrl">
+        <button
+          type="button"
+          className="scanner-filter-toggle"
+          onClick={() => setFiltersOpen(o => !o)}
+        >
+          <SlidersHorizontal size={12} />
+          Filters
+          {filtersOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </button>
+      </div>
 
       {filtersOpen && (
         <div className="scanner-filters">
