@@ -18,7 +18,10 @@ export default function ScannerInput({ onScan, loading, filters, onFiltersChange
   return (
     <div className="scanner-input-wrap">
       <div className="scanner-header-row">
-        <h1 className="scanner-title">Scanner</h1>
+        <div>
+          <h1 className="scanner-title">Unusual Activity Scanner</h1>
+          <p className="scanner-subtitle">Surfaces options contracts where today's volume is unusually high relative to open interest — a signal that something may be happening.</p>
+        </div>
         <button
           type="button"
           className="scanner-filter-toggle"
