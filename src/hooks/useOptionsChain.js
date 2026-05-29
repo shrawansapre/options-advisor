@@ -15,9 +15,13 @@ export function useOptionsChain() {
     setLoading(true);
     setError(null);
     try {
+      const headers = {};
+      if (import.meta.env.VITE_INTERNAL_TOKEN) {
+        headers['X-Internal-Token'] = import.meta.env.VITE_INTERNAL_TOKEN;
+      }
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE}/market?ticker=${sym}&chain=full`,
-        { signal: controller.signal }
+        { signal: controller.signal, headers }
       );
       if (!res.ok) throw new Error(`Market data unavailable (${res.status})`);
       const json = await res.json();
