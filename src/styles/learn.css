@@ -692,3 +692,6 @@
   /* Inactive hover: subtle lift */
   .tier-tab:hover:not(.tier-tab--active) { box-shadow: var(--shadow-md); }
 }
+
+/* Scanner nav button shares learn-btn base styles */
+.scanner-nav-btn { margin-left: 0; }

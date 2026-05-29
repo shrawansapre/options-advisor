@@ -16,6 +16,9 @@
   --red-light:   #FEE2E2;
   --amber:       #92400E;
   --amber-light: #FEF3C7;
+  --bullish: var(--green);
+  --bearish: var(--red);
+  --neutral: var(--amber);
   --amber-ui:    #f59e0b;
   --violet:      #5B21B6;
   --violet-light:#EDE9FE;
