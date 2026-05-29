@@ -16,6 +16,7 @@ import { useTheme } from "./hooks/useTheme";
 import { useAnalysisState, makeAnalysis } from "./hooks/useAnalysisState";
 
 const LearnPage = lazy(() => import("./components/Learn"));
+const ScannerPage = lazy(() => import("./components/Scanner"));
 
 export default function App() {
   const [ticker, setTicker] = useState("");
@@ -28,6 +29,7 @@ export default function App() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const showLearn = pathname === "/learn";
+  const showScanner = pathname === "/scanner";
   const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const avatarRef = useRef(null);
 
@@ -122,6 +124,12 @@ export default function App() {
             >
               Learn
             </button>
+            <button
+              className={`learn-btn scanner-nav-btn${showScanner ? " learn-btn--active" : ""}`}
+              onClick={() => navigate(showScanner ? "/" : "/scanner")}
+            >
+              Scanner
+            </button>
             <button className="theme-toggle" onClick={toggleDark} aria-label="Toggle theme">
               {dark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
@@ -139,14 +147,15 @@ export default function App() {
         </div>
       </header>
 
-      <main className={`app-main${!showLearn && analyses.length === 0 ? " app-main--landing" : ""}`}>
+      <main className={`app-main${!showLearn && !showScanner && analyses.length === 0 ? " app-main--landing" : ""}`}>
         <Routes>
           <Route path="/learn" element={<Suspense fallback={null}><LearnPage /></Suspense>} />
+          <Route path="/scanner" element={<Suspense fallback={null}><ScannerPage /></Suspense>} />
           <Route path="*" element={null} />
         </Routes>
 
 
-        {!showLearn && !active && (
+        {!showLearn && !showScanner && !active && (
           <motion.div
             className="landing-hero"
             initial={{ opacity: 0, y: 16 }}
@@ -161,8 +170,8 @@ export default function App() {
           </motion.div>
         )}
 
-        <div className={`search-wrap${!active && !showLearn ? " search-wrap--landing" : ""}`}
-          style={{ display: showLearn ? "none" : undefined }}>
+        <div className={`search-wrap${!active && !showLearn && !showScanner ? " search-wrap--landing" : ""}`}
+          style={{ display: (showLearn || showScanner) ? "none" : undefined }}>
           <div className="search-bar">
             <input
               id="ticker-input"
@@ -183,7 +192,7 @@ export default function App() {
           <p className="search-hint">Educational purposes only</p>
         </div>
 
-        {!showLearn && showNudge && (
+        {!showLearn && !showScanner && showNudge && (
           <Alert
             title="Save your analyses"
             variant="light"
@@ -197,7 +206,7 @@ export default function App() {
           </Alert>
         )}
 
-        {!showLearn && (
+        {!showLearn && !showScanner && (
           <AnalysisTabs
             analyses={analyses}
             activeId={activeId}
@@ -206,7 +215,7 @@ export default function App() {
           />
         )}
 
-        {!showLearn && <AnimatePresence mode="wait">
+        {!showLearn && !showScanner && <AnimatePresence mode="wait">
           {!active && (
             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ delay: 0.1 }}>
