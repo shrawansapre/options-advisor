@@ -88,6 +88,10 @@
 
 - **Code simplification** — extracted `tallyItems`, `formatRRRatio`, `formatDelta`, `TIER_COLOR`, `TIER_LABEL` into `utils.jsx`; removed 3× duplicate R/R+delta derivations and 2× duplicate tally loops; ShareMenu clone effect changed to `useLayoutEffect` (fixes empty-preview flash); `captureCanvas()` returns canvas directly so `handleNativeShare` uses `canvas.toBlob()` instead of `fetch(dataUrl)`; `noHeader ? true : undefined` clarity fix in ChecklistSection
 
+- **Security hardening** — Worker `CORS Access-Control-Allow-Origin` changed from `'*'` to an origin allowlist (`options-advisor-sepia.vercel.app` + localhost ports); `Vary: Origin` header added; `INTERNAL_TOKEN` rotated (old value was baked into deployed bundles); token updated in Cloudflare Worker secrets, Vercel env vars, and `.env.local`
+
+- **Scanner mobile overhaul** — full mobile redesign across landing and results; landing: Filters toggle moved to its own right-aligned row (eliminates overflow), Fraunces italic "How it works" heading + CSS counter 01/02/03 numbering on explainer items, card frame strips on mobile; results: desktop table swapped for contract card list on mobile (≤600px) — each card shows strike + exp + C/P badge on left, Vol/OI hero value (16px) on right, Vol/OI/IV stats row below, tap to expand Greeks; summary card cells tightened
+
 ## Known Issues / Next Up
 
 - Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)
