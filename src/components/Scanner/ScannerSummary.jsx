@@ -1,7 +1,7 @@
 export default function ScannerSummary({ quote, ticker, ivCurrent, cpRatio, sentiment, unusualCount, onScrollToTable }) {
   const price = quote?.last;
   const change = quote?.changePercent;
-  const changeSign = change >= 0 ? '+' : '';
+  const changeSign = change != null && change >= 0 ? '+' : '';
   const changeClass = change > 0 ? 'bullish' : change < 0 ? 'bearish' : 'neutral';
 
   return (
