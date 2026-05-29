@@ -15,17 +15,17 @@ export function findUnusualContracts(contracts, opts = {}) {
       const oi = Math.max(parseInt(c.openInterest, 10) || 0, 1);
       const vol = parseInt(c.volume, 10) || 0;
       const delta = Math.abs(parseFloat(c.delta) || 0);
-      return { ...c, _volOi: vol / oi, _absDelta: delta };
+      return { ...c, _vol: vol, _volOi: vol / oi, _absDelta: delta };
     })
     .filter(c =>
-      (parseInt(c.volume, 10) || 0) > minVolume &&
+      c._vol > minVolume &&
       c._volOi > minVolOiRatio &&
       c.dte >= minDte &&
       c.dte <= maxDte &&
       c._absDelta >= deltaMin &&
       c._absDelta <= deltaMax
     )
-    .sort((a, b) => (parseInt(b.volume, 10) || 0) - (parseInt(a.volume, 10) || 0));
+    .sort((a, b) => b._vol - a._vol);
 }
 
 export function callPutRatio(contracts) {
