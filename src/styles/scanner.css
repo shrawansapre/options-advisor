@@ -286,6 +286,13 @@
   font-size: 13px; color: var(--t3); margin-right: 2px;
 }
 
+/* Strike cell — stacked exp shown only on mobile */
+.scanner-strike-exp {
+  display: none;
+  font-family: var(--mono); font-size: 10px; font-weight: 400;
+  color: var(--t3); margin-top: 2px;
+}
+
 .scanner-side-badge {
   display: inline-block;
   font-family: var(--mono); font-size: 10px; font-weight: 600;
@@ -318,16 +325,37 @@
 
 @media (max-width: 600px) {
   .scanner-page { padding: 1.25rem 1rem 3rem; gap: 1.25rem; }
+
+  /* Summary card — tighter cells */
   .scanner-summary { grid-template-columns: 1fr 1fr; }
-  .scanner-summary__price { font-size: 1.4rem; }
+  .scanner-summary__item { padding: 1rem 1.25rem; }
+  .scanner-summary__price { font-size: 1.3rem; }
+  .scanner-summary__value { font-size: 1.1rem; }
+
+  /* Filter panel */
   .scanner-filter-row { flex-direction: column; }
 
-  /* Hide IV, Δ, Last, Bid/Ask columns on mobile */
+  /* Table header — wrap tilt to second line */
+  .scanner-table-header { flex-wrap: wrap; row-gap: 0.25rem; }
+  .scanner-tilt { margin-left: 0; }
+
+  /* Show stacked exp date below strike */
+  .scanner-strike-exp { display: block; }
+
+  /* Keep: Strike(1) C/P(3) Vol(4) Vol/OI(6) — hide everything else */
+  .unusual-table th:nth-child(2),
+  .unusual-table td:nth-child(2),
+  .unusual-table th:nth-child(5),
+  .unusual-table td:nth-child(5),
   .unusual-table th:nth-child(n+7),
   .unusual-table td:nth-child(n+7) { display: none; }
+
+  /* Expanded Greeks row — tighter gap */
+  .scanner-greeks { gap: 1rem; font-size: 11px; }
 }
 
 @media (max-width: 380px) {
   .scanner-page { padding: 1rem 0.75rem 2.5rem; }
   .scanner-summary { grid-template-columns: 1fr; }
+  .scanner-summary__item { padding: 0.875rem 1rem; }
 }

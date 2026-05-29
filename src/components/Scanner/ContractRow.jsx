@@ -19,7 +19,10 @@ export default function ContractRow({ contract: c }) {
         className={`unusual-table__row unusual-table__row--${sideKey}`}
         onClick={() => setExpanded(e => !e)}
       >
-        <td className="unusual-table__td unusual-table__td--mono">{strike}</td>
+        <td className="unusual-table__td unusual-table__td--mono">
+          {strike}
+          <span className="scanner-strike-exp">{exp}</span>
+        </td>
         <td className="unusual-table__td unusual-table__td--mono">{exp}</td>
         <td className="unusual-table__td">
           <span className={`scanner-side-badge scanner-side-badge--${sideKey}`}>
