@@ -1,42 +1,53 @@
 const ALLOWED_MODELS = new Set(['claude-sonnet-4-6', 'claude-sonnet-4-20250514', 'claude-haiku-4-5-20251001']);
 const MAX_TOKENS_LIMIT = 16000;
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Token',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://options-advisor-sepia.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:8787',
+]);
+
+function corsHeaders(origin) {
+  return {
+    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : 'https://options-advisor-sepia.vercel.app',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Token',
+    'Vary': 'Origin',
+  };
+}
 
 function checkToken(req, env) {
   if (!env.INTERNAL_TOKEN) return true;
   return req.headers.get('X-Internal-Token') === env.INTERNAL_TOKEN;
 }
 
-function json(data, status = 200) {
+function json(data, origin, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
   });
 }
 
-function text(body, status = 200) {
-  return new Response(body, { status, headers: CORS });
+function text(body, origin, status = 200) {
+  return new Response(body, { status, headers: corsHeaders(origin) });
 }
 
 // ─── Analyze handler ──────────────────────────────────────────────────────────
 
 async function handleAnalyze(req, env) {
-  if (req.method !== 'POST') return text('Method not allowed', 405);
-  if (!checkToken(req, env)) return text('Forbidden', 403);
+  const origin = req.headers.get('Origin') || '';
+  if (req.method !== 'POST') return text('Method not allowed', origin, 405);
+  if (!checkToken(req, env)) return text('Forbidden', origin, 403);
 
   const apiKey = env.ANTHROPIC_API_KEY;
-  if (!apiKey) return json({ error: { message: 'ANTHROPIC_API_KEY not configured' } }, 500);
+  if (!apiKey) return json({ error: { message: 'ANTHROPIC_API_KEY not configured' } }, origin, 500);
 
   let body;
-  try { body = await req.json(); } catch { return text('Invalid JSON', 400); }
+  try { body = await req.json(); } catch { return text('Invalid JSON', origin, 400); }
 
-  if (!ALLOWED_MODELS.has(body.model)) return text('Forbidden', 403);
-  if (!body.max_tokens || body.max_tokens > MAX_TOKENS_LIMIT) return text('Forbidden', 403);
+  if (!ALLOWED_MODELS.has(body.model)) return text('Forbidden', origin, 403);
+  if (!body.max_tokens || body.max_tokens > MAX_TOKENS_LIMIT) return text('Forbidden', origin, 403);
 
   let upstream;
   try {
@@ -62,7 +73,7 @@ async function handleAnalyze(req, env) {
   return new Response(upstream.body, {
     status: upstream.status,
     headers: {
-      ...CORS,
+      ...corsHeaders(origin),
       'Content-Type': upstream.headers.get('Content-Type') ?? 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
       'X-Accel-Buffering': 'no',
@@ -153,12 +164,13 @@ function extractIvCurrent(chains, currentPrice) {
 }
 
 async function handleMarket(req, env) {
-  if (req.method !== 'GET') return text('Method not allowed', 405);
-  if (!checkToken(req, env)) return text('Forbidden', 403);
+  const origin = req.headers.get('Origin') || '';
+  if (req.method !== 'GET') return text('Method not allowed', origin, 405);
+  if (!checkToken(req, env)) return text('Forbidden', origin, 403);
 
   const url = new URL(req.url);
   const ticker = sanitizeTicker(url.searchParams.get('ticker'));
-  if (!ticker) return json({ error: 'ticker_required' }, 400);
+  if (!ticker) return json({ error: 'ticker_required' }, origin, 400);
 
   const chainMode = url.searchParams.get('chain'); // 'full' | null
   const cacheKeySuffix = chainMode === 'full' ? ':full' : '';
@@ -167,10 +179,10 @@ async function handleMarket(req, env) {
   const cached = env.MARKET_CACHE
     ? await env.MARKET_CACHE.get(key, 'json')
     : (cache.has(key) ? cache.get(key) : null);
-  if (cached) return json(cached);
+  if (cached) return json(cached, origin);
 
   const token = env.MARKET_DATA_TOKEN;
-  if (!token) return json({ error: 'market_data_unavailable' });
+  if (!token) return json({ error: 'market_data_unavailable' }, origin);
 
   try {
     const base = 'https://api.marketdata.app/v1';
@@ -257,10 +269,10 @@ async function handleMarket(req, env) {
       if (cache.size > 500) cache.clear();
       cache.set(key, result);
     }
-    return json(result);
+    return json(result, origin);
   } catch (err) {
     console.error('handleMarket error:', err?.message ?? err);
-    return json({ error: 'market_data_unavailable' });
+    return json({ error: 'market_data_unavailable' }, origin);
   }
 }
 
@@ -268,10 +280,11 @@ async function handleMarket(req, env) {
 
 export default {
   async fetch(req, env) {
-    if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
+    const origin = req.headers.get('Origin') || '';
+    if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(origin) });
     const { pathname } = new URL(req.url);
     if (pathname === '/analyze') return handleAnalyze(req, env);
     if (pathname === '/market') return handleMarket(req, env);
-    return new Response('Not found', { status: 404, headers: CORS });
+    return new Response('Not found', { status: 404, headers: corsHeaders(origin) });
   },
 };
