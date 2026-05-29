@@ -92,8 +92,19 @@
   color: var(--navy); font-size: 14px; flex-shrink: 0; margin-top: 1px;
 }
 
+/* ─── Basics section split layout ───────────────────────────────────────── */
+.learn-basics-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  align-items: start;
+  margin-top: 4px;
+}
+.learn-basics-split__text { display: flex; flex-direction: column; }
+.learn-basics-split__chart { display: flex; flex-direction: column; }
+
 /* ─── SVG diagrams ──────────────────────────────────────────────────────── */
-.learn-payoff-svg { width: 100%; height: auto; margin: 10px 0 4px; display: block; }
+.learn-payoff-svg { width: 100%; height: auto; margin: 0 0 4px; display: block; max-width: 480px; }
 .learn-diagram-caption {
   font-family: var(--mono); font-size: clamp(10px, 2vw, 11px); color: var(--t3);
   text-align: center; margin-top: 4px;
@@ -477,6 +488,9 @@
   .learn-strategies-grid { grid-template-columns: 1fr; }
   .learn-card { padding: 16px; }
 
+  /* ── Basics split: stack on mobile ───────────────── */
+  .learn-basics-split { grid-template-columns: 1fr; gap: 1rem; }
+
   /* ── IV section ───────────────────────────────────── */
   .learn-gauge-row { gap: 6px; }
   .learn-iv-label { min-width: unset; font-size: 10px; }
@@ -513,7 +527,7 @@
   .learn-pl-note { display: none; }
   .learn-pl-display { gap: 6px; padding: 8px 10px; }
   .learn-pl-value { font-size: 17px; }
-  .learn-slider-labels { flex-direction: column; gap: 2px; }
+  .learn-slider-labels { flex-wrap: wrap; gap: 2px; font-size: 9px; }
   .learn-itm-intrinsic { display: none; }
   .learn-analogy { font-size: 11px; padding: 9px 12px; }
   .learn-example-chip { font-size: 10px; padding: 7px 10px; }

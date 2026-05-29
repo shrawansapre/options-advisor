@@ -151,7 +151,7 @@ function ITMExplainer() {
 
       <p className="learn-itm-explain">
         {atm && <>Stock and strike are equal. Delta ≈ 0.50. The option is <strong>all time value</strong> — no intrinsic value yet.</>}
-        {itm && <>Stock at <strong>${price}</strong> is ${intrinsic} above the strike. This call has <strong>${intrinsic} of intrinsic value</strong> per share (${ intrinsic * 100} per contract) — it's already worth something regardless of time left.</>}
+        {itm && <>Stock at <strong>${price}</strong> is ${intrinsic} above the strike. This call has <strong>${intrinsic} of intrinsic value</strong> per share (${intrinsic * 100} per contract) — it's already worth something regardless of time left.</>}
         {!itm && !atm && <>Stock at <strong>${price}</strong> is ${Math.abs(diff)} below the strike. This call is <strong>out of the money</strong> — it has no intrinsic value. You need the stock to rise above $100 before expiry to profit.</>}
       </p>
     </div>
@@ -167,10 +167,16 @@ export default function BasicsSection() {
           <span className="learn-tag learn-tag--green">Call Option</span>
           <span className="learn-card-sub">The right to buy</span>
         </div>
-        <p className="learn-body">A call option gives you the <strong>right, but not the obligation</strong>, to buy 100 shares at a fixed price (the strike) before expiration. You profit when the stock rises above your strike plus the premium you paid.</p>
-        <Analogy>Think of it like a reservation deposit on a house. You pay a small fee to lock in today's price. If the neighbourhood booms, you buy at the locked price. If it doesn't, you just lose the deposit.</Analogy>
-        <InteractiveCallPayoff />
-        <p className="learn-diagram-caption">Drag the slider to see your exact P&amp;L at any stock price. Losses are always capped at the premium paid ($350).</p>
+        <div className="learn-basics-split">
+          <div className="learn-basics-split__text">
+            <p className="learn-body">A call option gives you the <strong>right, but not the obligation</strong>, to buy 100 shares at a fixed price (the strike) before expiration. You profit when the stock rises above your strike plus the premium you paid.</p>
+            <Analogy>Think of it like a reservation deposit on a house. You pay a small fee to lock in today's price. If the neighbourhood booms, you buy at the locked price. If it doesn't, you just lose the deposit.</Analogy>
+          </div>
+          <div className="learn-basics-split__chart">
+            <InteractiveCallPayoff />
+            <p className="learn-diagram-caption">Drag the slider to see your P&amp;L. Losses are always capped at the premium paid ($350).</p>
+          </div>
+        </div>
       </div>
 
       <div className="learn-card learn-card--wide">
@@ -178,10 +184,16 @@ export default function BasicsSection() {
           <span className="learn-tag learn-tag--red">Put Option</span>
           <span className="learn-card-sub">The right to sell</span>
         </div>
-        <p className="learn-body">A put option gives you the <strong>right, but not the obligation</strong>, to sell 100 shares at the strike price before expiration. Puts profit when the stock falls.</p>
-        <Analogy>It's insurance on your car. You pay a premium. If your car gets totalled (stock crashes), the policy pays out. If nothing bad happens, the premium expires worthless — but you had full protection.</Analogy>
-        <InteractivePutPayoff />
-        <p className="learn-diagram-caption">Drag the slider. Notice: you profit as the stock falls below the breakeven ($91.50), and max loss is always $350.</p>
+        <div className="learn-basics-split">
+          <div className="learn-basics-split__text">
+            <p className="learn-body">A put option gives you the <strong>right, but not the obligation</strong>, to sell 100 shares at the strike price before expiration. Puts profit when the stock falls.</p>
+            <Analogy>It's insurance on your car. You pay a premium. If your car gets totalled (stock crashes), the policy pays out. If nothing bad happens, the premium expires worthless — but you had full protection.</Analogy>
+          </div>
+          <div className="learn-basics-split__chart">
+            <InteractivePutPayoff />
+            <p className="learn-diagram-caption">Drag the slider. Max loss is always $350 — you profit as the stock falls below breakeven ($91.50).</p>
+          </div>
+        </div>
       </div>
 
       <div className="learn-card">
