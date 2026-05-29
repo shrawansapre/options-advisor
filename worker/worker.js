@@ -156,10 +156,14 @@ async function handleMarket(req, env) {
   if (req.method !== 'GET') return text('Method not allowed', 405);
   if (!checkToken(req, env)) return text('Forbidden', 403);
 
-  const ticker = sanitizeTicker(new URL(req.url).searchParams.get('ticker'));
+  const url = new URL(req.url);
+  const ticker = sanitizeTicker(url.searchParams.get('ticker'));
   if (!ticker) return json({ error: 'ticker_required' }, 400);
 
-  const key = cacheKey(ticker);
+  const chainMode = url.searchParams.get('chain'); // 'full' | null
+  const cacheKeySuffix = chainMode === 'full' ? ':full' : '';
+  const key = cacheKey(ticker) + cacheKeySuffix;
+
   const cached = env.MARKET_CACHE
     ? await env.MARKET_CACHE.get(key, 'json')
     : (cache.has(key) ? cache.get(key) : null);
@@ -186,26 +190,38 @@ async function handleMarket(req, env) {
     const allExpirations = extractExpirations(expData);
     if (!allExpirations.length) throw new Error('no expirations');
 
-    // Tiered selection: 2 near (7–45d), 2 mid (45–120d), 2 far (120–365d)
-    // Covers event plays, standard trades, and conservative LEAPS.
-    const withDTE = allExpirations.map(exp => ({ exp, dte: daysToExpiry(exp) }));
-    const pick = (min, max, n) => withDTE.filter(e => e.dte >= min && e.dte < max).slice(0, n).map(e => e.exp);
-    const tiered = [...pick(7, 45, 2), ...pick(45, 120, 2), ...pick(120, 365, 2)];
-    const selected = (tiered.length > 0 ? tiered : allExpirations.slice(0, 6)).sort();
+    let selected, strikeParam, deltaParam;
 
-    // Use from/to range (tested, reliable) — extractChains filters to selected dates only
+    if (chainMode === 'full') {
+      // Scanner mode: all expirations 7–120 DTE, wider strikes, no delta filter
+      const withDTE = allExpirations.map(exp => ({ exp, dte: daysToExpiry(exp) }));
+      selected = withDTE
+        .filter(e => e.dte >= 7 && e.dte <= 120)
+        .map(e => e.exp)
+        .sort();
+      if (selected.length === 0) selected = allExpirations.slice(0, 10).sort();
+      strikeParam = 'strikeLimit=20';
+      deltaParam = ''; // no delta filter
+    } else {
+      // Pipeline mode: tiered 6 expiries (unchanged)
+      const withDTE = allExpirations.map(exp => ({ exp, dte: daysToExpiry(exp) }));
+      const pick = (min, max, n) => withDTE.filter(e => e.dte >= min && e.dte < max).slice(0, n).map(e => e.exp);
+      const tiered = [...pick(7, 45, 2), ...pick(45, 120, 2), ...pick(120, 365, 2)];
+      selected = (tiered.length > 0 ? tiered : allExpirations.slice(0, 6)).sort();
+      strikeParam = 'strikeLimit=10';
+      deltaParam = '&delta=.05-.95';
+    }
+
     const from = selected[0];
     const to = selected[selected.length - 1];
     const chainRes = await fetch(
-      `${base}/options/chain/${ticker}/?from=${from}&to=${to}&strikeLimit=10&delta=.05-.95`,
+      `${base}/options/chain/${ticker}/?from=${from}&to=${to}&${strikeParam}${deltaParam}`,
       { headers }
     );
     if (!chainRes.ok) throw new Error('chain fetch failed');
     let chains = extractChains(await chainRes.json(), quote.last, selected);
 
-    // After a large intraday move (e.g. earnings gap), delta values in the chain can be stale,
-    // causing all returned strikes to be far from the current price. Detect this and retry
-    // using an explicit price-anchored strike range so the chain stays usable.
+    // ATM retry: detect stale delta (no strike within 10% of current price)
     const chainsHaveATM = chains.some(c =>
       c.options.some(o => o.strike >= quote.last * 0.90 && o.strike <= quote.last * 1.10)
     );
@@ -213,7 +229,7 @@ async function handleMarket(req, env) {
       const strikeFrom = Math.round(quote.last * 0.85);
       const strikeTo = Math.round(quote.last * 1.15);
       const retryRes = await fetch(
-        `${base}/options/chain/${ticker}/?from=${from}&to=${to}&strikeLimit=10&strike=${strikeFrom}-${strikeTo}`,
+        `${base}/options/chain/${ticker}/?from=${from}&to=${to}&${strikeParam}&strike=${strikeFrom}-${strikeTo}`,
         { headers, signal: AbortSignal.timeout(4000) }
       );
       if (retryRes.ok) {
