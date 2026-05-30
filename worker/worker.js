@@ -1,3 +1,15 @@
+import { findUnusualContracts } from "../src/utils/unusualSignals.js";
+import { rankLeaderboard, netPremium } from "../src/lib/signals.js";
+
+const UNIVERSE = [
+  "SPY","QQQ","IWM","AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA",
+  "AMD","NFLX","AVGO","JPM","BAC","XLF","DIA","SMH","COIN","PLTR",
+  "MU","INTC","BABA","DIS","UBER","SHOP","SOFI","MARA","RIOT","ARKK",
+  "GLD","SLV","XLE","XOM","BA","CAT","WMT","COST","CRM","ORCL",
+];
+
+const DISCOVER_FRESH_MS = 30 * 60 * 1000;
+
 const ALLOWED_MODELS = new Set(['claude-sonnet-4-6', 'claude-sonnet-4-20250514', 'claude-haiku-4-5-20251001']);
 const MAX_TOKENS_LIMIT = 16000;
 
@@ -285,6 +297,84 @@ async function handleMarket(req, env) {
   }
 }
 
+// ─── Discover handler ─────────────────────────────────────────────────────────
+
+async function fetchChainContracts(ticker, env) {
+  const token = env.MARKET_DATA_TOKEN;
+  if (!token) return null;
+  const headers = { Authorization: `Bearer ${token}`, Accept: "application/json" };
+  const base = "https://api.marketdata.app/v1";
+  try {
+    const [quoteRes, expRes] = await Promise.all([
+      fetch(`${base}/stocks/quotes/${ticker}/`, { headers }),
+      fetch(`${base}/options/expirations/${ticker}/`, { headers }),
+    ]);
+    if (!quoteRes.ok || !expRes.ok) return null;
+    const [quoteData, expData] = await Promise.all([quoteRes.json(), expRes.json()]);
+    const quote = extractQuote(quoteData);
+    const allExpirations = extractExpirations(expData);
+    if (!quote || !allExpirations.length) return null;
+
+    const withDTE = allExpirations.map((exp) => ({ exp, dte: daysToExpiry(exp) }));
+    const selected = withDTE.filter((e) => e.dte >= 7 && e.dte <= 120).map((e) => e.exp).sort();
+    if (!selected.length) return null;
+    const from = selected[0], to = selected[selected.length - 1];
+    const chainRes = await fetch(
+      `${base}/options/chain/${ticker}/?from=${from}&to=${to}&strikeLimit=20`,
+      { headers, signal: AbortSignal.timeout(8000) }
+    );
+    if (!chainRes.ok) return null;
+    const chains = extractChains(await chainRes.json(), quote.last, selected);
+    return chains.flatMap((chain) =>
+      (chain.options ?? []).map((opt) => ({
+        ...opt, side: opt.type, expiration: chain.expiry, dte: chain.daysToExpiry, ticker,
+      }))
+    );
+  } catch {
+    return null;
+  }
+}
+
+async function sweepUniverse(env) {
+  const results = await Promise.allSettled(UNIVERSE.map((t) => fetchChainContracts(t, env)));
+  const prints = [];
+  for (const r of results) {
+    if (r.status !== "fulfilled" || !r.value) continue;
+    const unusual = findUnusualContracts(r.value);
+    for (const c of unusual) prints.push(c);
+  }
+  const ranked = rankLeaderboard(prints).slice(0, 50);
+  const flow = netPremium(prints);
+  return { prints: ranked, flow, sweptAt: new Date().toISOString(), universeSize: UNIVERSE.length };
+}
+
+async function handleDiscover(req, env) {
+  const origin = req.headers.get("Origin") || "";
+  if (req.method !== "GET") return text("Method not allowed", origin, 405);
+  if (!checkToken(req, env)) return text("Forbidden", origin, 403);
+
+  const url = new URL(req.url);
+  const force = url.searchParams.get("refresh") === "1";
+  const key = "discover:leaderboard";
+
+  if (!force && env.MARKET_CACHE) {
+    const cached = await env.MARKET_CACHE.get(key, "json");
+    if (cached && Date.now() - new Date(cached.sweptAt).getTime() < DISCOVER_FRESH_MS) {
+      return json({ ...cached, stale: false }, origin);
+    }
+  }
+
+  const fresh = await sweepUniverse(env);
+  if (!fresh.prints.length && env.MARKET_CACHE) {
+    const lastGood = await env.MARKET_CACHE.get(key, "json");
+    if (lastGood) return json({ ...lastGood, stale: true }, origin);
+  }
+  if (env.MARKET_CACHE) {
+    await env.MARKET_CACHE.put(key, JSON.stringify(fresh), { expirationTtl: 86400 });
+  }
+  return json({ ...fresh, stale: false }, origin);
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 export default {
@@ -295,6 +385,7 @@ export default {
     const { pathname } = new URL(req.url);
     if (pathname === '/analyze') return handleAnalyze(req, env);
     if (pathname === '/market') return handleMarket(req, env);
+    if (pathname === '/discover') return handleDiscover(req, env);
     return new Response('Not found', { status: 404, headers: corsHeaders(origin) });
   },
 };
