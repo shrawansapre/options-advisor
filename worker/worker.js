@@ -8,9 +8,18 @@ const ALLOWED_ORIGINS = new Set([
   'http://localhost:8787',
 ]);
 
+// Staging only: one extra allowed origin (the Vercel preview URL), supplied via the
+// `ALLOWED_ORIGIN_EXTRA` env var on the staging worker. Captured lazily on first request.
+// Production never sets this var, so its allowlist stays exactly as above.
+let EXTRA_ORIGIN = null;
+
+function isAllowedOrigin(origin) {
+  return ALLOWED_ORIGINS.has(origin) || (EXTRA_ORIGIN !== null && origin === EXTRA_ORIGIN);
+}
+
 function corsHeaders(origin) {
   return {
-    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : 'https://options-advisor-sepia.vercel.app',
+    'Access-Control-Allow-Origin': isAllowedOrigin(origin) ? origin : 'https://options-advisor-sepia.vercel.app',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Token',
     'Vary': 'Origin',
@@ -280,6 +289,7 @@ async function handleMarket(req, env) {
 
 export default {
   async fetch(req, env) {
+    if (EXTRA_ORIGIN === null && env.ALLOWED_ORIGIN_EXTRA) EXTRA_ORIGIN = env.ALLOWED_ORIGIN_EXTRA;
     const origin = req.headers.get('Origin') || '';
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(origin) });
     const { pathname } = new URL(req.url);

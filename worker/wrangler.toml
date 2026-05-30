@@ -6,6 +6,25 @@ compatibility_date = "2024-01-01"
 binding = "MARKET_CACHE"
 id = "122c51ef34e540fabb07f7939b1e01b6"
 
+# ─── Staging environment (isolated from production) ──────────────────────────
+# Deploy with:  npx wrangler deploy --env staging   →  api-staging.optionsbrief.workers.dev
+# Uses its OWN KV namespace and its OWN secrets (incl. a DISTINCT INTERNAL_TOKEN).
+# Production (the top-level config above) is never touched by staging deploys.
+[env.staging]
+name = "api-staging"
+
+[[env.staging.kv_namespaces]]
+binding = "MARKET_CACHE"
+id = "REPLACE_WITH_STAGING_KV_ID"   # output of: npx wrangler kv namespace create MARKET_CACHE --env staging
+
+[env.staging.vars]
+# The Vercel preview URL for this branch (fill after the first preview deploy, then redeploy staging).
+ALLOWED_ORIGIN_EXTRA = "REPLACE_WITH_VERCEL_PREVIEW_URL"
+
+[env.staging.observability.logs]
+enabled = true
+persist = true
+
 [observability]
 enabled = false
 head_sampling_rate = 1
