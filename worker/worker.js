@@ -32,7 +32,7 @@ function isAllowedOrigin(origin) {
 function corsHeaders(origin) {
   return {
     'Access-Control-Allow-Origin': isAllowedOrigin(origin) ? origin : 'https://options-advisor-sepia.vercel.app',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Token',
     'Vary': 'Origin',
   };
@@ -375,6 +375,44 @@ async function handleDiscover(req, env) {
   return json({ ...fresh, stale: false }, origin);
 }
 
+// ─── Analysis cache handler ───────────────────────────────────────────────────
+
+function analysisCacheKey(ticker) {
+  const d = new Date();
+  const date = d.toISOString().slice(0, 10); // per trading day
+  return `analysis:${ticker.toUpperCase()}:${date}`;
+}
+
+async function handleAnalysisCache(req, env) {
+  const origin = req.headers.get("Origin") || "";
+  if (!checkToken(req, env)) return text("Forbidden", origin, 403);
+  if (!env.MARKET_CACHE) return json({ hit: false }, origin);
+
+  const url = new URL(req.url);
+  const ticker = sanitizeTicker(url.searchParams.get("ticker"));
+  if (!ticker) return json({ error: "ticker_required" }, origin, 400);
+  const key = analysisCacheKey(ticker);
+
+  if (req.method === "GET") {
+    const cached = await env.MARKET_CACHE.get(key, "json");
+    return json(cached ? { hit: true, result: cached } : { hit: false }, origin);
+  }
+  if (req.method === "PUT") {
+    // Anti-poisoning: cap size + validate shape before trusting a client-supplied result.
+    const raw = await req.text();
+    if (raw.length > 262144) return text("Payload too large", origin, 413); // 256 KB cap
+    let body;
+    try { body = JSON.parse(raw); } catch { return text("Invalid JSON", origin, 400); }
+    const result = body?.result;
+    const valid = result && Array.isArray(result.trades) && result.trades.length > 0
+      && typeof result.disclaimer === "string";
+    if (!valid) return text("Invalid result shape", origin, 422);
+    await env.MARKET_CACHE.put(key, JSON.stringify(result), { expirationTtl: 86400 });
+    return json({ ok: true }, origin);
+  }
+  return text("Method not allowed", origin, 405);
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 export default {
@@ -386,6 +424,7 @@ export default {
     if (pathname === '/analyze') return handleAnalyze(req, env);
     if (pathname === '/market') return handleMarket(req, env);
     if (pathname === '/discover') return handleDiscover(req, env);
+    if (pathname === '/analysis-cache') return handleAnalysisCache(req, env);
     return new Response('Not found', { status: 404, headers: corsHeaders(origin) });
   },
 };
