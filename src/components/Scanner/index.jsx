@@ -135,6 +135,7 @@ export default function Scanner() {
             </div>
             {insight && (
               <div className="scanner-insight">
+                <p className="scanner-insight__heading">What this means</p>
                 <p className="scanner-insight__text">{insight}</p>
               </div>
             )}

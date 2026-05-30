@@ -23,7 +23,7 @@ function numVal(c, key) {
 function ContractCard({ contract: c }) {
   const [expanded, setExpanded] = useState(false);
   const sideKey = c.side === 'call' ? 'call' : 'put';
-  const strike = c.strike != null ? `$${parseFloat(c.strike).toFixed(0)}` : '—';
+  const strike = c.strike != null ? `$${parseFloat(c.strike).toFixed(2)}` : '—';
   const exp = c.expiration ? c.expiration.slice(5).replace('-', '/') : '—';
   const volOi = c._volOi != null ? `${c._volOi.toFixed(1)}×` : '—';
   const vol = c.volume != null ? c.volume.toLocaleString() : '—';
@@ -113,7 +113,9 @@ export default function UnusualTable({ contracts, tilt, onLowerThresholds, ticke
         <span className="scanner-table-count">{contracts.length} found</span>
         {tilt && tilt.callPct + tilt.putPct > 0 && (
           <span className="scanner-tilt">
-            Calls {tilt.callPct.toFixed(0)}% · Puts {tilt.putPct.toFixed(0)}%
+            <span className="scanner-tilt__call">Calls {tilt.callPct.toFixed(0)}%</span>
+            {' · '}
+            <span className="scanner-tilt__put">Puts {tilt.putPct.toFixed(0)}%</span>
           </span>
         )}
       </div>
