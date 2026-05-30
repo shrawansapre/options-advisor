@@ -189,7 +189,7 @@ export default function App() {
               Analyze
             </button>
           </div>
-          <p className="search-hint">Educational purposes only</p>
+          <p className="search-hint">Not financial advice</p>
         </div>
 
         {!showLearn && !showScanner && showNudge && (
@@ -265,7 +265,7 @@ export default function App() {
                     <span className="market-label">Market</span>
                     {active.analysedAt && (
                       <span className="analysis-time">
-                        Analysed {active.analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} at {active.analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                        Analyzed {active.analysedAt.toLocaleDateString(undefined, { month: "short", day: "numeric" })} at {active.analysedAt.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
                       </span>
                     )}
                   </div>

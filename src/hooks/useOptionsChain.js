@@ -12,8 +12,10 @@ export function useOptionsChain() {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+    setTicker(sym.toUpperCase());
     setLoading(true);
     setError(null);
+    setData(null);
     try {
       const headers = {};
       if (import.meta.env.VITE_INTERNAL_TOKEN) {
@@ -38,7 +40,6 @@ export function useOptionsChain() {
       );
 
       setData({ ...json, contracts });
-      setTicker(sym.toUpperCase());
     } catch (e) {
       if (e.name === 'AbortError') return;
       setError(e.message);

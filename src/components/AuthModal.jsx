@@ -43,8 +43,8 @@ export default function AuthModal({ onClose }) {
       transitionProps={{ transition: 'fade-up', duration: 200 }}
     >
       <div className="modal-brand">◈</div>
-      <h2 className="modal-title">Sign in</h2>
-      <p className="modal-sub">Sync your analyses across devices</p>
+      <h2 className="modal-title">Sign in to Options Brief</h2>
+      <p className="modal-sub">Keep your analyses wherever you go</p>
 
       {sent ? (
         <div className="modal-sent">

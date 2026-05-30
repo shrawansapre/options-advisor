@@ -134,7 +134,7 @@ export function SearchHistory({ history, onSelect, onSelectCached, onClear }) {
     <div className="search-history" ref={ref}>
       <button className="history-toggle" onClick={() => setOpen(o => !o)}>
         <History size={11} />
-        <span>Recent analyses ({history.length})</span>
+        <span>Recent searches ({history.length})</span>
         <ChevronRight size={11} className={`history-chevron ${open ? "history-chevron--open" : ""}`} />
       </button>
       <AnimatePresence>

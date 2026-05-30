@@ -100,7 +100,7 @@ export default function UnusualTable({ contracts, tilt, onLowerThresholds, ticke
       <div className="scanner-empty-results">
         <p>No unusual activity in {ticker} at these thresholds. Try lowering Min Vol/OI or widening the DTE range.</p>
         <button className="scanner-lower-btn" onClick={onLowerThresholds}>
-          Lower thresholds
+          Show more contracts
         </button>
       </div>
     );

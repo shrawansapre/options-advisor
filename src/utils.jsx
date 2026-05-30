@@ -110,7 +110,7 @@ export function formatTradeAsMarkdown(trade, marketContext, analysedAt) {
 
   const lines = [
     `# ${trade.ticker} — ${trade.strategy}`,
-    `> ${dateStr ? `Analysed ${dateStr}` : "AI-generated options analysis"} — educational purposes only, not financial advice`,
+    `> ${dateStr ? `Analyzed ${dateStr}` : "AI-generated options analysis"} — educational purposes only, not financial advice`,
     "",
     `**Conviction:** ${summary.conviction} (${summary.confidenceScore}%) · **Risk:** ${trade.riskLevel}/5`,
     "",

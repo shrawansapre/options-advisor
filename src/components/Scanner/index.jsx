@@ -43,9 +43,9 @@ function buildInsight(ticker, unusual, cpRatio, sentiment, tilt) {
     neutral: `${ticker} has ${count} contract${count !== 1 ? 's' : ''} with unusual volume relative to open interest across both sides.`,
   }[tone];
 
-  const s2 = `The ${ratio}× call/put ratio with ${domPct}% ${dominant} tilt ${tone === 'neutral' ? 'reflects balanced two-way flow' : `points to net ${tone} positioning`}.`;
+  const s2 = `The ${ratio}× call/put ratio with ${domPct}% ${dominant} tilt ${tone === 'neutral' ? 'reflects balanced two-way flow' : `leans ${tone} overall`}.`;
 
-  const s3 = 'Most unusual prints are institutional hedges or spread legs — confirm with price action before drawing directional conclusions.';
+  const s3 = 'Most unusual trades are hedges or multi-leg strategies — check the chart before assuming a directional bet.';
 
   return `${s1} ${s2} ${s3}`;
 }
@@ -108,7 +108,7 @@ export default function Scanner() {
           <motion.div key="loading" className="scanner-loading"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="scanner-loading-dot" />
-            <span>Fetching chain for {ticker || '…'}</span>
+            <span>Loading {ticker || '…'} options chain…</span>
           </motion.div>
         )}
 

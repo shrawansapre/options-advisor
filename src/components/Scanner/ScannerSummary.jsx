@@ -24,7 +24,7 @@ export default function ScannerSummary({ quote, ticker, ivCurrent, cpRatio, sent
         <div className="scanner-summary__value">
           {ivCurrent != null ? `${(ivCurrent * 100).toFixed(1)}%` : '—'}
         </div>
-        <div className="scanner-summary__sub">ATM avg</div>
+        <div className="scanner-summary__sub">at-the-money avg</div>
       </div>
 
       <div className="scanner-summary__item">
@@ -44,7 +44,7 @@ export default function ScannerSummary({ quote, ticker, ivCurrent, cpRatio, sent
         <button className="scanner-unusual-count" onClick={onScrollToTable}>
           {unusualCount}
         </button>
-        <div className="scanner-summary__sub">vol/OI signals</div>
+        <div className="scanner-summary__sub">by Vol/OI ratio</div>
       </div>
     </div>
   );

@@ -19,34 +19,35 @@ export default function ScannerInput({ onScan, loading, filters, onFiltersChange
     <div className="scanner-input-wrap">
       <div className="scanner-title-block">
         <h1 className="scanner-title">Unusual Activity Scanner</h1>
-        <p className="scanner-subtitle">Surfaces options contracts where today's volume is unusually high relative to open interest — a signal that something may be happening.</p>
+        <p className="scanner-subtitle">Finds options contracts where today's volume is unusually high relative to open interest — a signal of unusual institutional or speculative interest.</p>
       </div>
 
-      <form className="scanner-search-bar" onSubmit={handleSubmit}>
-        <input
-          className="scanner-search-input"
-          type="text"
-          placeholder="Enter ticker…"
-          value={input}
-          onChange={e => setInput(e.target.value.toUpperCase().replace(/[^A-Z0-9.\-]/g, '').slice(0, 10))}
-          disabled={loading}
-          autoComplete="off"
-          spellCheck="false"
-        />
-        <button className="scanner-search-btn" type="submit" disabled={loading || !input.trim()}>
-          {loading ? 'Scanning…' : 'Scan'}
+      <div className="scanner-search-row">
+        <form className="scanner-search-bar" onSubmit={handleSubmit}>
+          <input
+            className="scanner-search-input"
+            type="text"
+            placeholder="Enter a ticker"
+            value={input}
+            onChange={e => setInput(e.target.value.toUpperCase().replace(/[^A-Z0-9.\-]/g, '').slice(0, 10))}
+            disabled={loading}
+            autoComplete="off"
+            spellCheck="false"
+          />
+          <button className="scanner-search-btn" type="submit" disabled={loading || !input.trim()}>
+            {loading ? 'Scanning…' : 'Scan'}
+          </button>
+        </form>
+        <button
+          type="button"
+          className="scanner-filter-toggle"
+          onClick={() => setFiltersOpen(o => !o)}
+        >
+          <SlidersHorizontal size={12} />
+          <span className="scanner-filter-text">Filters</span>
+          {filtersOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
-      </form>
-
-      <button
-        type="button"
-        className="scanner-filter-toggle"
-        onClick={() => setFiltersOpen(o => !o)}
-      >
-        <SlidersHorizontal size={12} />
-        Filters
-        {filtersOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-      </button>
+      </div>
 
       {recentTickers.length > 0 && (
         <div className="scanner-history">
@@ -107,12 +108,12 @@ export default function ScannerInput({ onScan, loading, filters, onFiltersChange
           </div>
           <div className="scanner-filter-row">
             <div className="scanner-filter-group">
-              <label className="scanner-filter-label">Min |Δ|</label>
+              <label className="scanner-filter-label">Delta min</label>
               <input type="number" className="scanner-filter-input" value={filters.deltaMin} min="0" max="1" step="0.01"
                 onChange={e => setFilter('deltaMin', Math.min(1, Math.max(0, parseFloat(e.target.value) || 0)))} />
             </div>
             <div className="scanner-filter-group">
-              <label className="scanner-filter-label">Max |Δ|</label>
+              <label className="scanner-filter-label">Delta max</label>
               <input type="number" className="scanner-filter-input" value={filters.deltaMax} min="0" max="1" step="0.01"
                 onChange={e => setFilter('deltaMax', Math.min(1, Math.max(0, parseFloat(e.target.value) || 0)))} />
             </div>
