@@ -10,9 +10,13 @@
 }
 
 /* ─── Input + Filters ────────────────────────────────────────────────────── */
-.scanner-input-wrap { display: flex; flex-direction: column; gap: 0.875rem; }
-
-.scanner-title-block { display: flex; flex-direction: column; gap: 4px; }
+.scanner-input-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 8px;
+  row-gap: 0.875rem;
+}
+.scanner-title-block { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 4px; }
 .scanner-title {
   font-family: var(--mono);
   font-size: 11px; font-weight: 500;
@@ -24,7 +28,8 @@
   max-width: 520px;
 }
 
-.scanner-search-bar { display: flex; gap: 8px; }
+.scanner-search-bar  { grid-column: 1; display: flex; gap: 8px; }
+.scanner-input-wrap > .scanner-filter-toggle { grid-column: 2; align-self: center; }
 .scanner-search-input {
   flex: 1; min-width: 0;
   font-family: var(--mono); font-size: 16px; font-weight: 400;
@@ -49,11 +54,7 @@
 .scanner-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 [data-mantine-color-scheme="dark"] .scanner-search-btn { color: #0D1B2A; }
 
-/* Controls row: history chips (left) + filters toggle (right) */
-.scanner-controls-row {
-  display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem;
-}
-.scanner-history { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.scanner-history     { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
 .scanner-history-chip {
   font-family: var(--mono); font-size: 11px; font-weight: 500;
   padding: 4px 10px; border-radius: var(--r-sm);
@@ -76,6 +77,7 @@
 
 /* Filter panel */
 .scanner-filters {
+  grid-column: 1 / -1;
   display: flex; flex-direction: column; gap: 0.75rem;
   padding: 1rem; border-radius: var(--r-md);
   border: 1px solid var(--border); background: var(--surface-2);
@@ -400,6 +402,13 @@
 
 @media (max-width: 600px) {
   .scanner-page { padding: 1.25rem 1rem 3rem; gap: 1.25rem; }
+
+  /* Revert grid to flex column on mobile */
+  .scanner-input-wrap {
+    display: flex; flex-direction: column; gap: 0.875rem;
+  }
+  .scanner-input-wrap > .scanner-filter-toggle { align-self: flex-end; }
+  .scanner-history { flex-wrap: wrap; }
 
   /* Title */
   .scanner-subtitle { font-size: 12px; }
