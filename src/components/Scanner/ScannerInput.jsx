@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 
-export default function ScannerInput({ onScan, loading, filters, onFiltersChange, onReset }) {
+export default function ScannerInput({ onScan, loading, filters, onFiltersChange, onReset, recentTickers = [], onTickerSelect }) {
   const [input, setInput] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -38,7 +38,22 @@ export default function ScannerInput({ onScan, loading, filters, onFiltersChange
         </button>
       </form>
 
-      <div className="scanner-filter-ctrl">
+      <div className="scanner-controls-row">
+        {recentTickers.length > 0 && (
+          <div className="scanner-history">
+            {recentTickers.map(t => (
+              <button
+                key={t}
+                type="button"
+                className="scanner-history-chip"
+                onClick={() => onTickerSelect(t)}
+                disabled={loading}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        )}
         <button
           type="button"
           className="scanner-filter-toggle"

@@ -40,9 +40,9 @@ export default function ScannerSummary({ quote, ticker, ivCurrent, cpRatio, sent
       </div>
 
       <div className="scanner-summary__item">
-        <div className="scanner-summary__label">Unusual</div>
+        <div className="scanner-summary__label">Unusual Contracts</div>
         <button className="scanner-unusual-count" onClick={onScrollToTable}>
-          {unusualCount} contract{unusualCount !== 1 ? 's' : ''}
+          {unusualCount}
         </button>
         <div className="scanner-summary__sub">vol/OI signals</div>
       </div>

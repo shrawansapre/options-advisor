@@ -49,8 +49,20 @@
 .scanner-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 [data-mantine-color-scheme="dark"] .scanner-search-btn { color: #0D1B2A; }
 
-/* Filters toggle — always its own row, right-aligned */
-.scanner-filter-ctrl { display: flex; justify-content: flex-end; }
+/* Controls row: history chips (left) + filters toggle (right) */
+.scanner-controls-row {
+  display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem;
+}
+.scanner-history { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.scanner-history-chip {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  padding: 4px 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--t2); cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+}
+.scanner-history-chip:hover { color: var(--navy); border-color: var(--navy); }
+.scanner-history-chip:disabled { opacity: 0.4; cursor: not-allowed; }
 .scanner-filter-toggle {
   display: flex; align-items: center; gap: 5px;
   font-family: var(--mono); font-size: 11px; font-weight: 500;
@@ -213,7 +225,7 @@
 .scanner-summary__change--neutral { color: var(--neutral); }
 
 .scanner-badge {
-  display: inline-block;
+  display: inline-block; align-self: flex-start; width: fit-content;
   font-family: var(--mono); font-size: 10px; font-weight: 500;
   letter-spacing: 0.06em; text-transform: uppercase;
   padding: 2px 7px; border-radius: 4px; margin-top: 2px;
@@ -230,7 +242,7 @@
 .scanner-unusual-count:hover { opacity: 0.7; }
 
 /* ─── Table (desktop) ────────────────────────────────────────────────────── */
-.scanner-table-wrap { display: flex; flex-direction: column; gap: 0.75rem; }
+.scanner-table-wrap { display: flex; flex-direction: column; gap: 1rem; }
 .scanner-table-header { display: flex; align-items: center; gap: 0.75rem; }
 .scanner-table-title {
   font-family: var(--mono); font-size: 11px; font-weight: 500;
@@ -294,9 +306,9 @@
 .scanner-mobile-cards { display: none; }
 
 .scanner-contract-card {
-  padding: 0.875rem 1rem;
+  padding: 1rem 1rem 0.875rem;
   background: var(--surface);
-  border-bottom: 1px solid var(--border-2);
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
   transition: background 0.1s;
 }
@@ -307,7 +319,7 @@
 
 .scanner-contract-card__top {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.5rem;
 }
 .scanner-contract-card__id {
   display: flex; align-items: center; gap: 0.5rem;
@@ -323,13 +335,13 @@
   color: var(--navy); letter-spacing: -0.01em;
 }
 .scanner-contract-card__stats {
-  display: flex; gap: 1rem; align-items: center;
+  display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap;
 }
 .scanner-contract-card__stat {
   font-family: var(--mono); font-size: 11px; color: var(--t2);
 }
 .scanner-contract-card__stat-label {
-  font-family: var(--mono); font-size: 10px; color: var(--t3);
+  font-family: var(--mono); font-size: 10px; color: var(--t3); margin-right: 3px;
 }
 .scanner-contract-card__greeks {
   display: flex; gap: 1rem; flex-wrap: wrap;
@@ -352,6 +364,17 @@
 }
 .scanner-side-badge--call { background: var(--green-light); color: var(--bullish); }
 .scanner-side-badge--put  { background: var(--red-light);   color: var(--bearish); }
+
+/* ─── Insight summary ────────────────────────────────────────────────────── */
+.scanner-insight {
+  padding: 1rem 1.25rem;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.scanner-insight__text {
+  font-size: 13px; color: var(--t2); line-height: 1.7; margin: 0;
+}
 
 /* ─── Empty results ──────────────────────────────────────────────────────── */
 .scanner-empty-results {
@@ -380,6 +403,10 @@
 
   /* Title */
   .scanner-subtitle { font-size: 12px; }
+
+  /* Prevent iOS Safari zoom on tap — all inputs must be ≥16px */
+  .scanner-search-input { font-size: 16px; }
+  .scanner-filter-input { font-size: 16px; }
 
   /* Explainer — strip card frame, items float on warm bg */
   .scanner-explainer {

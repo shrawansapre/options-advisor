@@ -16,9 +16,44 @@ const DEFAULT_FILTERS = {
   deltaMax: 0.50,
 };
 
+const HISTORY_KEY = 'scanner-history';
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]'); }
+  catch { return []; }
+}
+
+function saveHistory(ticker, current) {
+  const updated = [ticker, ...current.filter(t => t !== ticker)].slice(0, 8);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+  return updated;
+}
+
+function buildInsight(ticker, unusual, cpRatio, sentiment, tilt) {
+  const count = unusual.length;
+  if (!count) return null;
+  const tone = sentiment?.tone ?? 'neutral';
+  const ratio = cpRatio?.ratio?.toFixed(2) ?? '—';
+  const dominant = (tilt?.callPct ?? 0) >= 50 ? 'call' : 'put';
+  const domPct = (dominant === 'call' ? tilt?.callPct : tilt?.putPct)?.toFixed(0) ?? '—';
+
+  const s1 = {
+    bullish: `${ticker} shows elevated call activity — ${count} contract${count !== 1 ? 's' : ''} printing well above open interest.`,
+    bearish: `${ticker} shows elevated put activity — ${count} contract${count !== 1 ? 's' : ''} printing well above open interest.`,
+    neutral: `${ticker} has ${count} contract${count !== 1 ? 's' : ''} with unusual volume relative to open interest across both sides.`,
+  }[tone];
+
+  const s2 = `The ${ratio}× call/put ratio with ${domPct}% ${dominant} tilt ${tone === 'neutral' ? 'reflects balanced two-way flow' : `points to net ${tone} positioning`}.`;
+
+  const s3 = 'Most unusual prints are institutional hedges or spread legs — confirm with price action before drawing directional conclusions.';
+
+  return `${s1} ${s2} ${s3}`;
+}
+
 export default function Scanner() {
   const { ticker, data, loading, error, scan } = useOptionsChain();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [history, setHistory] = useState(loadHistory);
   const tableRef = useRef(null);
 
   const { unusual, cpRatio, sentiment, tilt } = useMemo(() => {
@@ -30,6 +65,11 @@ export default function Scanner() {
     return { unusual, cpRatio: cp, sentiment, tilt };
   }, [data, filters]);
 
+  function handleScan(sym) {
+    scan(sym);
+    setHistory(prev => saveHistory(sym, prev));
+  }
+
   function handleLowerThresholds() {
     setFilters(f => ({
       ...f,
@@ -38,14 +78,21 @@ export default function Scanner() {
     }));
   }
 
+  const insight = useMemo(
+    () => data && !error ? buildInsight(ticker, unusual, cpRatio, sentiment, tilt) : null,
+    [ticker, unusual, cpRatio, sentiment, tilt, data, error]
+  );
+
   return (
     <div className="scanner-page">
       <ScannerInput
-        onScan={scan}
+        onScan={handleScan}
         loading={loading}
         filters={filters}
         onFiltersChange={setFilters}
         onReset={() => setFilters(DEFAULT_FILTERS)}
+        recentTickers={history}
+        onTickerSelect={handleScan}
       />
 
       <AnimatePresence mode="wait">
@@ -86,6 +133,11 @@ export default function Scanner() {
                 ticker={ticker}
               />
             </div>
+            {insight && (
+              <div className="scanner-insight">
+                <p className="scanner-insight__text">{insight}</p>
+              </div>
+            )}
           </motion.div>
         )}
 
