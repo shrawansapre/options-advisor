@@ -17,6 +17,7 @@ import { useAnalysisState, makeAnalysis } from "./hooks/useAnalysisState";
 
 const LearnPage = lazy(() => import("./components/Learn"));
 const ScannerPage = lazy(() => import("./components/Scanner"));
+const DiscoverPage = lazy(() => import("./components/Discover"));
 
 export default function App() {
   const [ticker, setTicker] = useState("");
@@ -30,6 +31,7 @@ export default function App() {
   const { pathname } = useLocation();
   const showLearn = pathname === "/learn";
   const showScanner = pathname === "/scanner";
+  const showDiscover = pathname === "/discover";
   const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const avatarRef = useRef(null);
 
@@ -130,6 +132,12 @@ export default function App() {
             >
               Scanner
             </button>
+            <button
+              className={`learn-btn${showDiscover ? " learn-btn--active" : ""}`}
+              onClick={() => navigate(showDiscover ? "/" : "/discover")}
+            >
+              Discover
+            </button>
             <button className="theme-toggle" onClick={toggleDark} aria-label="Toggle theme">
               {dark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
@@ -147,15 +155,16 @@ export default function App() {
         </div>
       </header>
 
-      <main className={`app-main${!showLearn && !showScanner && analyses.length === 0 ? " app-main--landing" : ""}`}>
+      <main className={`app-main${!showLearn && !showScanner && !showDiscover && analyses.length === 0 ? " app-main--landing" : ""}`}>
         <Routes>
           <Route path="/learn" element={<Suspense fallback={null}><LearnPage /></Suspense>} />
           <Route path="/scanner" element={<Suspense fallback={null}><ScannerPage /></Suspense>} />
+          <Route path="/discover" element={<Suspense fallback={null}><DiscoverPage onAnalyze={(t) => { navigate("/"); handleAnalyze(t); }} /></Suspense>} />
           <Route path="*" element={null} />
         </Routes>
 
 
-        {!showLearn && !showScanner && !active && (
+        {!showLearn && !showScanner && !showDiscover && !active && (
           <motion.div
             className="landing-hero"
             initial={{ opacity: 0, y: 16 }}
@@ -170,8 +179,8 @@ export default function App() {
           </motion.div>
         )}
 
-        <div className={`search-wrap${!active && !showLearn && !showScanner ? " search-wrap--landing" : ""}`}
-          style={{ display: (showLearn || showScanner) ? "none" : undefined }}>
+        <div className={`search-wrap${!active && !showLearn && !showScanner && !showDiscover ? " search-wrap--landing" : ""}`}
+          style={{ display: (showLearn || showScanner || showDiscover) ? "none" : undefined }}>
           <div className="search-bar">
             <input
               id="ticker-input"
@@ -192,7 +201,7 @@ export default function App() {
           <p className="search-hint">Not financial advice</p>
         </div>
 
-        {!showLearn && !showScanner && showNudge && (
+        {!showLearn && !showScanner && !showDiscover && showNudge && (
           <Alert
             title="Save your analyses"
             variant="light"
@@ -206,7 +215,7 @@ export default function App() {
           </Alert>
         )}
 
-        {!showLearn && !showScanner && (
+        {!showLearn && !showScanner && !showDiscover && (
           <AnalysisTabs
             analyses={analyses}
             activeId={activeId}
@@ -215,7 +224,7 @@ export default function App() {
           />
         )}
 
-        {!showLearn && !showScanner && <AnimatePresence mode="wait">
+        {!showLearn && !showScanner && !showDiscover && <AnimatePresence mode="wait">
           {!active && (
             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ delay: 0.1 }}>
