@@ -78,7 +78,28 @@ export default function App() {
     document.addEventListener("freeze", onFreeze);
 
     try {
-      const data = await fetchRecommendation(t, progress => update(a.id, { progress }), abortController.signal);
+      const apiBase = import.meta.env.VITE_API_BASE ?? "";
+      const cacheHeaders = {};
+      if (import.meta.env.VITE_INTERNAL_TOKEN) cacheHeaders["X-Internal-Token"] = import.meta.env.VITE_INTERNAL_TOKEN;
+
+      let data = null;
+      if (t) {
+        try {
+          const cr = await fetch(`${apiBase}/analysis-cache?ticker=${t}`, { headers: cacheHeaders });
+          if (cr.ok) { const cj = await cr.json(); if (cj.hit) data = cj.result; }
+        } catch { /* cache is best-effort */ }
+      }
+
+      if (!data) {
+        data = await fetchRecommendation(t, progress => update(a.id, { progress }), abortController.signal);
+        if (t && data?.trades?.length) {
+          fetch(`${apiBase}/analysis-cache?ticker=${t}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", ...cacheHeaders },
+            body: JSON.stringify({ result: data }),
+          }).catch(() => {});
+        }
+      }
       update(a.id, {
         status: "done",
         result: data,
