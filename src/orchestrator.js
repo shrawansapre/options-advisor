@@ -116,13 +116,10 @@ export async function orchestrate({ ticker, onProgress, signal }) {
 
   const researchJSON = JSON.stringify(research);
   const resolvedTicker = research.ticker || safeTicker;
-  const greeksNote = hasLiveData
-    ? "use the pre-loaded Greeks from research.chains for that specific strike/expiry"
-    : "retrieve the exact live Greeks for that specific strike/expiry";
 
   const results = await Promise.all(
     tiers.map(async (tier) => {
-      const result = await runStrategist({ tier, resolvedTicker, researchJSON, hasLiveData, greeksNote, timeContext, signal });
+      const result = await runStrategist({ tier, resolvedTicker, researchJSON, hasLiveData, timeContext, signal });
       tierStatus[tier] = "done";
       onProgress?.({ type: "strategies", tiers: { ...tierStatus } });
       return result;
@@ -166,7 +163,7 @@ export async function orchestrate({ ticker, onProgress, signal }) {
           onProgress?.({ type: "critic", status: "retrying", tier, attempt });
           try {
             const retried = await runStrategist({
-              tier, resolvedTicker, researchJSON, hasLiveData, greeksNote, timeContext,
+              tier, resolvedTicker, researchJSON, hasLiveData, timeContext,
               critique: failedCritique.concerns, signal,
             });
             const retriedTrade = retried.trades?.[0];

@@ -82,7 +82,7 @@ function extractJSON(accumulated) {
   return parsed;
 }
 
-export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, model = "claude-sonnet-4-6", onProgress, timeoutMs = 120000, signal: externalSignal }) {
+export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxTokens, model = "claude-sonnet-4-6", onProgress, timeoutMs = 120000, signal: externalSignal, thinkingBudget }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -125,7 +125,10 @@ export async function callAPI({ systemPrompt, userMessage, useWebSearch, maxToke
     system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
     messages: [{ role: "user", content: userMessage }],
   };
-  if (useWebSearch) {
+  // Extended thinking and tool use are mutually exclusive — only one can be active.
+  if (thinkingBudget && !useWebSearch) {
+    body.thinking = { type: "enabled", budget_tokens: thinkingBudget };
+  } else if (useWebSearch) {
     body.tools = [{ type: "web_search_20250305", name: "web_search" }];
   }
 

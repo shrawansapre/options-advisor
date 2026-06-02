@@ -18,7 +18,7 @@ ${JSON.stringify(trades, null, 2)}`;
     userMessage: userMsg,
     useWebSearch: false,
     maxTokens: 1500,
-    model: "claude-haiku-4-5-20251001",
+    model: "claude-sonnet-4-6",
     onProgress: null,
     timeoutMs: 30000,
     signal,
