@@ -92,6 +92,12 @@
 
 - **Scanner mobile overhaul** — full mobile redesign across landing and results; landing: Filters toggle moved to its own right-aligned row (eliminates overflow), Fraunces italic "How it works" heading + CSS counter 01/02/03 numbering on explainer items, card frame strips on mobile; results: desktop table swapped for contract card list on mobile (≤600px) — each card shows strike + exp + C/P badge on left, Vol/OI hero value (16px) on right, Vol/OI/IV stats row below, tap to expand Greeks; summary card cells tightened
 
+- **Scanner design system audit** — table header font `--font`→`--mono` (terminal mode); row hover bug fixed (hardcoded `td` background prevented `tr:hover`); subtitle Fraunces italic; Greek labels get `font-family: var(--mono)`; 3× hardcoded `#0D1B2A`→`var(--bg)`; tilt call%/put% colored green/red; insight block gets serif italic heading; explainer `margin: 0 auto`; Vol/OI hero 16→18px; strike formatting unified across desktop/mobile
+
+- **Copy audit (14 fixes)** — "Analysed"→"Analyzed"; "Educational purposes only"→"Not financial advice"; "Recent analyses"→"Recent searches"; auth modal title+subtitle improved; scanner subtitle clarified; placeholder standardized; filter labels "Min |Δ|"→"Delta min/max"; summary sub-labels clarified; loading "Fetching chain"→"Loading…options chain"; insight jargon reduced; empty-table CTA "Lower thresholds"→"Show more contracts"
+
+- **Scanner ticker state bug** — `setTicker`/`setData(null)` moved to top of `scan()` — stale ticker name no longer shown during second-ticker loading
+
 ## Known Issues / Next Up
 
 - Phase 5 deferred: thumbs up/down + report on trade cards (DB columns already exist)
