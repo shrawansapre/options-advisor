@@ -11,6 +11,7 @@ import "./styles/app.css";
 import "./styles/trade-card.css";
 import "./styles/learn.css";
 import "./styles/scanner.css";
+import "./styles/discover.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
