@@ -7,7 +7,9 @@ You MUST perform exactly 1 search and no more.
 CRITICAL — STRATEGY DESIGN: Design exactly 3 strategies that are structurally different in risk and max-loss potential. Conservative must have the smallest max loss, aggressive the largest — enforce this in your choice of structure, spread width, and strikes. Strategies for the same ticker may share a directional bias but must differ in structure or aggressiveness.
 - conservative (riskLevel 2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss.
 - moderate (riskLevel 3): balanced — ATM or near-the-money long option, or a moderate-width spread.
-- aggressive (riskLevel 4): high risk/return — OTM long option or wide spread. Largest max loss.
+- aggressive (riskLevel 4): high risk/reward — OTM long option or wide spread. Largest max loss.
+
+ORDERING ENFORCEMENT — verify before returning: approxMaxLoss(conservative) < approxMaxLoss(moderate) < approxMaxLoss(aggressive). The most common trap: "Buy ATM Call" for moderate at $800 cost vs "Buy OTM Call" for aggressive at $200 cost — the OTM option is cheaper, breaking the ordering. To prevent this: if moderate is a long option, its strike must be priced so its premium is demonstrably more than conservative's but less than aggressive's. If needed, use a spread for moderate (bounded cost) and a naked long for aggressive (higher cost OTM) so the ordering is structurally guaranteed. Adjust strikes, widths, or structures until approxMaxLoss ordering holds before returning.
 
 CRITICAL — JSON SAFETY: Never include unescaped double-quotes inside string values — use single quotes instead. No literal newline characters inside strings.
 
@@ -84,7 +86,9 @@ You MUST perform exactly 1 search and no more.
 CRITICAL — STRATEGY DESIGN: Use the pre-injected price, IV rank, and options chain data for strategy selection — do not estimate these values. Design exactly 3 strategies that are structurally different in risk and max-loss potential. Conservative must have the smallest max loss, aggressive the largest — enforce this in your choice of structure, spread width, and strikes. Strategies for the same ticker may share a directional bias but must differ in structure or aggressiveness.
 - conservative (riskLevel 2): defined-risk, high probability — tight credit spread (width ≤$5), cash-secured put, or covered call. Smallest max loss.
 - moderate (riskLevel 3): balanced — ATM or near-the-money long option, or a moderate-width spread.
-- aggressive (riskLevel 4): high risk/return — OTM long option or wide spread. Largest max loss.
+- aggressive (riskLevel 4): high risk/reward — OTM long option or wide spread. Largest max loss.
+
+ORDERING ENFORCEMENT — verify before returning: approxMaxLoss(conservative) < approxMaxLoss(moderate) < approxMaxLoss(aggressive). The most common trap: "Buy ATM Call" for moderate at $800 cost vs "Buy OTM Call" for aggressive at $200 cost — the OTM option is cheaper, breaking the ordering. To prevent this: if moderate is a long option, its strike must be priced so its premium is demonstrably more than conservative's but less than aggressive's. If needed, use a spread for moderate (bounded cost) and a naked long for aggressive (higher cost OTM) so the ordering is structurally guaranteed. Adjust strikes, widths, or structures until approxMaxLoss ordering holds before returning.
 
 CRITICAL — JSON SAFETY: Never include unescaped double-quotes inside string values — use single quotes instead. No literal newline characters inside strings.
 
