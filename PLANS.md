@@ -47,7 +47,7 @@ As-you-type suggestions (symbol + company name) below the search bar. Full plan 
 
 ## Phase 5 — Trade Feedback (ready to build)
 
-Thumbs up/down + report button on each trade card. Supabase DB columns already exist (`feedback`, `reported` on `analyses` table). Just needs UI + write path.
+Thumbs up/down + report button on each trade card. D1 columns already exist (`feedback`, `reported` on `analyses`). Just needs UI + write path.
 
 ---
 
@@ -70,8 +70,8 @@ Send one email per day with the single best options trade opportunity identified
 - `CRON_SECRET` env var for endpoint auth
 - `api/digest/run.js` — the pipeline endpoint
 - Vercel cron schedule in `vercel.json`
-- Supabase `digest_subscribers` table (or reuse `profiles.digest_enabled` column)
-- SQL migration: add `digest_enabled boolean default false` to `profiles` table; add `digest_logs` table for run history
+- D1 `digest_subscribers` table (or a `digest_enabled` column on the owner row)
+- SQL migration: add `digest_logs` for run history
 
 **User-facing toggle:** Settings or profile menu — "Daily digest email" on/off switch. Only for signed-in users.
 
@@ -85,13 +85,13 @@ Log trades entered manually with entry price, date, contracts. Track running P&L
 
 - localStorage-backed (no auth required for basic version)
 - Show open trades with live gain/loss per contract
-- Promote to Supabase for signed-in users
+- Promote to D1 for the signed-in owner
 
 ---
 
 ## Watchlist
 
-Save tickers, re-scan all with one tap. Shows last analysis date per ticker. Supabase-backed for signed-in users.
+Save tickers, re-scan all with one tap. Shows last analysis date per ticker. D1-backed for the signed-in owner.
 
 ---
 

@@ -6,6 +6,13 @@ compatibility_date = "2024-01-01"
 binding = "MARKET_CACHE"
 id = "122c51ef34e540fabb07f7939b1e01b6"
 
+# Account history. Create with: npx wrangler d1 create options-brief
+# Then paste the database_id here and apply worker/schema.sql.
+[[d1_databases]]
+binding = "HISTORY_DB"
+database_name = "options-brief"
+database_id = "00000000-0000-0000-0000-000000000000"
+
 [observability]
 enabled = false
 head_sampling_rate = 1

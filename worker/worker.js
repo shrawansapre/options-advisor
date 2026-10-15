@@ -1,3 +1,5 @@
+import { handleAuthRequest, handleHistoryRequest } from "../src/lib/accountStore.js";
+
 const ALLOWED_MODELS = new Set(['claude-sonnet-4-6', 'claude-sonnet-4-20250514', 'claude-haiku-4-5-20251001']);
 const MAX_TOKENS_LIMIT = 16000;
 
@@ -6,13 +8,16 @@ const ALLOWED_ORIGINS = new Set([
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:8787',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:8787',
 ]);
 
 function corsHeaders(origin) {
   return {
     'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : 'https://options-advisor-sepia.vercel.app',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Token',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Internal-Token, Authorization',
     'Vary': 'Origin',
   };
 }
@@ -285,6 +290,12 @@ export default {
     const { pathname } = new URL(req.url);
     if (pathname === '/analyze') return handleAnalyze(req, env);
     if (pathname === '/market') return handleMarket(req, env);
+    if (pathname === '/auth/login' || pathname === '/auth/logout' || pathname === '/auth/session') {
+      return handleAuthRequest(req, env, { json, text });
+    }
+    if (pathname === '/history' || pathname.startsWith('/history/')) {
+      return handleHistoryRequest(req, env, { json, text });
+    }
     return new Response('Not found', { status: 404, headers: corsHeaders(origin) });
   },
 };
