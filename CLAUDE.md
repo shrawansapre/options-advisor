@@ -19,7 +19,7 @@ AI-powered options analysis app. A multi-agent pipeline runs on each request: li
 - React 18 + Vite (no TypeScript)
 - Anthropic API — `claude-sonnet-4-6` (Strategist) + `claude-haiku-4-5-20251001` (Researcher + Critic) — proxied through Cloudflare Worker (`worker/worker.js`) at `https://api.optionsbrief.workers.dev`
 - marketdata.app — live stock quotes + option chains (fetched by Worker `/market` endpoint before each analysis)
-- Supabase — auth (Google OAuth + magic link) + `analyses` table for history sync
+- Cloudflare D1 — owner sign-in and `analyses` history, stored by the Worker (`HISTORY_DB`). Guests stay on localStorage.
 - Vanilla CSS with custom design tokens (no Tailwind, no CSS-in-JS)
 - No state management library — useState is sufficient
 - `react-router-dom` v7 — two routes: `/` (main app) and `/learn` (Learn page)
@@ -70,7 +70,8 @@ options-advisor/
     │   └── learn.css        # Learn page, diagrams, interactive components
     ├── lib/
     │   ├── claude.js        # callAPI() — HTTP primitive used by all agents (avoids circular imports)
-    │   └── supabase.js      # Supabase client (exports null if env vars missing)
+    │   ├── account.js       # Browser client for owner sign-in and history sync
+    │   └── accountStore.js # Worker handlers for /auth and /history (D1)
     └── components/
         ├── TradeCard/
         │   ├── index.jsx    # Card shell, header, data block, snapshot div
@@ -89,12 +90,12 @@ options-advisor/
         │   ├── IVSection.jsx
         │   └── StrategiesSection.jsx
         ├── AnalysisTabs.jsx # Top tab bar for switching between open analyses
-        ├── SearchHistory.jsx # Recent searches row + localStorage/Supabase sync
+        ├── SearchHistory.jsx # Recent searches row + localStorage/D1 sync
         ├── LoadingMessages.jsx # Streaming progress display during analysis
         ├── IVGauge.jsx      # IV rank gauge component (shared)
         ├── TradeCharts.jsx  # Payoff diagram charts
         ├── AuthContext.jsx  # useAuth() hook + AuthProvider
-        ├── AuthModal.jsx    # Sign-in modal (Google OAuth + magic link)
+        ├── AuthModal.jsx    # Owner email + password sign-in modal
         └── ErrorBoundary.jsx
 ```
 
@@ -206,14 +207,13 @@ App
             └── AnalysisSection
 ```
 
-### Auth (`src/components/AuthContext.jsx`, `AuthModal.jsx`, `src/lib/supabase.js`)
+### Auth (`src/components/AuthContext.jsx`, `AuthModal.jsx`, `src/lib/account.js`, `src/lib/accountStore.js`)
 
-- Supabase client in `supabase.js` — exports `null` if env vars missing (safe for local dev without Supabase)
-- `AuthProvider` exposes `{ user, signInWithGoogle, signInWithEmail, signOut }` via `useAuth()`
+- One owner account. The Worker checks `OWNER_EMAIL` and `OWNER_PASSWORD` and returns an HMAC session token (`AUTH_SECRET`). The browser stores that token in localStorage and sends it as `Authorization: Bearer`.
+- `AuthProvider` exposes `{ user, signInWithPassword, signOut }` via `useAuth()`
 - `user === undefined` → loading | `null` → guest | object → signed in
-- Both OAuth and magic link use `redirectTo: window.location.origin` — works in dev and prod
-- History is localStorage for guests; on first sign-in, localStorage is bulk-migrated to Supabase `analyses` table then cleared
-- **Supabase dashboard config** — Site URL in Authentication → URL Configuration must match the Vercel deployment URL. Add both localhost and prod URL to the Redirect allow-list.
+- History is localStorage for guests; on first sign-in, localStorage is bulk-migrated to the D1 `analyses` table then cleared
+- If the Worker secrets or `HISTORY_DB` binding are missing, sign-in fails and history stays on the device. No Supabase project is required.
 
 ### Styling (`src/styles/`)
 
@@ -250,7 +250,7 @@ See `src/prompts/strategy.js` for the full response schema (trades array shape, 
 
 6. **API key stays server-side.** `worker/worker.js` holds the key in Cloudflare Worker secrets (`env.ANTHROPIC_API_KEY`). Never add it to client-side code. Deploy worker changes with `npx wrangler deploy --config worker/wrangler.toml` — pushing to git does NOT auto-deploy the worker.
 
-7. **Supabase env vars are optional.** `src/lib/supabase.js` exports `null` when `VITE_SUPABASE_URL` is missing — auth features silently degrade. Safe for local dev without Supabase credentials.
+7. **Account secrets stay on the Worker.** `OWNER_EMAIL`, `OWNER_PASSWORD`, and `AUTH_SECRET` are Wrangler secrets. Never put the owner password in client code. `VITE_SUPABASE_*` is no longer used.
 
 ## Testing strategy (when you add tests)
 

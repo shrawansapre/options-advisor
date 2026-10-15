@@ -1,29 +1,23 @@
 import { useState } from "react";
-import { Mail } from "lucide-react";
 import { Modal } from "@mantine/core";
 import { useAuth } from "./AuthContext";
 
 export default function AuthModal({ onClose }) {
-  const { signInWithGoogle, signInWithEmail } = useAuth();
+  const { signInWithPassword } = useAuth();
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  async function handleGoogle() {
-    setError(null);
-    await signInWithGoogle();
-  }
-
-  async function handleEmail(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !password) return;
     setLoading(true);
     setError(null);
-    const { error } = await signInWithEmail(email.trim());
+    const { error: signInError } = await signInWithPassword(email.trim(), password);
     setLoading(false);
-    if (error) { setError(error.message); return; }
-    setSent(true);
+    if (signInError) { setError(signInError.message); return; }
+    onClose();
   }
 
   return (
@@ -46,36 +40,30 @@ export default function AuthModal({ onClose }) {
       <h2 className="modal-title">Sign in to Options Brief</h2>
       <p className="modal-sub">Keep your analyses wherever you go</p>
 
-      {sent ? (
-        <div className="modal-sent">
-          <Mail size={20} />
-          <p>Check your inbox — we sent a magic link to <strong>{email}</strong></p>
-        </div>
-      ) : (
-        <>
-          <button className="modal-btn modal-btn--google" onClick={handleGoogle}>
-            Continue with Google
-          </button>
+      <form onSubmit={handleSubmit} className="modal-email-form">
+        <input
+          type="email"
+          className="modal-email-input"
+          placeholder="your@email.com"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          autoComplete="username"
+          autoFocus
+        />
+        <input
+          type="password"
+          className="modal-email-input"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          autoComplete="current-password"
+        />
+        <button type="submit" className="modal-btn modal-btn--email" disabled={loading}>
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
 
-          <div className="modal-divider"><span>or</span></div>
-
-          <form onSubmit={handleEmail} className="modal-email-form">
-            <input
-              type="email"
-              className="modal-email-input"
-              placeholder="your@email.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              autoFocus
-            />
-            <button type="submit" className="modal-btn modal-btn--email" disabled={loading}>
-              {loading ? "Sending…" : <><Mail size={14} /> Send magic link</>}
-            </button>
-          </form>
-
-          {error && <p className="modal-error">{error}</p>}
-        </>
-      )}
+      {error && <p className="modal-error">{error}</p>}
     </Modal>
   );
 }

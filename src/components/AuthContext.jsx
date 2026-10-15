@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { getSession, login, logout } from "../lib/account";
 
 const AuthContext = createContext(null);
 
@@ -7,39 +7,30 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(undefined); // undefined = loading, null = signed out
 
   useEffect(() => {
-    if (!supabase) { setUser(null); return; }
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+    let cancelled = false;
+    getSession().then(next => {
+      if (!cancelled) setUser(next);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
+    return () => { cancelled = true; };
   }, []);
 
-  async function signInWithGoogle() {
-    if (!supabase) return;
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-  }
-
-  async function signInWithEmail(email) {
-    if (!supabase) return;
-    return supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin },
-    });
+  async function signInWithPassword(email, password) {
+    try {
+      const next = await login(email, password);
+      setUser(next);
+      return {};
+    } catch (err) {
+      return { error: { message: err.message || "Sign in failed" } };
+    }
   }
 
   async function signOut() {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    await logout();
+    setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, signInWithGoogle, signInWithEmail, signOut }}>
+    <AuthContext.Provider value={{ user, signInWithPassword, signOut }}>
       {children}
     </AuthContext.Provider>
   );

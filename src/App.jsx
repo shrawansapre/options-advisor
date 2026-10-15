@@ -135,10 +135,7 @@ export default function App() {
             </button>
             {user ? (
               <button className="avatar-btn" ref={avatarRef} onClick={openUserMenu}>
-                {user.user_metadata?.avatar_url
-                  ? <img src={user.user_metadata.avatar_url} alt="" className="avatar-img" />
-                  : <span className="avatar-initials">{(user.email?.[0] ?? "?").toUpperCase()}</span>
-                }
+                <span className="avatar-initials">{(user.email?.[0] ?? "?").toUpperCase()}</span>
               </button>
             ) : (
               <button className="signin-btn" onClick={() => setShowAuth(true)}>Sign in</button>

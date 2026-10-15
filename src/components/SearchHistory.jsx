@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useOutsideClick } from "../hooks/useOutsideClick";
 import { motion, AnimatePresence } from "framer-motion";
 import { History, ChevronRight, X } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { clearRemoteHistory, importHistory, insertHistory, listHistory, updateHistory } from "../lib/account";
 import { useAuth } from "./AuthContext";
 
 export function useSearchHistory() {
@@ -19,51 +19,27 @@ export function useSearchHistory() {
     catch { setHistory([]); }
   }, [user]);
 
-  // Load from Supabase when signed in
+  // Load cloud history when signed in, and move any guest history up with it.
   useEffect(() => {
-    if (!user || !supabase) return;
-    supabase
-      .from("analyses")
-      .select("id, ticker, strategy, strategy_type, result_json, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data }) => {
-        if (!data) return;
-        const rows = data.map(r => ({
-          id: r.id,
-          ticker: r.ticker || "",
-          ts: r.created_at,
-          strategy: r.strategy || "",
-          strategyType: r.strategy_type || "neutral",
-          confidenceScore: r.result_json?.trades?.[0]?.summary?.confidenceScore ?? 0,
-          result: r.result_json,
-        }));
-        setHistory(rows);
-      });
-  }, [user]);
-
-  // Migrate localStorage → Supabase on first sign-in
-  useEffect(() => {
-    if (!user || !supabase) return;
-    const local = (() => {
-      try { return JSON.parse(localStorage.getItem("oa-history") || "[]"); }
-      catch { return []; }
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const local = (() => {
+        try { return JSON.parse(localStorage.getItem("oa-history") || "[]"); }
+        catch { return []; }
+      })();
+      if (local.length) {
+        const imported = await importHistory(local);
+        if (imported) {
+          try { localStorage.removeItem("oa-history"); } catch { /* ignore */ }
+          if (!cancelled) setHistory(imported);
+          return;
+        }
+      }
+      const rows = await listHistory();
+      if (!cancelled && rows) setHistory(rows);
     })();
-    if (!local.length) return;
-
-    const rows = local.map(h => ({
-      user_id: user.id,
-      ticker: h.ticker || "",
-      strategy: h.strategy || "",
-      strategy_type: h.strategyType || "neutral",
-      result_json: h.result ?? null,
-      created_at: h.ts,
-    }));
-
-    supabase.from("analyses").insert(rows).then(() => {
-      localStorage.removeItem("oa-history");
-    });
+    return () => { cancelled = true; };
   }, [user]);
 
   async function addEntry(ticker, trade, fullResult) {
@@ -77,15 +53,18 @@ export function useSearchHistory() {
       result: fullResult ?? null,
     };
 
-    if (user && supabase) {
-      const { data } = await supabase.from("analyses").insert({
-        user_id: user.id,
+    if (user) {
+      const saved = await insertHistory({
         ticker: entry.ticker,
         strategy: entry.strategy,
-        strategy_type: entry.strategyType,
-        result_json: fullResult ?? null,
-      }).select("id").single();
-      if (data) entry.id = data.id;
+        strategyType: entry.strategyType,
+        result: fullResult ?? null,
+        ts: entry.ts,
+      });
+      if (saved) {
+        entry.id = saved.id;
+        entry.ts = saved.ts;
+      }
     }
 
     const next = [entry, ...history].slice(0, 20);
@@ -103,8 +82,8 @@ export function useSearchHistory() {
     const next = [...history];
     next[idx] = updated;
     setHistory(next);
-    if (user && supabase) {
-      await supabase.from("analyses").update({ result_json: updated.result }).eq("id", updated.id);
+    if (user) {
+      await updateHistory(updated.id, updated.result);
     } else {
       try { localStorage.setItem("oa-history", JSON.stringify(next)); } catch (_) {}
     }
@@ -112,8 +91,8 @@ export function useSearchHistory() {
 
   async function clearHistory() {
     setHistory([]);
-    if (user && supabase) {
-      await supabase.from("analyses").delete().eq("user_id", user.id);
+    if (user) {
+      await clearRemoteHistory();
     } else {
       try { localStorage.removeItem("oa-history"); } catch (_) {}
     }
