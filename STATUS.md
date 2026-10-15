@@ -2,6 +2,8 @@
 
 ## Recently Completed
 
+- **Cloudflare agent setup** — project MCP server registered at `.cursor/mcp.json` (`https://mcp.cloudflare.com/mcp`); Cloudflare skills installed globally for Cursor.
+
 - **Unusual Options Scanner** — new `/scanner` route; Worker `chain=full` mode (7–120 DTE, strikeLimit=20, no delta filter); `useOptionsChain` hook with AbortController; `unusualSignals.js` pure functions (findUnusualContracts, callPutRatio, flowSentiment, unusualTilt); Scanner page shell + ScannerInput (collapsible filters) + ScannerSummary (price/IV/C/P ratio) + sortable UnusualTable + expandable ContractRow; `scanner.css` with responsive breakpoints + dark mode; sentiment tokens (`--bullish`, `--bearish`, `--neutral`) in `app.css`; 10 commits to main, deployed to Vercel. Worker deploy still pending (manual step).
 
 - **Whole-codebase simplify** — added `STRATEGY_LABEL` + `formatStrike` to `utils.jsx`; fixed live `ReferenceError` (missing `TIER_LABEL` import in `DesktopComparisonTable`); replaced inline delta formatting in `TradeCard` with `formatDelta()`; replaced 3-deep `strategyType` ternary in all 3 snapshot divs with `STRATEGY_LABEL[]`; replaced duplicated `isSpread`/`strikeDisplay` logic in 3 components with `formatStrike()`; extracted `useOutsideClick` hook (`src/hooks/`) — used by `ShareMenu` + `SearchHistory`; removed dead `useEffect` in `ChecklistSection` (duplicated `useState` initializer); `claude.js`: `scrubbed` thunk → const (was evaluated twice); `extractReadableStrings` scan now skipped when `onProgress` is null (eliminates O(n²) work on Strategist/Critic SSE streams)
