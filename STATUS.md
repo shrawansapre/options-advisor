@@ -1,6 +1,25 @@
 # Status
 
+## Next Session — Action Required (you)
+
+Before the Discover dashboard can be tested end-to-end, complete these account-side steps (full instructions in `docs/superpowers/plans/2026-05-30-discover-dashboard-phase1.md` Task 0):
+
+1. **Create staging KV namespace** — `npx wrangler kv namespace create MARKET_CACHE --env staging` → paste the id into `worker/wrangler.toml` replacing `REPLACE_WITH_STAGING_KV_ID`
+2. **Set staging secrets** (distinct values, NOT prod's) — `npx wrangler secret put ANTHROPIC_API_KEY --env staging` / `MARKET_DATA_TOKEN` / `INTERNAL_TOKEN` (generate with `openssl rand -hex 24`)
+3. **Deploy staging worker** — `npx wrangler deploy --env staging` → live at `https://api-staging.optionsbrief.workers.dev`
+4. **Push branch for Vercel preview** — `git push origin feat/discover-dashboard` (already pushed — Vercel should have auto-built a preview URL; copy it)
+5. **Set Vercel Preview env vars** — `VITE_API_BASE=https://api-staging.optionsbrief.workers.dev` and `VITE_INTERNAL_TOKEN=<staging token>` scoped to **Preview only**
+6. **Allow preview origin on staging worker** — paste the Vercel preview URL into `ALLOWED_ORIGIN_EXTRA` in `wrangler.toml`, redeploy staging
+7. **Lock preview behind auth** — Vercel dashboard → Deployment Protection → Preview → require Vercel Authentication
+8. **Commit the filled config** — `git add worker/wrangler.toml && git commit -m "chore(staging): wire staging KV id + preview origin" && git push`
+
+After setup: visit the Vercel preview URL → `/discover` → hit Refresh → confirm leaderboard loads → tap Analyze → confirm analysis runs.
+
+---
+
 ## Recently Completed
+
+- **Session handoff cleanup** — root `AGENTS.md` added with current repo guidance; `STATUS.md` now clearly separates local Discover verification from account-side staging setup.
 
 - **Unusual Options Scanner** — new `/scanner` route; Worker `chain=full` mode (7–120 DTE, strikeLimit=20, no delta filter); `useOptionsChain` hook with AbortController; `unusualSignals.js` pure functions (findUnusualContracts, callPutRatio, flowSentiment, unusualTilt); Scanner page shell + ScannerInput (collapsible filters) + ScannerSummary (price/IV/C/P ratio) + sortable UnusualTable + expandable ContractRow; `scanner.css` with responsive breakpoints + dark mode; sentiment tokens (`--bullish`, `--bearish`, `--neutral`) in `app.css`; 10 commits to main, deployed to Vercel. Worker deploy still pending (manual step).
 
@@ -97,6 +116,10 @@
 - **Copy audit (14 fixes)** — "Analysed"→"Analyzed"; "Educational purposes only"→"Not financial advice"; "Recent analyses"→"Recent searches"; auth modal title+subtitle improved; scanner subtitle clarified; placeholder standardized; filter labels "Min |Δ|"→"Delta min/max"; summary sub-labels clarified; loading "Fetching chain"→"Loading…options chain"; insight jargon reduced; empty-table CTA "Lower thresholds"→"Show more contracts"
 
 - **Scanner ticker state bug** — `setTicker`/`setData(null)` moved to top of `scan()` — stale ticker name no longer shown during second-ticker loading
+
+- **AI pipeline refactor (main)** — Strategist now designs full trade from scratch (Haiku no longer pre-selects structures); per-tier structural guidance injected in user message; Critic upgraded Haiku→Sonnet; extended thinking enabled on Strategist (1500 tokens, live-data path only); `callAPI` gains `thinkingBudget` param; `greeksNote` removed from orchestrator; fixes moderate>aggressive ordering inversion at root cause
+
+- **Discover Dashboard Phase 1 (branch: feat/discover-dashboard)** — `Discover → Analyze` loop implemented and locally verified. New: `/discover` route with market-wide unusual-activity leaderboard (manual Refresh + lazy KV cache); universe sweep of ~40 tickers; Tier-1 signals (dollar volume, prob ITM, expected move, spread cost, net premium); sortable desktop table + mobile card list; ticker search preserved; Analyze→ handoff from any print; day-long analysis cache (`/analysis-cache` GET/PUT) cuts repeat analyses to zero cost; `src/lib/signals.js` pure math with full vitest coverage (22 tests); staging isolation scaffolding committed (separate KV, CORS allow-one-origin, wrangler `[env.staging]`). **Awaiting Task 0 account-side setup before end-to-end testing** (see Next Session above).
 
 ## Known Issues / Next Up
 
